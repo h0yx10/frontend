@@ -1,0 +1,32 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+  (click)="onBackdropClick()"
+>
+  <div
+    class="w-full rounded-2xl border border-border bg-surface-raised shadow-modal"
+    [class.max-w-md]="size() === 'sm'"
+    [class.max-w-xl]="size() === 'md'"
+    [class.max-w-3xl]="size() === 'lg'"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="titleId()"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+    (click)="$event.stopPropagation()"
+  >
+    <header class="flex items-center justify-between border-b border-border px-6 py-4">
+      <h2 [id]="titleId()" class="text-lg font-bold text-ink">{{ heading() }}</h2>
+      <button
+        type="button"
+        class="rounded-full p-1.5 text-muted transition hover:bg-surface hover:text-ink"
+        aria-label="Cerrar"
+        (click)="closed.emit()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+    <div class="max-h-[75vh] overflow-y-auto px-6 py-5">
+      <ng-content />
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+@if (subtask(); as subtask) {
+  <app-modal titleId="postpone-dialog-title" heading="Posponer gestión" size="sm" (closed)="closed.emit()">
+    <p class="text-sm text-muted">
+      «{{ subtask.name }}» quedará marcada como pospuesta. Puedes anotar el motivo para
+      recordarlo después.
+    </p>
+
+    <div class="mt-4">
+      <label for="postpone-note" class="mb-1.5 block text-sm font-medium text-ink">
+        Nota (opcional)
+      </label>
+      <textarea
+        id="postpone-note"
+        rows="3"
+        placeholder="Ej. Esperando confirmación de salón"
+        [(ngModel)]="note"
+        class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+      ></textarea>
+    </div>
+
+    <div class="mt-6 flex justify-end gap-3">
+      <button
+        type="button"
+        class="rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface"
+        (click)="closed.emit()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="rounded-full bg-warning px-4 py-2 text-sm font-semibold text-canvas transition hover:opacity-90 disabled:opacity-60"
+        [disabled]="saving()"
+        (click)="confirm()"
+      >
+        {{ saving() ? 'Guardando…' : 'Confirmar' }}
+      </button>
+    </div>
+  </app-modal>
+}

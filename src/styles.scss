@@ -1,0 +1,103 @@
+@use '@angular/material' as mat;
+@use './styles/variables';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Material+Icons&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+$app-primary: mat.define-palette(mat.$indigo-palette, 500);
+$app-accent: mat.define-palette(mat.$indigo-palette, 300);
+$app-warn: mat.define-palette(mat.$red-palette, 400);
+$app-theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: $app-primary,
+      accent: $app-accent,
+      warn: $app-warn
+    ),
+    typography: mat.define-typography-config(
+      $font-family: 'Inter, sans-serif'
+    ),
+    density: 0
+  )
+);
+
+@include mat.core();
+@include mat.all-component-themes($app-theme);
+
+@layer base {
+  html {
+    @apply min-h-full;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply min-h-full bg-canvas font-sans text-ink antialiased;
+    margin: 0;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:not(.mat-mdc-input-element):focus-visible,
+  textarea:not(.mat-mdc-input-element):focus-visible,
+  select:not(.mat-mdc-select-trigger):focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-canvas;
+  }
+
+  .mat-mdc-input-element:focus-visible,
+  .mat-mdc-select-trigger:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+// Compatibilidad entre Angular Material MDC y Tailwind Preflight.
+// Estas reglas deben permanecer fuera de @layer para que Tailwind no las purgue.
+.mat-mdc-form-field .mdc-notched-outline__notch {
+  border-right: 0 !important;
+}
+
+.mat-mdc-form-field {
+  min-width: 0;
+}
+
+.search-form-field {
+  --mdc-outlined-text-field-container-shape: 1rem;
+}
+
+.mat-mdc-form-field-icon-prefix {
+  padding: 0 0.75rem 0 0 !important;
+  color: var(--color-muted);
+}
+
+.app-select-panel.mat-mdc-select-panel {
+  margin-top: 0.5rem;
+  padding: 0.5rem !important;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem !important;
+  background: var(--color-surface-raised);
+  box-shadow: 0 16px 36px rgb(0 0 0 / 40%);
+}
+
+.app-select-panel .mat-mdc-option {
+  min-height: 2.75rem;
+  border-radius: 0.5rem;
+}
+
+.app-select-panel .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background: var(--color-surface);
+}
+
+.app-select-panel .mat-mdc-option.mdc-list-item--selected {
+  background: rgb(99 102 241 / 20%);
+}

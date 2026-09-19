@@ -1,0 +1,166 @@
+<div class="flex min-h-screen bg-canvas text-ink">
+  <!-- Left panel -->
+  <aside class="relative hidden w-1/2 flex-col justify-between overflow-hidden border-r border-border px-16 py-14 lg:flex">
+    <span class="pointer-events-none absolute left-[38%] top-[12%] size-1.5 rounded-full bg-primary" aria-hidden="true"></span>
+    <span class="pointer-events-none absolute left-[42%] top-[34%] size-1.5 rounded-full bg-success" aria-hidden="true"></span>
+    <span class="pointer-events-none absolute left-[40%] top-[76%] size-1.5 rounded-full bg-primary" aria-hidden="true"></span>
+
+    <div class="flex items-center gap-2.5">
+      <span class="flex size-9 items-center justify-center rounded-xl bg-primary text-white">
+        <mat-icon class="text-[20px]">check</mat-icon>
+      </span>
+      <div>
+        <p class="text-sm font-bold leading-tight text-ink">Eventia</p>
+        <p class="font-mono text-[10px] font-medium uppercase tracking-widest text-muted">
+          Logistics command
+        </p>
+      </div>
+    </div>
+
+    <div class="max-w-md">
+      <span class="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-widest text-success">
+        <span class="size-1.5 rounded-full bg-success"></span>
+        Sistema operativo
+      </span>
+      <h1 class="mt-5 text-4xl font-extrabold leading-tight text-ink">
+        Control total de tu logística de eventos.
+      </h1>
+      <p class="mt-4 text-sm leading-relaxed text-muted">
+        Planifica, reprograma ante imprevistos y sigue el avance de cada evento en tiempo real.
+        La vista "Hoy" te dice exactamente qué requiere atención inmediata.
+      </p>
+    </div>
+
+    <p class="font-mono text-[11px] tracking-wide text-muted">
+      750018C · PROYECTO INTEGRADOR I · 2026-II
+    </p>
+  </aside>
+
+  <!-- Right panel -->
+  <div class="flex flex-1 items-center justify-center px-6 py-14 sm:px-10">
+    <div class="w-full max-w-sm">
+      <div class="mb-8 flex items-center gap-2.5 lg:hidden">
+        <span class="flex size-9 items-center justify-center rounded-xl bg-primary text-white">
+          <mat-icon class="text-[20px]">check</mat-icon>
+        </span>
+        <div>
+          <p class="text-sm font-bold leading-tight text-ink">Eventia</p>
+          <p class="font-mono text-[10px] font-medium uppercase tracking-widest text-muted">
+            Logistics command
+          </p>
+        </div>
+      </div>
+
+      <h2 class="text-2xl font-bold text-ink">
+        {{ mode() === 'login' ? 'Inicia sesión' : 'Crea tu cuenta' }}
+      </h2>
+      <p class="mt-1 text-sm text-muted">
+        {{
+          mode() === 'login'
+            ? 'Accede a tus eventos, planes y reprogramaciones.'
+            : 'Empieza a planificar la logística de tus eventos.'
+        }}
+      </p>
+
+      <form class="mt-7 space-y-5" (ngSubmit)="submit()" novalidate>
+        @if (mode() === 'register') {
+          <div>
+            <label for="name" class="mb-1.5 block text-sm font-medium text-ink">Nombre</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              [(ngModel)]="name"
+              class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink"
+              [class.border-danger]="fieldErrors()['name']"
+            />
+            @if (fieldErrors()['name']) {
+              <p class="mt-1 text-xs text-danger">{{ fieldErrors()['name'] }}</p>
+            }
+          </div>
+        }
+
+        <div>
+          <label for="email" class="mb-1.5 block text-sm font-medium text-ink">Correo electrónico</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            placeholder="tu@correo.com"
+            required
+            [(ngModel)]="email"
+            class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/60"
+            [class.border-danger]="fieldErrors()['email']"
+          />
+          @if (fieldErrors()['email']) {
+            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['email'] }}</p>
+          }
+        </div>
+
+        <div>
+          <div class="mb-1.5 flex items-center justify-between">
+            <label for="password" class="block text-sm font-medium text-ink">Contraseña</label>
+            @if (mode() === 'login') {
+              <a href="#" class="text-xs font-medium text-accent hover:underline" (click)="$event.preventDefault()">
+                ¿Olvidaste tu contraseña?
+              </a>
+            }
+          </div>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            [(ngModel)]="password"
+            class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink"
+            [class.border-danger]="fieldErrors()['password']"
+          />
+          @if (fieldErrors()['password']) {
+            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['password'] }}</p>
+          }
+        </div>
+
+        @if (error()) {
+          <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+        }
+
+        <button
+          type="submit"
+          class="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
+          [disabled]="loading()"
+        >
+          {{ loading() ? 'Procesando…' : mode() === 'login' ? 'Iniciar sesión' : 'Crear cuenta' }}
+        </button>
+      </form>
+
+      <div class="my-5 flex items-center gap-3">
+        <span class="h-px flex-1 bg-border"></span>
+        <span class="text-xs text-muted">o</span>
+        <span class="h-px flex-1 bg-border"></span>
+      </div>
+
+      <button
+        type="button"
+        class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface-raised disabled:opacity-60"
+        [disabled]="demoLoading()"
+        (click)="continueAsDemo()"
+      >
+        {{ demoLoading() ? 'Ingresando…' : 'Continuar con usuario demo' }}
+      </button>
+      <p class="mt-2 text-center text-xs text-muted">
+        Disponible en Sprint 0–1, sin necesidad de cuenta.
+      </p>
+
+      <button
+        type="button"
+        class="mt-6 w-full text-center text-sm font-medium text-accent hover:underline"
+        (click)="toggleMode()"
+      >
+        {{ mode() === 'login' ? '¿No tienes cuenta? Crear una' : '¿Ya tienes cuenta? Inicia sesión' }}
+      </button>
+    </div>
+  </div>
+</div>

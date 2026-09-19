@@ -1,0 +1,48 @@
+<div class="mx-auto max-w-4xl">
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-ink">Progreso y configuración</h1>
+    <p class="mt-1 text-sm text-muted">
+      Revisa el avance de preparación de tus eventos y tu capacidad diaria de trabajo.
+    </p>
+  </header>
+
+  <section class="mb-8">
+    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-base font-bold text-ink">Preparación por evento</h2>
+      <input
+        type="search"
+        placeholder="Buscar evento por nombre…"
+        [(ngModel)]="query"
+        (ngModelChange)="onQueryChange($event)"
+        class="w-full max-w-xs rounded-xl border border-border bg-surface px-3.5 py-2 text-sm text-ink"
+      />
+    </div>
+
+    @if (store.loading()) {
+      <p class="text-sm text-muted" role="status">Cargando eventos…</p>
+    } @else if (store.error()) {
+      <app-error-state [message]="store.error()" (retry)="store.load(query)" />
+    } @else if (store.count() === 0) {
+      <app-empty-state
+        icon="event_busy"
+        title="Aún no tienes eventos"
+        message="Crea tu primer evento para empezar a planificar la logística."
+      >
+        <a
+          routerLink="/crear"
+          class="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+        >
+          Crear evento
+        </a>
+      </app-empty-state>
+    } @else {
+      <div class="space-y-4">
+        @for (event of store.events(); track event.id) {
+          <app-event-card [event]="event" />
+        }
+      </div>
+    }
+  </section>
+
+  <app-capacity-settings />
+</div>

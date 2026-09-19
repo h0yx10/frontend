@@ -1,0 +1,9 @@
+<div class="rounded-2xl border border-border bg-surface p-4">
+  <p class="font-mono text-[11px] font-semibold uppercase tracking-widest text-muted">
+    {{ label() }}
+  </p>
+  <p class="mt-2 text-3xl font-extrabold" [class]="valueClass()">{{ value() }}</p>
+  @if (hint()) {
+    <p class="mt-1 text-xs text-muted">{{ hint() }}</p>
+  }
+</div>

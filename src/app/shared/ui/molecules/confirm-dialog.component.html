@@ -1,0 +1,23 @@
+<app-modal titleId="confirm-dialog-title" [heading]="heading()" size="sm" (closed)="cancelled.emit()">
+  <p class="text-sm text-muted">{{ message() }}</p>
+
+  <div class="mt-6 flex justify-end gap-3">
+    <button
+      type="button"
+      class="rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface"
+      (click)="cancelled.emit()"
+    >
+      {{ cancelLabel() }}
+    </button>
+    <button
+      type="button"
+      class="rounded-full px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-60"
+      [class.bg-danger]="danger()"
+      [class.bg-primary]="!danger()"
+      [disabled]="busy()"
+      (click)="confirmed.emit()"
+    >
+      {{ busy() ? 'Procesando…' : confirmLabel() }}
+    </button>
+  </div>
+</app-modal>

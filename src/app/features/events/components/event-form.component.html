@@ -1,0 +1,118 @@
+<form class="space-y-4" (ngSubmit)="submit()" novalidate>
+  <div>
+    <label for="event-name" class="mb-1.5 block text-sm font-medium text-ink">
+      Nombre del evento <span class="text-danger">*</span>
+    </label>
+    <input
+      id="event-name"
+      name="name"
+      type="text"
+      required
+      placeholder="Ej. Torneo Deportivo"
+      [(ngModel)]="name"
+      class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+      [class.border-danger]="fieldErrors()['name']"
+      [attr.aria-invalid]="!!fieldErrors()['name']"
+      [attr.aria-describedby]="fieldErrors()['name'] ? 'event-name-error' : null"
+    />
+    @if (fieldErrors()['name']) {
+      <p id="event-name-error" class="mt-1 text-xs text-danger">{{ fieldErrors()['name'] }}</p>
+    }
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label for="event-type" class="mb-1.5 block text-sm font-medium text-ink">
+        Tipo <span class="text-danger">*</span>
+      </label>
+      <input
+        id="event-type"
+        name="type"
+        type="text"
+        list="event-type-suggestions"
+        required
+        placeholder="Ej. Deportivo"
+        [(ngModel)]="type"
+        class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+        [class.border-danger]="fieldErrors()['type']"
+        [attr.aria-invalid]="!!fieldErrors()['type']"
+      />
+      <datalist id="event-type-suggestions">
+        @for (suggestion of typeSuggestions; track suggestion) {
+          <option [value]="suggestion"></option>
+        }
+      </datalist>
+      @if (fieldErrors()['type']) {
+        <p class="mt-1 text-xs text-danger">{{ fieldErrors()['type'] }}</p>
+      }
+    </div>
+
+    <div>
+      <label for="event-contact" class="mb-1.5 block text-sm font-medium text-ink">
+        Cliente / contacto
+      </label>
+      <input
+        id="event-contact"
+        name="contact"
+        type="text"
+        placeholder="Ej. Liga Municipal"
+        [(ngModel)]="contact"
+        class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+      />
+    </div>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label for="event-datetime" class="mb-1.5 block text-sm font-medium text-ink">
+        Fecha y hora <span class="text-danger">*</span>
+      </label>
+      <input
+        id="event-datetime"
+        name="datetime"
+        type="datetime-local"
+        required
+        [(ngModel)]="datetime"
+        class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+        [class.border-danger]="fieldErrors()['datetime']"
+        [attr.aria-invalid]="!!fieldErrors()['datetime']"
+      />
+      @if (fieldErrors()['datetime']) {
+        <p class="mt-1 text-xs text-danger">{{ fieldErrors()['datetime'] }}</p>
+      }
+    </div>
+
+    <div>
+      <label for="event-place" class="mb-1.5 block text-sm font-medium text-ink">
+        Lugar / plazo límite
+      </label>
+      <input
+        id="event-place"
+        name="place"
+        type="text"
+        placeholder="Ej. Coliseo Municipal"
+        [(ngModel)]="place"
+        class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+      />
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-3 pt-2">
+    @if (showCancel()) {
+      <button
+        type="button"
+        class="rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface"
+        (click)="cancel.emit()"
+      >
+        Cancelar
+      </button>
+    }
+    <button
+      type="submit"
+      class="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
+      [disabled]="saving()"
+    >
+      {{ saving() ? 'Guardando…' : submitLabel() }}
+    </button>
+  </div>
+</form>

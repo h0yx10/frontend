@@ -1,0 +1,26 @@
+<section>
+  <div class="mb-3 flex items-center gap-2">
+    <span class="size-2 rounded-full" [class]="dotClass()"></span>
+    <h3 class="font-mono text-xs font-bold uppercase tracking-widest text-ink">{{ heading() }}</h3>
+    <span class="font-mono text-xs text-muted">{{ countLabel() }}</span>
+  </div>
+
+  @if (items().length) {
+    <div class="space-y-3">
+      @for (item of items(); track item.id) {
+        <app-subtask-item
+          [subtask]="item"
+          (markDone)="markDone.emit($event)"
+          (postpone)="postpone.emit($event)"
+          (reschedule)="reschedule.emit($event)"
+          (edit)="edit.emit($event)"
+          (remove)="remove.emit($event)"
+        />
+      }
+    </div>
+  } @else {
+    <p class="rounded-xl border border-dashed border-border bg-surface/50 px-4 py-6 text-center text-xs text-muted">
+      {{ emptyMessage() }}
+    </p>
+  }
+</section>

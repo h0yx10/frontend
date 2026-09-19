@@ -1,0 +1,85 @@
+@if (open()) {
+  <app-modal titleId="subtask-form-title" [heading]="heading" size="sm" (closed)="closed.emit()">
+    <form class="space-y-4" (ngSubmit)="submit()" novalidate>
+      <div>
+        <label for="subtask-name" class="mb-1.5 block text-sm font-medium text-ink">
+          Nombre <span class="text-danger">*</span>
+        </label>
+        <input
+          id="subtask-name"
+          name="name"
+          type="text"
+          required
+          placeholder="Ej. Reservar salón"
+          [(ngModel)]="name"
+          class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+          [class.border-danger]="store.subtaskFieldErrors()['name']"
+        />
+        @if (store.subtaskFieldErrors()['name']) {
+          <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['name'] }}</p>
+        }
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="subtask-date" class="mb-1.5 block text-sm font-medium text-ink">
+            Plazo <span class="text-danger">*</span>
+          </label>
+          <input
+            id="subtask-date"
+            name="targetDate"
+            type="date"
+            required
+            [(ngModel)]="targetDate"
+            class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+            [class.border-danger]="store.subtaskFieldErrors()['targetDate']"
+          />
+          @if (store.subtaskFieldErrors()['targetDate']) {
+            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['targetDate'] }}</p>
+          }
+        </div>
+
+        <div>
+          <label for="subtask-hours" class="mb-1.5 block text-sm font-medium text-ink">
+            Horas estimadas <span class="text-danger">*</span>
+          </label>
+          <input
+            id="subtask-hours"
+            name="estimatedHours"
+            type="number"
+            min="0.5"
+            step="0.5"
+            required
+            [(ngModel)]="estimatedHours"
+            class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+            [class.border-danger]="store.subtaskFieldErrors()['estimatedHours']"
+          />
+          @if (store.subtaskFieldErrors()['estimatedHours']) {
+            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['estimatedHours'] }}</p>
+          }
+        </div>
+      </div>
+
+      @if (store.error()) {
+        <p class="text-sm text-danger" role="alert">{{ store.error() }}</p>
+      }
+
+      <div class="flex justify-end gap-3 pt-2">
+        <button
+          type="button"
+          class="rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface"
+          (click)="closed.emit()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
+          [disabled]="store.saving()"
+        >
+          {{ store.saving() ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}

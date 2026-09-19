@@ -1,0 +1,33 @@
+$color-primary: #6366f1;
+$color-primary-dark: #4f46e5;
+$color-accent: #818cf8;
+$color-canvas: #06070d;
+$color-surface: #0d0f1a;
+$color-surface-raised: #141726;
+$color-ink: #f4f5f9;
+$color-muted: #8992a9;
+$color-border: #1f2333;
+$color-danger: #f87171;
+$color-danger-soft: #2a1519;
+$color-success: #34d399;
+$color-success-soft: #0f2a20;
+$color-warning: #fbbf24;
+$color-warning-soft: #2a2110;
+
+:root {
+  --color-primary: #{$color-primary};
+  --color-primary-dark: #{$color-primary-dark};
+  --color-accent: #{$color-accent};
+  --color-canvas: #{$color-canvas};
+  --color-surface: #{$color-surface};
+  --color-surface-raised: #{$color-surface-raised};
+  --color-ink: #{$color-ink};
+  --color-muted: #{$color-muted};
+  --color-border: #{$color-border};
+  --color-danger: #{$color-danger};
+  --color-danger-soft: #{$color-danger-soft};
+  --color-success: #{$color-success};
+  --color-success-soft: #{$color-success-soft};
+  --color-warning: #{$color-warning};
+  --color-warning-soft: #{$color-warning-soft};
+}

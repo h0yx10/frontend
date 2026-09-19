@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  :host {
+    display: inline-block;
+  }
+}
