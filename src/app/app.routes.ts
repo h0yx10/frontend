@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { authGuard, guestGuard } from './core/auth/auth.guard';
 import { LoginPageComponent } from './features/auth/login-page.component';
+import { ActivitiesPageComponent } from './features/events/activities-page.component';
 import { EventCreatePageComponent } from './features/events/event-create-page.component';
 import { EventDetailPageComponent } from './features/events/event-detail-page.component';
 import { EventsProgressPageComponent } from './features/events/events-progress-page.component';
@@ -26,6 +27,11 @@ export const routes: Routes = [
   {
     path: 'crear',
     component: EventCreatePageComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'actividades',
+    component: ActivitiesPageComponent,
     canActivate: [authGuard]
   },
   {

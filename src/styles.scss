@@ -101,3 +101,9 @@ $app-theme: mat.define-dark-theme(
 .app-select-panel .mat-mdc-option.mdc-list-item--selected {
   background: rgb(99 102 241 / 20%);
 }
+
+.app-snackbar-success {
+  --mdc-snackbar-container-color: var(--color-success-soft);
+  --mdc-snackbar-supporting-text-color: var(--color-success);
+  --mat-snack-bar-button-color: var(--color-success);
+}

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterLink } from '@angular/router';
 
 import { AppHttpError } from '../../core/interceptors/http-error.interceptor';
@@ -23,6 +24,7 @@ interface DraftSubtask {
 export class EventCreatePageComponent {
   private readonly eventsService = inject(EventsService);
   private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly typeSuggestions = EVENT_TYPE_SUGGESTIONS;
   readonly saving = signal(false);
@@ -112,6 +114,10 @@ export class EventCreatePageComponent {
     this.eventsService.create(payload, subtareas).subscribe({
       next: (event) => {
         this.saving.set(false);
+        this.snackBar.open('Actividad creada correctamente', 'Cerrar', {
+          duration: 4000,
+          panelClass: 'app-snackbar-success'
+        });
         this.router.navigate(['/evento', event.id]);
       },
       error: (error: AppHttpError) => {
