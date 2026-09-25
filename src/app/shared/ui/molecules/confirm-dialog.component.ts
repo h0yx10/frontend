@@ -8,6 +8,13 @@ import { ModalComponent } from './modal.component';
   imports: [ModalComponent],
   templateUrl: './confirm-dialog.component.html'
 })
+
+/* 
+        aqui esta el componente de confirmacion,
+         que es un modal que se puede usar para
+          confirmar acciones peligrosas,
+           como eliminar un elemento.
+      */
 export class ConfirmDialogComponent {
   readonly heading = input('¿Confirmar acción?');
   readonly message = input('Esta acción no se puede deshacer.');
