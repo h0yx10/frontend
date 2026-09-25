@@ -65,7 +65,31 @@ export class EventCreatePageComponent {
   }
 
   submit(): void {
+    this.saving.set(true);
+    this.error.set('');
+    this.fieldErrors.set({});
+    
+    const errors: Record<string, string> = {};
+
+    if (!this.name.trim()) {
+      errors['name'] = 'El nombre es obligatorio.';
+    }
+    if (!this.type.trim()) {
+      errors['type'] = 'El tipo es obligatorio.';
+    }
+    if (!this.datetime) {
+      errors['datetime'] = 'La fecha y hora son obligatorias.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      this.fieldErrors.set(errors);
+      this.error.set('Por favor, corrija los errores en el formulario.');
+      this.saving.set(false);
+      return;
+    }
+
     if (!this.validateRows()) {
+      this.saving.set(false);
       return;
     }
 
@@ -84,10 +108,6 @@ export class EventCreatePageComponent {
         fechaObjetivo: row.targetDate,
         horasEstimadas: Number(row.estimatedHours)
       }));
-
-    this.saving.set(true);
-    this.error.set('');
-    this.fieldErrors.set({});
 
     this.eventsService.create(payload, subtareas).subscribe({
       next: (event) => {
