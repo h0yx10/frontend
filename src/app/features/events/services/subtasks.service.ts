@@ -31,6 +31,7 @@ export class SubtasksService {
   create(eventId: string, payload: SubtaskPayload): Observable<Subtask> {
     const body: CreateSubtareaRequestDto = {
       nombre: payload.name,
+      ...(payload.description !== undefined ? { descripcion: payload.description } : {}),
       fechaObjetivo: payload.targetDate,
       horasEstimadas: payload.estimatedHours
     };
@@ -43,6 +44,7 @@ export class SubtasksService {
   update(id: string, payload: SubtaskUpdatePayload): Observable<Subtask> {
     const body: UpdateSubtareaRequestDto = {
       ...(payload.name !== undefined ? { nombre: payload.name } : {}),
+      ...(payload.description !== undefined ? { descripcion: payload.description } : {}),
       ...(payload.targetDate !== undefined ? { fechaObjetivo: payload.targetDate } : {}),
       ...(payload.estimatedHours !== undefined ? { horasEstimadas: payload.estimatedHours } : {})
     };
@@ -69,6 +71,7 @@ export function mapSubtaskFromDto(dto: SubtareaResponseDto, eventName = ''): Sub
     eventId: dto.eventoId,
     eventName,
     name: dto.nombre,
+    description: dto.descripcion,
     targetDate: dto.fechaObjetivo,
     estimatedHours: dto.horasEstimadas,
     status: dto.estado,

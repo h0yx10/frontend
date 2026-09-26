@@ -74,13 +74,13 @@ export class EventCreatePageComponent {
     const errors: Record<string, string> = {};
 
     if (!this.name.trim()) {
-      errors['name'] = 'El nombre es obligatorio.';
+      errors['nombre'] = 'No ingresaste el nombre del evento.';
     }
     if (!this.type.trim()) {
-      errors['type'] = 'El tipo es obligatorio.';
+      errors['tipo'] = 'No ingresaste el tipo de evento.';
     }
     if (!this.datetime) {
-      errors['datetime'] = 'La fecha y hora son obligatorias.';
+      errors['fechaHora'] = 'No ingresaste la fecha y hora del evento.';
     }
 
     if (Object.keys(errors).length > 0) {

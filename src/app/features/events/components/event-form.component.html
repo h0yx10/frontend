@@ -11,12 +11,12 @@
       placeholder="Ej. Torneo Deportivo"
       [(ngModel)]="name"
       class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
-      [class.border-danger]="fieldErrors()['name']"
-      [attr.aria-invalid]="!!fieldErrors()['name']"
-      [attr.aria-describedby]="fieldErrors()['name'] ? 'event-name-error' : null"
+      [class.border-danger]="fieldErrors()['nombre']"
+      [attr.aria-invalid]="!!fieldErrors()['nombre']"
+      [attr.aria-describedby]="fieldErrors()['nombre'] ? 'event-name-error' : null"
     />
-    @if (fieldErrors()['name']) {
-      <p id="event-name-error" class="mt-1 text-xs text-danger">{{ fieldErrors()['name'] }}</p>
+    @if (fieldErrors()['nombre']) {
+      <p id="event-name-error" class="mt-1 text-xs text-danger">{{ fieldErrors()['nombre'] }}</p>
     }
   </div>
 
@@ -34,16 +34,16 @@
         placeholder="Ej. Deportivo"
         [(ngModel)]="type"
         class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
-        [class.border-danger]="fieldErrors()['type']"
-        [attr.aria-invalid]="!!fieldErrors()['type']"
+        [class.border-danger]="fieldErrors()['tipo']"
+        [attr.aria-invalid]="!!fieldErrors()['tipo']"
       />
       <datalist id="event-type-suggestions">
         @for (suggestion of typeSuggestions; track suggestion) {
           <option [value]="suggestion"></option>
         }
       </datalist>
-      @if (fieldErrors()['type']) {
-        <p class="mt-1 text-xs text-danger">{{ fieldErrors()['type'] }}</p>
+      @if (fieldErrors()['tipo']) {
+        <p class="mt-1 text-xs text-danger">{{ fieldErrors()['tipo'] }}</p>
       }
     </div>
 
@@ -74,11 +74,11 @@
         required
         [(ngModel)]="datetime"
         class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
-        [class.border-danger]="fieldErrors()['datetime']"
-        [attr.aria-invalid]="!!fieldErrors()['datetime']"
+        [class.border-danger]="fieldErrors()['fechaHora']"
+        [attr.aria-invalid]="!!fieldErrors()['fechaHora']"
       />
-      @if (fieldErrors()['datetime']) {
-        <p class="mt-1 text-xs text-danger">{{ fieldErrors()['datetime'] }}</p>
+      @if (fieldErrors()['fechaHora']) {
+        <p class="mt-1 text-xs text-danger">{{ fieldErrors()['fechaHora'] }}</p>
       }
     </div>
 

@@ -6,6 +6,7 @@ export interface Subtask {
   /** Sólo se resuelve donde hace falta mostrarlo fuera del detalle del evento (vista Hoy). */
   eventName: string;
   name: string;
+  description: string | null;
   targetDate: string;
   estimatedHours: number;
   status: SubtaskStatus;
@@ -16,12 +17,14 @@ export interface Subtask {
 
 export interface SubtaskPayload {
   name: string;
+  description?: string;
   targetDate: string;
   estimatedHours: number;
 }
 
 export interface SubtaskUpdatePayload {
   name?: string;
+  description?: string;
   targetDate?: string;
   estimatedHours?: number;
 }
@@ -43,6 +46,7 @@ export interface SubtareaResponseDto {
   id: string;
   eventoId: string;
   nombre: string;
+  descripcion: string | null;
   fechaObjetivo: string;
   horasEstimadas: number;
   estado: SubtaskStatus;
@@ -53,12 +57,14 @@ export interface SubtareaResponseDto {
 
 export interface CreateSubtareaRequestDto {
   nombre: string;
+  descripcion?: string;
   fechaObjetivo: string;
   horasEstimadas: number;
 }
 
 export interface UpdateSubtareaRequestDto {
   nombre?: string;
+  descripcion?: string;
   fechaObjetivo?: string;
   horasEstimadas?: number;
 }

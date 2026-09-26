@@ -26,6 +26,9 @@
           Plazo {{ formatIsoDateHuman(subtask().targetDate) }} · {{ subtask().estimatedHours }} h estimadas
         </p>
       }
+      @if (subtask().description) {
+        <p class="mt-1.5 text-xs text-muted">{{ subtask().description }}</p>
+      }
     </div>
 
     <div class="flex shrink-0 gap-1">

@@ -3,7 +3,7 @@
     <form class="space-y-4" (ngSubmit)="submit()" novalidate>
       <div>
         <label for="subtask-name" class="mb-1.5 block text-sm font-medium text-ink">
-          Nombre <span class="text-danger">*</span>
+          Título <span class="text-danger">*</span>
         </label>
         <input
           id="subtask-name"
@@ -13,17 +13,32 @@
           placeholder="Ej. Reservar salón"
           [(ngModel)]="name"
           class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
-          [class.border-danger]="store.subtaskFieldErrors()['name']"
+          [class.border-danger]="store.subtaskFieldErrors()['nombre']"
+          [attr.aria-invalid]="!!store.subtaskFieldErrors()['nombre']"
         />
-        @if (store.subtaskFieldErrors()['name']) {
-          <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['name'] }}</p>
+        @if (store.subtaskFieldErrors()['nombre']) {
+          <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['nombre'] }}</p>
         }
+      </div>
+
+      <div>
+        <label for="subtask-description" class="mb-1.5 block text-sm font-medium text-ink">
+          Descripción <span class="text-muted">(opcional)</span>
+        </label>
+        <textarea
+          id="subtask-description"
+          name="description"
+          rows="3"
+          placeholder="Agrega una descripción…"
+          [(ngModel)]="description"
+          class="w-full resize-none rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+        ></textarea>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
           <label for="subtask-date" class="mb-1.5 block text-sm font-medium text-ink">
-            Plazo <span class="text-danger">*</span>
+            Fecha objetivo <span class="text-danger">*</span>
           </label>
           <input
             id="subtask-date"
@@ -32,10 +47,11 @@
             required
             [(ngModel)]="targetDate"
             class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
-            [class.border-danger]="store.subtaskFieldErrors()['targetDate']"
+            [class.border-danger]="store.subtaskFieldErrors()['fechaObjetivo']"
+            [attr.aria-invalid]="!!store.subtaskFieldErrors()['fechaObjetivo']"
           />
-          @if (store.subtaskFieldErrors()['targetDate']) {
-            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['targetDate'] }}</p>
+          @if (store.subtaskFieldErrors()['fechaObjetivo']) {
+            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['fechaObjetivo'] }}</p>
           }
         </div>
 
@@ -52,10 +68,11 @@
             required
             [(ngModel)]="estimatedHours"
             class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
-            [class.border-danger]="store.subtaskFieldErrors()['estimatedHours']"
+            [class.border-danger]="store.subtaskFieldErrors()['horasEstimadas']"
+            [attr.aria-invalid]="!!store.subtaskFieldErrors()['horasEstimadas']"
           />
-          @if (store.subtaskFieldErrors()['estimatedHours']) {
-            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['estimatedHours'] }}</p>
+          @if (store.subtaskFieldErrors()['horasEstimadas']) {
+            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['horasEstimadas'] }}</p>
           }
         </div>
       </div>

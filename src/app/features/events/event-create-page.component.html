@@ -24,10 +24,10 @@
             placeholder="Ej. Boda Camila & Andrés"
             [(ngModel)]="name"
             class="w-full rounded-xl border border-border bg-canvas px-3.5 py-2.5 text-sm text-ink"
-            [class.border-danger]="fieldErrors()['name']"
+            [class.border-danger]="fieldErrors()['nombre']"
           />
-          @if (fieldErrors()['name']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['name'] }}</p>
+          @if (fieldErrors()['nombre']) {
+            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['nombre'] }}</p>
           }
         </div>
 
@@ -44,15 +44,15 @@
             placeholder="Selecciona un tipo…"
             [(ngModel)]="type"
             class="w-full rounded-xl border border-border bg-canvas px-3.5 py-2.5 text-sm text-ink"
-            [class.border-danger]="fieldErrors()['type']"
+            [class.border-danger]="fieldErrors()['tipo']"
           />
           <datalist id="event-type-suggestions">
             @for (suggestion of typeSuggestions; track suggestion) {
               <option [value]="suggestion"></option>
             }
           </datalist>
-          @if (fieldErrors()['type']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['type'] }}</p>
+          @if (fieldErrors()['tipo']) {
+            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['tipo'] }}</p>
           }
         </div>
 
@@ -81,10 +81,10 @@
             required
             [(ngModel)]="datetime"
             class="w-full rounded-xl border border-border bg-canvas px-3.5 py-2.5 text-sm text-ink"
-            [class.border-danger]="fieldErrors()['datetime']"
+            [class.border-danger]="fieldErrors()['fechaHora']"
           />
-          @if (fieldErrors()['datetime']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['datetime'] }}</p>
+          @if (fieldErrors()['fechaHora']) {
+            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['fechaHora'] }}</p>
           }
         </div>
 
