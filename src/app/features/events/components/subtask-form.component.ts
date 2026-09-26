@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, EventEmitter, inject, input, Output } from '@angular/core';
+import { Component, effect, EventEmitter, inject, input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { InfoDialogComponent } from '../../../shared/ui/molecules/info-dialog.component';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
 import { Subtask } from '../models/subtask.model';
 import { EventDetailStore } from '../store/event-detail.store';
@@ -10,15 +10,16 @@ import { EventDetailStore } from '../store/event-detail.store';
 @Component({
   selector: 'app-subtask-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, InfoDialogComponent],
   templateUrl: './subtask-form.component.html'
 })
 export class SubtaskFormComponent {
   readonly store = inject(EventDetailStore);
-  private readonly snackBar = inject(MatSnackBar);
 
   readonly open = input(false);
   readonly editing = input<Subtask | null>(null);
+
+  readonly successInfo = signal<{ heading: string; message: string } | null>(null);
 
   @Output() readonly closed = new EventEmitter<void>();
 
@@ -78,15 +79,25 @@ export class SubtaskFormComponent {
 
     const editing = this.editing();
     if (editing) {
-      this.store.updateSubtask(editing.id, payload, () => this.closed.emit());
+      this.store.updateSubtask(editing.id, payload, () => {
+        this.closed.emit();
+        this.successInfo.set({
+          heading: 'Subtarea actualizada',
+          message: 'La subtarea fue actualizada correctamente.'
+        });
+      });
     } else {
       this.store.addSubtask(payload, () => {
-        this.snackBar.open('Subtarea creada correctamente', 'Cerrar', {
-          duration: 4000,
-          panelClass: 'app-snackbar-success'
-        });
         this.closed.emit();
+        this.successInfo.set({
+          heading: 'Subtarea creada',
+          message: 'La subtarea fue creada correctamente.'
+        });
       });
     }
+  }
+
+  dismissSuccess(): void {
+    this.successInfo.set(null);
   }
 }

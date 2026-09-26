@@ -212,3 +212,11 @@
     </div>
   </form>
 </div>
+
+@if (createdEventId()) {
+  <app-info-dialog
+    heading="Actividad creada"
+    message="La actividad fue creada correctamente."
+    (accepted)="acceptCreated()"
+  />
+}

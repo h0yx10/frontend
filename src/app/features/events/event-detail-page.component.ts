@@ -8,6 +8,7 @@ import { formatDateTimeHuman } from '../../core/utils/date.util';
 import { ConfirmDialogComponent } from '../../shared/ui/molecules/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
 import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
+import { InfoDialogComponent } from '../../shared/ui/molecules/info-dialog.component';
 import { ProgressBarComponent } from '../../shared/ui/atoms/progress-bar.component';
 import { EventFormComponent } from './components/event-form.component';
 import { PostponeDialogComponent } from './components/postpone-dialog.component';
@@ -30,6 +31,7 @@ import { EventDetailStore } from './store/event-detail.store';
     EmptyStateComponent,
     ErrorStateComponent,
     ConfirmDialogComponent,
+    InfoDialogComponent,
     SubtaskColumnComponent,
     SubtaskFormComponent,
     PostponeDialogComponent,
@@ -53,6 +55,7 @@ export class EventDetailPageComponent {
   readonly postponeTarget = signal<Subtask | null>(null);
   readonly rescheduleTarget = signal<Subtask | null>(null);
   readonly deleteSubtaskTarget = signal<Subtask | null>(null);
+  readonly successInfo = signal<{ heading: string; message: string; onAccept?: () => void } | null>(null);
 
   readonly pendingSubtasks = computed(() => this.store.subtasks().filter((s) => s.status === 'PENDING'));
   readonly postponedSubtasks = computed(() => this.store.subtasks().filter((s) => s.status === 'POSTPONED'));
@@ -125,7 +128,14 @@ export class EventDetailPageComponent {
   }
 
   deleteEvent(): void {
-    this.store.deleteEvent(() => this.router.navigate(['/progreso']));
+    this.deleteEventConfirm.set(false);
+    this.store.deleteEvent(() => {
+      this.successInfo.set({
+        heading: 'Evento eliminado',
+        message: 'El evento fue eliminado correctamente.',
+        onAccept: () => this.router.navigate(['/progreso'])
+      });
+    });
   }
 
   openAddSubtask(): void {
@@ -150,8 +160,19 @@ export class EventDetailPageComponent {
   deleteSubtaskConfirmed(): void {
     const subtask = this.deleteSubtaskTarget();
     if (subtask) {
-      this.store.deleteSubtask(subtask.id);
       this.deleteSubtaskTarget.set(null);
+      this.store.deleteSubtask(subtask.id, () => {
+        this.successInfo.set({
+          heading: 'Subtarea eliminada',
+          message: 'La subtarea fue eliminada correctamente.'
+        });
+      });
     }
+  }
+
+  acceptSuccessInfo(): void {
+    const info = this.successInfo();
+    this.successInfo.set(null);
+    info?.onAccept?.();
   }
 }
