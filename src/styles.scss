@@ -101,3 +101,16 @@ $app-theme: mat.define-dark-theme(
 .app-select-panel .mat-mdc-option.mdc-list-item--selected {
   background: rgb(99 102 241 / 20%);
 }
+
+// El contenedor de mat-icon es fijo (24x24); lo hacemos seguir el font-size
+// para que los íconos con text-[Npx] queden centrados junto al texto.
+.mat-icon {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1em !important;
+  height: 1em !important;
+  line-height: 1 !important;
+  vertical-align: middle;
+}

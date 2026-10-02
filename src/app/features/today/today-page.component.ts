@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 
-import { formatIsoDateHuman, todayIsoDate } from '../../core/utils/date.util';
+import { DateBucket, formatDateTimeHuman, formatIsoDateHuman, todayIsoDate } from '../../core/utils/date.util';
 import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
 import { PostponeDialogComponent } from '../events/components/postpone-dialog.component';
@@ -13,21 +12,27 @@ import { Subtask } from '../events/models/subtask.model';
 import { EventsService } from '../events/services/events.service';
 import { RescheduleDialogComponent } from '../events/components/reschedule-dialog.component';
 import { StatCardComponent } from './components/stat-card.component';
-import { TodayGroupComponent } from './components/today-group.component';
+import { TodayItemComponent } from './components/today-item.component';
 import { TodayStore } from './store/today.store';
+
+interface TodayEventGroup {
+  eventId: string;
+  eventName: string;
+  event: EventEntity | undefined;
+  subtasks: Subtask[];
+}
 
 @Component({
   selector: 'app-today-page',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     MatIconModule,
     RouterLink,
     EmptyStateComponent,
     ErrorStateComponent,
     StatCardComponent,
-    TodayGroupComponent,
+    TodayItemComponent,
     RescheduleDialogComponent,
     PostponeDialogComponent
   ],
@@ -44,9 +49,13 @@ export class TodayPageComponent {
 
   readonly todayLabel = this.capitalize(formatIsoDateHuman(todayIsoDate()));
   readonly formatIsoDateHuman = formatIsoDateHuman;
-
-  eventId = '';
-  status = '';
+  readonly formatDateTimeHuman = formatDateTimeHuman;
+  readonly overdueEvents = computed(() => this.groupByEvent(this.store.board().overdue));
+  readonly todayEvents = computed(() => [
+    ...this.groupByEvent(this.store.board().today),
+    ...this.eventsWithoutPendingSubtasks()
+  ]);
+  readonly upcomingEvents = computed(() => this.groupByEvent(this.store.board().upcoming));
 
   constructor() {
     this.store.load();
@@ -59,21 +68,47 @@ export class TodayPageComponent {
 
   get isEmpty(): boolean {
     const board = this.store.board();
-    return board.overdue.length === 0 && board.today.length === 0 && board.upcoming.length === 0;
+    return this.overdueEvents().length === 0 && this.todayEvents().length === 0 && this.upcomingEvents().length === 0;
   }
 
-  get hasActiveFilters(): boolean {
-    return !!this.eventId || !!this.status;
+  private groupByEvent(items: Subtask[]): TodayEventGroup[] {
+    const grouped = new Map<string, TodayEventGroup>();
+
+    for (const subtask of items) {
+      const current = grouped.get(subtask.eventId);
+      if (current) {
+        current.subtasks.push(subtask);
+        continue;
+      }
+
+      grouped.set(subtask.eventId, {
+        eventId: subtask.eventId,
+        eventName: subtask.eventName,
+        event: this.eventOptions().find((event) => event.id === subtask.eventId),
+        subtasks: [subtask]
+      });
+    }
+
+    return Array.from(grouped.values());
   }
 
-  applyFilters(): void {
-    this.store.setFilters({ eventId: this.eventId, status: this.status });
-  }
+  private eventsWithoutPendingSubtasks(): TodayEventGroup[] {
+    const today = todayIsoDate();
+    const activeEventIds = new Set(this.store.board().today.map((subtask) => subtask.eventId));
 
-  clearFilters(): void {
-    this.eventId = '';
-    this.status = '';
-    this.store.clearFilters();
+    return this.eventOptions()
+      .filter(
+        (event) =>
+          event.datetime.slice(0, 10) === today &&
+          !activeEventIds.has(event.id) &&
+          event.progress.done === event.progress.total
+      )
+      .map((event) => ({
+        eventId: event.id,
+        eventName: event.name,
+        event,
+        subtasks: []
+      }));
   }
 
   markDone(subtask: Subtask): void {

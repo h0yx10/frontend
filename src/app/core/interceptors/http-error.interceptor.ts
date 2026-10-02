@@ -24,9 +24,10 @@ export const httpErrorInterceptor: HttpInterceptorFn = (request, next) => {
 
   return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && auth.isAuthenticated()) {
+      // 401 en login/registro = credenciales inválidas: se muestra el mensaje, no se cierra sesión.
+      if (error.status === 401 && !auth.isPublicUrl(request.url) && auth.isAuthenticated()) {
         auth.logout();
-        router.navigate(['/login']);
+        router.navigate(['/login'], { queryParams: { expired: 1 } });
       }
 
       return throwError(() => toAppError(error));
@@ -59,6 +60,10 @@ function toAppError(error: HttpErrorResponse): AppHttpError {
 function getErrorMessage(error: HttpErrorResponse): string {
   if (error.status === 0) {
     return 'No fue posible conectar con el servidor.';
+  }
+
+  if (error.status === 403) {
+    return 'No tienes permisos para realizar esta acción.';
   }
 
   if (error.status === 404) {

@@ -9,8 +9,9 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     return next(request);
   }
 
-  const token = inject(AuthService).token();
-  if (!token) {
+  const auth = inject(AuthService);
+  const token = auth.token();
+  if (!token || auth.isPublicUrl(request.url)) {
     return next(request);
   }
 

@@ -19,7 +19,8 @@ export class AppComponent {
   private readonly capacity = inject(CapacityStore);
 
   readonly isAuthenticated = computed(() => this.auth.isAuthenticated());
-  readonly organizer = computed(() => this.auth.organizer());
+  readonly user = computed(() => this.auth.user());
+  readonly roleLabel = computed(() => (this.auth.hasRole('ADMIN') ? 'Administrador' : 'Organizador'));
   readonly dailyLimitHours = computed(() => this.capacity.dailyLimitHours());
   readonly navOpen = signal(false);
   searchTerm = '';
@@ -42,7 +43,7 @@ export class AppComponent {
   }
 
   get initials(): string {
-    const name = this.organizer()?.name ?? '';
+    const name = this.user()?.name ?? '';
     return name
       .split(' ')
       .map((part) => part.charAt(0))

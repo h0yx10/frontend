@@ -62,21 +62,26 @@
         }}
       </p>
 
-      <form class="mt-7 space-y-5" (ngSubmit)="submit()" novalidate>
+      @if (sessionExpired()) {
+        <p class="mt-5 rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-muted" role="status">
+          Tu sesión expiró. Inicia sesión nuevamente.
+        </p>
+      }
+
+      <form class="mt-7 space-y-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         @if (mode() === 'register') {
           <div>
             <label for="name" class="mb-1.5 block text-sm font-medium text-ink">Nombre</label>
             <input
               id="name"
-              name="name"
               type="text"
-              required
-              [(ngModel)]="name"
+              autocomplete="name"
+              formControlName="name"
               class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink"
-              [class.border-danger]="fieldErrors()['name']"
+              [class.border-danger]="fieldError('name')"
             />
-            @if (fieldErrors()['name']) {
-              <p class="mt-1 text-xs text-danger">{{ fieldErrors()['name'] }}</p>
+            @if (fieldError('name')) {
+              <p class="mt-1 text-xs text-danger">{{ fieldError('name') }}</p>
             }
           </div>
         }
@@ -85,41 +90,32 @@
           <label for="email" class="mb-1.5 block text-sm font-medium text-ink">Correo electrónico</label>
           <input
             id="email"
-            name="email"
             type="email"
             autocomplete="email"
             placeholder="tu@correo.com"
-            required
-            [(ngModel)]="email"
+            formControlName="email"
             class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/60"
-            [class.border-danger]="fieldErrors()['email']"
+            [class.border-danger]="fieldError('email')"
           />
-          @if (fieldErrors()['email']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['email'] }}</p>
+          @if (fieldError('email')) {
+            <p class="mt-1 text-xs text-danger">{{ fieldError('email') }}</p>
           }
         </div>
 
         <div>
-          <div class="mb-1.5 flex items-center justify-between">
-            <label for="password" class="block text-sm font-medium text-ink">Contraseña</label>
-            @if (mode() === 'login') {
-              <a href="#" class="text-xs font-medium text-accent hover:underline" (click)="$event.preventDefault()">
-                ¿Olvidaste tu contraseña?
-              </a>
-            }
-          </div>
+          <label for="password" class="mb-1.5 block text-sm font-medium text-ink">Contraseña</label>
           <input
             id="password"
-            name="password"
             type="password"
-            autocomplete="current-password"
-            required
-            [(ngModel)]="password"
+            [attr.autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'"
+            formControlName="password"
             class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink"
-            [class.border-danger]="fieldErrors()['password']"
+            [class.border-danger]="fieldError('password')"
           />
-          @if (fieldErrors()['password']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['password'] }}</p>
+          @if (fieldError('password')) {
+            <p class="mt-1 text-xs text-danger">{{ fieldError('password') }}</p>
+          } @else if (mode() === 'register') {
+            <p class="mt-1 text-xs text-muted">Mínimo {{ passwordMinLength }} caracteres.</p>
           }
         </div>
 
@@ -135,24 +131,6 @@
           {{ loading() ? 'Procesando…' : mode() === 'login' ? 'Iniciar sesión' : 'Crear cuenta' }}
         </button>
       </form>
-
-      <div class="my-5 flex items-center gap-3">
-        <span class="h-px flex-1 bg-border"></span>
-        <span class="text-xs text-muted">o</span>
-        <span class="h-px flex-1 bg-border"></span>
-      </div>
-
-      <button
-        type="button"
-        class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface-raised disabled:opacity-60"
-        [disabled]="demoLoading()"
-        (click)="continueAsDemo()"
-      >
-        {{ demoLoading() ? 'Ingresando…' : 'Continuar con usuario demo' }}
-      </button>
-      <p class="mt-2 text-center text-xs text-muted">
-        Disponible en Sprint 0–1, sin necesidad de cuenta.
-      </p>
 
       <button
         type="button"
