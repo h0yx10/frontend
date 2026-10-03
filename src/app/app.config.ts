@@ -4,8 +4,8 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { authInterceptor } from './core/auth/auth.interceptor';
-import { AuthService } from './core/auth/auth.service';
+import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
+import { AuthStore } from './core/auth/store/auth.store';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -17,8 +17,8 @@ export const appConfig: ApplicationConfig = {
       // No bloquea el arranque: la sesión guardada se usa de inmediato y `/auth/me` la valida en paralelo.
       provide: APP_INITIALIZER,
       multi: true,
-      deps: [AuthService],
-      useFactory: (auth: AuthService) => () => auth.restoreSession()
+      deps: [AuthStore],
+      useFactory: (auth: AuthStore) => () => auth.restoreSession()
     }
   ]
 };

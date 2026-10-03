@@ -14,6 +14,32 @@ src/app/
 
 Contiene servicios, guards, interceptors y stores que son fundamentales para el funcionamiento de la aplicación. No depende de ninguna otra capa interna.
 
+### Autenticación en `core/auth/`
+
+La autenticación completa vive en `core`, incluidos sus componentes de login, registro
+y cuenta. Se organiza en las siguientes capas:
+
+```text
+core/auth/
+├── models/        # Modelos de sesión, usuario y contratos HTTP
+├── components/    # Login/registro y cuenta, con sus plantillas
+├── services/      # AuthService: peticiones HTTP a /api/auth
+├── store/         # AuthStore: sesión, token, usuario, roles, persistencia y expiración
+├── guards/        # Protección de rutas según sesión y permisos
+└── interceptors/  # Envío del token Bearer
+```
+
+El flujo es `Componente → AuthStore → AuthService → HTTP`. Los guards, interceptores
+y el arranque de la aplicación consultan el store. `AuthService` no conserva estado.
+Los componentes de autenticación pueden importar componentes de UI de `shared/`;
+esta es una excepción explícita a la restricción general de `core/`.
+
+El cierre de sesión usa `POST /api/auth/logout` sin body y con el token Bearer actual.
+`AuthStore.logout()` limpia la sesión en memoria y almacenamiento tras 200 o 401.
+Los errores de red y 500 conservan la sesión y se muestran con una opción de reintento.
+`clearSession()` realiza únicamente la limpieza local ante expiración, sesión inválida
+o eliminación de cuenta, sin enviar otra petición de logout.
+
 ### `shared/` — Componentes y utilidades reutilizables
 
 Contiene componentes UI organizados por Atomic Design y utilidades compartidas. No depende de ninguna otra capa interna.

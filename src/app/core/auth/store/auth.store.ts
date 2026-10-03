@@ -1,31 +1,29 @@
-import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { map, Observable, tap } from 'rxjs';
+import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 
-import { runtimeConfig } from '../config/runtime-config';
-import { ApiResponse } from '../http/api-response.model';
+import { ApiResponse } from '../../http/api-response.model';
 import {
   AuthResponseDto,
   AuthSession,
   LoginPayload,
-  LoginRequestDto,
   RegisterPayload,
-  RegisterRequestDto,
   Role,
   User,
+  UpdateProfileRequestDto,
   UsuarioResponseDto
-} from './auth.model';
+} from '../models/auth.model';
+
+import { AuthService } from '../services/auth.service';
 
 const SESSION_STORAGE_KEY = 'events_planner::session';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
-  private readonly http = inject(HttpClient);
+export class AuthStore {
+  private readonly service = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly url = `${runtimeConfig.apiUrl}/auth`;
 
   private readonly session = signal<AuthSession | null>(this.readStoredSession());
   private expiryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -43,25 +41,15 @@ export class AuthService {
 
   /** Rutas públicas: no llevan `Authorization` y un 401 en ellas no cierra sesión. */
   isPublicUrl(url: string): boolean {
-    return url.startsWith(`${this.url}/login`) || url.startsWith(`${this.url}/register`);
+    return this.service.isPublicUrl(url);
   }
 
   login(payload: LoginPayload): Observable<User> {
-    const body: LoginRequestDto = { correo: payload.email.trim(), password: payload.password };
-    return this.http
-      .post<ApiResponse<AuthResponseDto>>(`${this.url}/login`, body)
-      .pipe(map((response) => this.startSession(response.data)));
+    return this.service.login(payload).pipe(map((response) => this.startSession(response.data)));
   }
 
   register(payload: RegisterPayload): Observable<User> {
-    const body: RegisterRequestDto = {
-      nombre: payload.name.trim(),
-      correo: payload.email.trim(),
-      password: payload.password
-    };
-    return this.http
-      .post<ApiResponse<AuthResponseDto>>(`${this.url}/register`, body)
-      .pipe(map((response) => this.startSession(response.data)));
+    return this.service.register(payload).pipe(map((response) => this.startSession(response.data)));
   }
 
   /**
@@ -77,7 +65,7 @@ export class AuthService {
   }
 
   me(): Observable<User> {
-    return this.http.get<ApiResponse<UsuarioResponseDto>>(`${this.url}/me`).pipe(
+    return this.service.me().pipe(
       map((response) => mapUserFromDto(response.data)),
       tap((user) => {
         const session = this.session();
@@ -88,12 +76,44 @@ export class AuthService {
     );
   }
 
+  updateProfile(body: UpdateProfileRequestDto): Observable<ApiResponse<User>> {
+    return this.service.updateProfile(body).pipe(
+      map((response) => ({ ...response, data: mapUserFromDto(response.data) })),
+      tap((response) => {
+        const session = this.session();
+        if (session) this.persist({ ...session, user: response.data });
+      })
+    );
+  }
+
+  deleteAccount(): Observable<ApiResponse<null>> {
+    return this.service.deleteAccount().pipe(tap(() => this.clearSession()));
+  }
+
+  readonly canOrganize = computed(() => this.hasRole('ORGANIZADOR') && this.user()?.active === true);
+  readonly homeUrl = computed(() => this.canOrganize() ? '/hoy' : '/cuenta');
+
   hasRole(role: Role): boolean {
     return this.user()?.roles.includes(role) ?? false;
   }
 
-  /** No hay endpoint de logout: el token es stateless, basta con borrarlo en el cliente. */
-  logout(): void {
+  /** Revoca el JWT actual. Red/500 conservan la sesión para poder reintentar. */
+  logout(): Observable<void> {
+    return this.service.logout().pipe(
+      tap(() => this.clearSession()),
+      map(() => undefined),
+      catchError((error) => {
+        if (error.status === 401) {
+          this.clearSession();
+          return of(undefined);
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /** Limpieza local tras revocación confirmada, eliminación o sesión inválida. */
+  clearSession(): void {
     this.clearExpiryTimer();
     this.session.set(null);
     localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -119,7 +139,7 @@ export class AuthService {
   private scheduleExpiry(expiresAt: number): void {
     this.clearExpiryTimer();
     this.expiryTimer = setTimeout(() => {
-      this.logout();
+      this.clearSession();
       this.router.navigate(['/login']);
     }, Math.max(expiresAt - Date.now(), 0));
   }
@@ -154,6 +174,7 @@ export class AuthService {
 function mapUserFromDto(dto: UsuarioResponseDto): User {
   return {
     id: dto.id,
+    organizerId: dto.organizadorId,
     name: dto.nombre,
     email: dto.correo,
     roles: dto.roles,

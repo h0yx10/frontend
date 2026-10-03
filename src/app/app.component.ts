@@ -3,18 +3,21 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import { AuthService } from './core/auth/auth.service';
+import { finalize } from 'rxjs';
+
+import { BrandLogoComponent } from './shared/ui/atoms/brand-logo.component';
+import { AuthStore } from './core/auth/store/auth.store';
 import { CapacityStore } from './features/capacity/store/capacity.store';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, FormsModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, FormsModule, BrandLogoComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  private readonly auth = inject(AuthService);
+  private readonly auth = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly capacity = inject(CapacityStore);
 
@@ -23,18 +26,24 @@ export class AppComponent {
   readonly roleLabel = computed(() => (this.auth.hasRole('ADMIN') ? 'Administrador' : 'Organizador'));
   readonly dailyLimitHours = computed(() => this.capacity.dailyLimitHours());
   readonly navOpen = signal(false);
+  readonly loggingOut = signal(false);
+  readonly logoutError = signal('');
   searchTerm = '';
 
-  readonly navItems = [
+  readonly canOrganize = this.auth.canOrganize;
+  readonly navItems = computed(() => [
+    { path: '/cuenta', label: 'Mi cuenta', icon: 'person' },
+    ...(this.canOrganize() ? [
     { path: '/hoy', label: 'Hoy', icon: 'calendar_today' },
     { path: '/crear', label: 'Crear evento', icon: 'add_circle' },
     { path: '/progreso', label: 'Progreso', icon: 'bar_chart' }
-  ];
+    ] : [])
+  ]);
 
   constructor() {
     effect(
       () => {
-        if (this.isAuthenticated()) {
+        if (this.isAuthenticated() && this.canOrganize()) {
           this.capacity.ensureLoaded();
         }
       },
@@ -53,13 +62,21 @@ export class AppComponent {
   }
 
   logout(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
+    if (this.loggingOut()) return;
+    this.loggingOut.set(true);
+    this.logoutError.set('');
+    this.auth.logout().pipe(finalize(() => this.loggingOut.set(false))).subscribe({
+      next: () => {
+        this.navOpen.set(false);
+        this.router.navigate(['/login']);
+      },
+      error: (error: Error) => this.logoutError.set(error.message)
+    });
   }
 
   runSearch(): void {
     const term = this.searchTerm.trim();
-    if (term) {
+    if (term && this.canOrganize()) {
       this.router.navigate(['/progreso'], { queryParams: { q: term } });
     }
   }
