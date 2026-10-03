@@ -74,3 +74,17 @@ tienen anillo de foco visible, labels asociados y mensajes de error con `aria-de
 
 - Build de producción: `npm run build` (salida en `dist/events-frontend`).
 - Pensado para desplegar en Vercel; configura `runtimeConfig.apiUrl` según el entorno.
+
+## Pruebas unitarias
+
+Ejecuta `npm test` para correr los archivos `*.spec.ts` con Jasmine y Karma en
+ChromeHeadless. Se necesita Chrome o Chromium instalado. Para usar otro ejecutable
+compatible, define `CHROME_BIN`, por ejemplo:
+
+```sh
+CHROME_BIN=/opt/brave-bin/brave npm test
+```
+
+Las pruebas de autenticación cubren contratos HTTP, sesión y expiración, roles,
+guards, interceptores, formularios de login/registro y cuenta, y errores del backend.
+También se verifican las rutas del servicio administrativo de usuarios.

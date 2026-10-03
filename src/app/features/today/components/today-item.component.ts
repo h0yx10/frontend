@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, EventEmitter, input, Output } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 import { DateBucket, formatIsoDateShort } from '../../../core/utils/date.util';
 import { BadgeTone, StatusBadgeComponent } from '../../../shared/ui/atoms/status-badge.component';
@@ -8,7 +9,7 @@ import { Subtask } from '../../events/models/subtask.model';
 @Component({
   selector: 'app-today-item',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent],
+  imports: [CommonModule, MatIconModule, StatusBadgeComponent],
   templateUrl: './today-item.component.html'
 })
 export class TodayItemComponent {

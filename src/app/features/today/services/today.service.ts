@@ -46,7 +46,16 @@ export class TodayService {
       capacity: this.http
         .get<ApiResponse<CapacidadResponseDto>>(this.capacityUrl)
         .pipe(map((response) => response.data))
-    }).pipe(map(({ filtered, unfiltered, events, capacity }) => buildBoard(filtered, unfiltered, events, capacity)));
+    }).pipe(
+      map(({ filtered, unfiltered, events, capacity }) =>
+        buildBoard(
+          deriveTodayResponse(events, filters, filtered.regla),
+          deriveTodayResponse(events, { eventId: '', status: '' }, unfiltered.regla),
+          events,
+          capacity
+        )
+      )
+    );
   }
 
   private fetchToday(filters: TodayFilters): Observable<TodayResponseDto> {
@@ -56,6 +65,26 @@ export class TodayService {
       })
       .pipe(map((response) => response.data));
   }
+}
+
+function deriveTodayResponse(
+  events: EventoResponseDto[],
+  filters: TodayFilters,
+  rule: string
+): TodayResponseDto {
+  const referenceDate = todayIsoDate();
+  const subtasks = events
+    .flatMap((event) => event.subtareas)
+    .filter((subtask) => subtask.estado !== 'DONE')
+    .filter((subtask) => !filters.eventId || subtask.eventoId === filters.eventId)
+    .filter((subtask) => !filters.status || subtask.estado === filters.status);
+
+  return {
+    vencidas: subtasks.filter((subtask) => subtask.fechaObjetivo.slice(0, 10) < referenceDate),
+    paraHoy: subtasks.filter((subtask) => subtask.fechaObjetivo.slice(0, 10) === referenceDate),
+    proximas: subtasks.filter((subtask) => subtask.fechaObjetivo.slice(0, 10) > referenceDate),
+    regla: rule
+  };
 }
 
 function buildBoard(

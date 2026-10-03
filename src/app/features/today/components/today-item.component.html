@@ -1,21 +1,34 @@
 <article
-  class="flex flex-col gap-3 rounded-xl border border-border border-l-4 bg-surface p-4"
+  class="flex flex-col gap-2 rounded-lg border border-border border-l-4 bg-surface-raised/60 p-2.5"
   [class]="borderClass()"
 >
-  <app-status-badge [label]="dateBadge().label" [tone]="dateBadge().tone" />
-
-  <div>
-    <p class="font-semibold text-ink">{{ subtask().name }}</p>
-    <p class="mt-0.5 text-xs text-muted">{{ subtask().eventName }} · {{ subtask().estimatedHours }} h</p>
-    @if (subtask().status === 'POSTPONED') {
-      <p class="mt-1 text-xs font-medium text-warning">Pospuesta</p>
-    }
+  <div class="flex items-start gap-2">
+    <span
+      class="mt-1 flex size-4 shrink-0 items-center justify-center rounded border border-border bg-canvas"
+      [class.border-success]="subtask().status === 'DONE'"
+      [class.bg-success-soft]="subtask().status === 'DONE'"
+      aria-hidden="true"
+    >
+      @if (subtask().status === 'DONE') {
+        <mat-icon class="text-[13px] text-success">check</mat-icon>
+      }
+    </span>
+    <div class="min-w-0 flex-1">
+      <p class="truncate text-xs font-semibold text-ink">{{ subtask().name }}</p>
+      <div class="mt-0.5 flex flex-wrap items-center gap-1.5">
+        <app-status-badge [label]="dateBadge().label" [tone]="dateBadge().tone" />
+        <span class="text-[11px] text-muted">{{ subtask().estimatedHours }} h</span>
+      </div>
+    </div>
   </div>
+  @if (subtask().status === 'POSTPONED') {
+    <p class="text-[11px] font-medium text-warning">Pospuesta</p>
+  }
 
-  <div class="flex flex-wrap gap-2">
+  <div class="flex flex-wrap gap-1.5">
     <button
       type="button"
-      class="rounded-lg bg-success-soft px-3 py-1.5 text-xs font-semibold text-success transition hover:opacity-90"
+      class="rounded-md bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success transition hover:opacity-90"
       (click)="markDone.emit(subtask())"
     >
       Hecha
@@ -23,7 +36,7 @@
     @if (bucket() === 'TODAY') {
       <button
         type="button"
-        class="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-raised"
+        class="rounded-md border border-border px-2.5 py-1 text-[11px] font-semibold text-ink transition hover:bg-surface-raised"
         (click)="postpone.emit(subtask())"
       >
         Posponer
@@ -31,7 +44,7 @@
     }
     <button
       type="button"
-      class="rounded-lg border border-primary px-3 py-1.5 text-xs font-semibold text-accent transition hover:bg-primary/10"
+      class="rounded-md border border-primary px-2.5 py-1 text-[11px] font-semibold text-accent transition hover:bg-primary/10"
       (click)="reschedule.emit(subtask())"
     >
       Reprogramar
