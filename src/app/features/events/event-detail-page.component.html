@@ -219,3 +219,11 @@
     (cancelled)="deleteSubtaskTarget.set(null)"
   />
 }
+
+@if (successInfo(); as info) {
+  <app-info-dialog
+    [heading]="info.heading"
+    [message]="info.message"
+    (accepted)="acceptSuccessInfo()"
+  />
+}

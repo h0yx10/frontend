@@ -4,13 +4,22 @@
       <h1 class="text-2xl font-bold text-ink">Hoy</h1>
       <p class="mt-1 text-sm text-muted">{{ todayLabel }}</p>
     </div>
-    <a
-      routerLink="/crear"
-      class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
-    >
-      <mat-icon class="text-[18px]">add</mat-icon>
-      Crear evento
-    </a>
+    <div class="flex items-center gap-3">
+      <a
+        routerLink="/actividades"
+        class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface"
+      >
+        <mat-icon class="text-[18px]">list_alt</mat-icon>
+        Actividades
+      </a>
+      <a
+        routerLink="/crear"
+        class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+      >
+        <mat-icon class="text-[18px]">add</mat-icon>
+        Crear evento
+      </a>
+    </div>
   </header>
 
   @if (store.loading()) {

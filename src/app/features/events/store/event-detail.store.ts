@@ -162,7 +162,7 @@ export class EventDetailStore {
       });
   }
 
-  deleteSubtask(id: string): void {
+  deleteSubtask(id: string, onSuccess?: () => void): void {
     this.saving.set(true);
     this.subtasksService
       .delete(id)
@@ -171,6 +171,7 @@ export class EventDetailStore {
         next: () => {
           this.subtasks.update((subtasks) => subtasks.filter((subtask) => subtask.id !== id));
           this.reloadEvent();
+          onSuccess?.();
         },
         error: (error: AppHttpError) => this.error.set(error.message)
       });

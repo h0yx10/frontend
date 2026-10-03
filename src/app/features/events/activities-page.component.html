@@ -1,0 +1,56 @@
+<div class="mx-auto max-w-6xl">
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-ink">Actividades</h1>
+    <p class="mt-1 text-sm text-muted">Todas las actividades registradas, consultadas en tiempo real desde el backend.</p>
+  </header>
+
+  @if (store.loading()) {
+    <p class="text-sm text-muted" role="status">Cargando actividades…</p>
+  } @else if (store.error()) {
+    <app-error-state [message]="store.error()" (retry)="store.load()" />
+  } @else if (store.events().length === 0) {
+    <app-empty-state
+      icon="event_note"
+      title="Todavía no hay actividades"
+      message="Crea un evento para verlo listado aquí."
+    />
+  } @else {
+    <div class="overflow-x-auto rounded-2xl border border-border bg-surface">
+      <table class="w-full min-w-[720px] border-collapse text-sm">
+        <thead>
+          <tr class="border-b border-border font-mono text-[11px] uppercase tracking-widest text-muted">
+            <th class="px-5 py-3 text-left font-semibold">Actividad</th>
+            <th class="px-5 py-3 text-left font-semibold">Tipo</th>
+            <th class="px-5 py-3 text-left font-semibold">Fecha y hora</th>
+            <th class="px-5 py-3 text-left font-semibold">Lugar</th>
+            <th class="px-5 py-3 text-left font-semibold">Progreso</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (event of store.events(); track event.id) {
+            <tr class="border-b border-border last:border-b-0">
+              <td class="px-5 py-3.5">
+                <a [routerLink]="['/evento', event.id]" class="font-semibold text-ink hover:text-accent">
+                  {{ event.name }}
+                </a>
+              </td>
+              <td class="px-5 py-3.5 text-muted">{{ event.type }}</td>
+              <td class="px-5 py-3.5 text-muted">{{ formatDateTimeHuman(event.datetime) }}</td>
+              <td class="px-5 py-3.5 text-muted">{{ event.place || '—' }}</td>
+              <td class="px-5 py-3.5">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-24">
+                    <app-progress-bar [percentage]="event.progress.percentage" [autoTone]="true" />
+                  </div>
+                  <span class="shrink-0 text-xs font-semibold text-muted">
+                    {{ event.progress.done }}/{{ event.progress.total }}
+                  </span>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

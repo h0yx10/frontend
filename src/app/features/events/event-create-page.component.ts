@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 
 import { AppHttpError } from '../../core/interceptors/http-error.interceptor';
+import { InfoDialogComponent } from '../../shared/ui/molecules/info-dialog.component';
 import { EVENT_TYPE_SUGGESTIONS, EventPayload, SubtareaInicialRequestDto } from './models/event.model';
 import { EventsService } from './services/events.service';
 
@@ -17,7 +18,7 @@ interface DraftSubtask {
 @Component({
   selector: 'app-event-create-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, RouterLink],
+  imports: [CommonModule, FormsModule, MatIconModule, RouterLink, InfoDialogComponent],
   templateUrl: './event-create-page.component.html'
 })
 export class EventCreatePageComponent {
@@ -29,6 +30,7 @@ export class EventCreatePageComponent {
   readonly error = signal('');
   readonly fieldErrors = signal<Record<string, string>>({});
   readonly rowErrors = signal<Record<number, string>>({});
+  readonly createdEventId = signal<string | null>(null);
 
   name = '';
   type = '';
@@ -65,7 +67,31 @@ export class EventCreatePageComponent {
   }
 
   submit(): void {
+    this.saving.set(true);
+    this.error.set('');
+    this.fieldErrors.set({});
+    
+    const errors: Record<string, string> = {};
+
+    if (!this.name.trim()) {
+      errors['nombre'] = 'No ingresaste el nombre del evento.';
+    }
+    if (!this.type.trim()) {
+      errors['tipo'] = 'No ingresaste el tipo de evento.';
+    }
+    if (!this.datetime) {
+      errors['fechaHora'] = 'No ingresaste la fecha y hora del evento.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      this.fieldErrors.set(errors);
+      this.error.set('Por favor, corrija los errores en el formulario.');
+      this.saving.set(false);
+      return;
+    }
+
     if (!this.validateRows()) {
+      this.saving.set(false);
       return;
     }
 
@@ -85,14 +111,10 @@ export class EventCreatePageComponent {
         horasEstimadas: Number(row.estimatedHours)
       }));
 
-    this.saving.set(true);
-    this.error.set('');
-    this.fieldErrors.set({});
-
     this.eventsService.create(payload, subtareas).subscribe({
       next: (event) => {
         this.saving.set(false);
-        this.router.navigate(['/evento', event.id]);
+        this.createdEventId.set(event.id);
       },
       error: (error: AppHttpError) => {
         this.saving.set(false);
@@ -100,5 +122,13 @@ export class EventCreatePageComponent {
         this.fieldErrors.set(error.fieldErrors ?? {});
       }
     });
+  }
+
+  acceptCreated(): void {
+    const id = this.createdEventId();
+    this.createdEventId.set(null);
+    if (id) {
+      this.router.navigate(['/evento', id]);
+    }
   }
 }
