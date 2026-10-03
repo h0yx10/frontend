@@ -5,19 +5,8 @@
     <span class="pointer-events-none absolute left-[42%] top-[34%] size-1.5 rounded-full bg-success" aria-hidden="true"></span>
     <span class="pointer-events-none absolute left-[40%] top-[76%] size-1.5 rounded-full bg-primary" aria-hidden="true"></span>
 
-    <div class="flex items-center gap-2.5">
-      <span class="flex size-9 items-center justify-center rounded-xl bg-primary text-white">
-        <mat-icon class="text-[20px]">check</mat-icon>
-      </span>
-      <div>
-        <p class="text-sm font-bold leading-tight text-ink">Eventia</p>
-        <p class="font-mono text-[10px] font-medium uppercase tracking-widest text-muted">
-          Logistics command
-        </p>
-      </div>
-    </div>
-
     <div class="max-w-md">
+      <app-brand-logo class="mb-8" />
       <span class="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-widest text-success">
         <span class="size-1.5 rounded-full bg-success"></span>
         Sistema operativo
@@ -40,15 +29,7 @@
   <div class="flex flex-1 items-center justify-center px-6 py-14 sm:px-10">
     <div class="w-full max-w-sm">
       <div class="mb-8 flex items-center gap-2.5 lg:hidden">
-        <span class="flex size-9 items-center justify-center rounded-xl bg-primary text-white">
-          <mat-icon class="text-[20px]">check</mat-icon>
-        </span>
-        <div>
-          <p class="text-sm font-bold leading-tight text-ink">Eventia</p>
-          <p class="font-mono text-[10px] font-medium uppercase tracking-widest text-muted">
-            Logistics command
-          </p>
-        </div>
+        <app-brand-logo />
       </div>
 
       <h2 class="text-2xl font-bold text-ink">
@@ -62,21 +43,28 @@
         }}
       </p>
 
-      <form class="mt-7 space-y-5" (ngSubmit)="submit()" novalidate>
+      @if (sessionExpired()) {
+        <p class="mt-5 rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-muted" role="status">
+          Tu sesión expiró. Inicia sesión nuevamente.
+        </p>
+      }
+
+      <form class="mt-7 space-y-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         @if (mode() === 'register') {
           <div>
             <label for="name" class="mb-1.5 block text-sm font-medium text-ink">Nombre</label>
             <input
               id="name"
-              name="name"
               type="text"
-              required
-              [(ngModel)]="name"
+              autocomplete="name"
+              formControlName="name"
               class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink"
-              [class.border-danger]="fieldErrors()['name']"
+              [class.border-danger]="fieldError('name')"
+              [attr.aria-invalid]="fieldError('name') ? 'true' : null"
+              [attr.aria-describedby]="fieldError('name') ? 'name-error' : null"
             />
-            @if (fieldErrors()['name']) {
-              <p class="mt-1 text-xs text-danger">{{ fieldErrors()['name'] }}</p>
+            @if (fieldError('name')) {
+              <p id="name-error" class="mt-1 text-xs text-danger" role="alert">{{ fieldError('name') }}</p>
             }
           </div>
         }
@@ -85,41 +73,48 @@
           <label for="email" class="mb-1.5 block text-sm font-medium text-ink">Correo electrónico</label>
           <input
             id="email"
-            name="email"
             type="email"
             autocomplete="email"
             placeholder="tu@correo.com"
-            required
-            [(ngModel)]="email"
+            formControlName="email"
             class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/60"
-            [class.border-danger]="fieldErrors()['email']"
+            [class.border-danger]="fieldError('email')"
+            [attr.aria-invalid]="fieldError('email') ? 'true' : null"
+            [attr.aria-describedby]="fieldError('email') ? 'email-error' : null"
           />
-          @if (fieldErrors()['email']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['email'] }}</p>
+          @if (fieldError('email')) {
+            <p id="email-error" class="mt-1 text-xs text-danger" role="alert">{{ fieldError('email') }}</p>
           }
         </div>
 
         <div>
-          <div class="mb-1.5 flex items-center justify-between">
-            <label for="password" class="block text-sm font-medium text-ink">Contraseña</label>
-            @if (mode() === 'login') {
-              <a href="#" class="text-xs font-medium text-accent hover:underline" (click)="$event.preventDefault()">
-                ¿Olvidaste tu contraseña?
-              </a>
-            }
+          <label for="password" class="mb-1.5 block text-sm font-medium text-ink">Contraseña</label>
+          <div class="relative">
+            <input
+              id="password"
+              [type]="passwordVisible() ? 'text' : 'password'"
+              [attr.autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'"
+              formControlName="password"
+              class="w-full rounded-xl border border-border bg-surface py-2.5 pl-3.5 pr-12 text-sm text-ink"
+              [class.border-danger]="fieldError('password')"
+              [attr.aria-invalid]="fieldError('password') ? 'true' : null"
+              [attr.aria-describedby]="fieldError('password') ? 'password-error' : mode() === 'register' ? 'password-hint' : null"
+            />
+            <button
+              type="button"
+              class="absolute inset-y-0 right-0 flex items-center rounded-r-xl px-3 text-muted hover:text-ink"
+              [attr.aria-label]="passwordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              [attr.aria-pressed]="passwordVisible()"
+              aria-controls="password"
+              (click)="togglePasswordVisibility()"
+            >
+              <mat-icon aria-hidden="true">{{ passwordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
           </div>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            required
-            [(ngModel)]="password"
-            class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink"
-            [class.border-danger]="fieldErrors()['password']"
-          />
-          @if (fieldErrors()['password']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['password'] }}</p>
+          @if (fieldError('password')) {
+            <p id="password-error" class="mt-1 text-xs text-danger" role="alert">{{ fieldError('password') }}</p>
+          } @else if (mode() === 'register') {
+            <p id="password-hint" class="mt-1 text-xs text-muted">Mínimo {{ passwordMinLength }} caracteres y máximo 72 bytes UTF-8.</p>
           }
         </div>
 
@@ -136,27 +131,10 @@
         </button>
       </form>
 
-      <div class="my-5 flex items-center gap-3">
-        <span class="h-px flex-1 bg-border"></span>
-        <span class="text-xs text-muted">o</span>
-        <span class="h-px flex-1 bg-border"></span>
-      </div>
-
-      <button
-        type="button"
-        class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface-raised disabled:opacity-60"
-        [disabled]="demoLoading()"
-        (click)="continueAsDemo()"
-      >
-        {{ demoLoading() ? 'Ingresando…' : 'Continuar con usuario demo' }}
-      </button>
-      <p class="mt-2 text-center text-xs text-muted">
-        Disponible en Sprint 0–1, sin necesidad de cuenta.
-      </p>
-
       <button
         type="button"
         class="mt-6 w-full text-center text-sm font-medium text-accent hover:underline"
+        [disabled]="loading()"
         (click)="toggleMode()"
       >
         {{ mode() === 'login' ? '¿No tienes cuenta? Crear una' : '¿Ya tienes cuenta? Inicia sesión' }}

@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 
-import { authGuard, guestGuard } from './core/auth/auth.guard';
-import { LoginPageComponent } from './features/auth/login-page.component';
-import { ActivitiesPageComponent } from './features/events/activities-page.component';
+import { authGuard, guestGuard, organizerGuard } from './core/auth/guards/auth.guard';
+import { AccountPageComponent } from './core/auth/components/account-page.component';
+import { LoginPageComponent } from './core/auth/components/login-page.component';
 import { EventCreatePageComponent } from './features/events/event-create-page.component';
 import { EventDetailPageComponent } from './features/events/event-detail-page.component';
 import { EventsProgressPageComponent } from './features/events/events-progress-page.component';
@@ -20,14 +20,25 @@ export const routes: Routes = [
     canActivate: [guestGuard]
   },
   {
+    path: 'register',
+    component: LoginPageComponent,
+    data: { mode: 'register' },
+    canActivate: [guestGuard]
+  },
+  {
+    path: 'cuenta',
+    component: AccountPageComponent,
+    canActivate: [authGuard]
+  },
+  {
     path: 'hoy',
     component: TodayPageComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, organizerGuard]
   },
   {
     path: 'crear',
     component: EventCreatePageComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, organizerGuard]
   },
   {
     path: 'actividades',
@@ -37,12 +48,12 @@ export const routes: Routes = [
   {
     path: 'evento/:id',
     component: EventDetailPageComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, organizerGuard]
   },
   {
     path: 'progreso',
     component: EventsProgressPageComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, organizerGuard]
   },
   {
     path: '**',

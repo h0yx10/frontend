@@ -1,0 +1,29 @@
+<section class="max-w-xl space-y-5">
+  <h1 class="text-2xl font-bold">Mi cuenta</h1>
+  <p class="text-sm text-muted">Roles: {{ auth.user()?.roles?.join(', ') }}</p>
+  @if (!auth.canOrganize()) {
+    <p class="text-sm text-muted">Las vistas de eventos y capacidad requieren el rol ORGANIZADOR y un perfil activo.</p>
+  }
+  <form [formGroup]="form" (ngSubmit)="save()" class="space-y-4">
+    <label class="block">Nombre
+      <input formControlName="nombre" autocomplete="name" class="block w-full rounded-xl border border-border p-3" />
+    </label>
+    <label class="block">Correo
+      <input type="email" formControlName="correo" autocomplete="email" class="block w-full rounded-xl border border-border p-3" />
+    </label>
+    <label class="block">Contraseña actual
+      <input type="password" formControlName="passwordActual" autocomplete="current-password" class="block w-full rounded-xl border border-border p-3" />
+    </label>
+    <label class="block">Nueva contraseña
+      <input type="password" formControlName="password" autocomplete="new-password" class="block w-full rounded-xl border border-border p-3" />
+    </label>
+    <p class="text-sm text-muted">Para cambiar la contraseña, escribe la actual. La nueva debe tener al menos 8 caracteres y máximo 72 bytes UTF-8.</p>
+    <button type="submit" [disabled]="busy()" class="rounded-xl bg-primary px-4 py-2 text-white">Guardar perfil</button>
+  </form>
+  @if (message()) { <p role="status" class="text-sm">{{ message() }}</p> }
+  <button type="button" [disabled]="busy()" (click)="confirmDelete.set(true)" class="text-danger">Eliminar mi cuenta</button>
+</section>
+@if (confirmDelete()) {
+  <app-confirm-dialog heading="Eliminar mi cuenta" message="Se eliminará tu cuenta. Si tienes eventos o capacidades asociados, el servidor rechazará la eliminación."
+    (confirmed)="deleteAccount()" (cancelled)="confirmDelete.set(false)" />
+}
