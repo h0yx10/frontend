@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 
 import { DateBucket, formatDateTimeHuman, formatIsoDateHuman, todayIsoDate } from '../../core/utils/date.util';
+import { SearchBoxComponent } from '../../shared/ui/molecules/search-box.component';
 import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
 import { PostponeDialogComponent } from '../events/components/postpone-dialog.component';
@@ -30,6 +31,7 @@ interface TodayEventGroup {
     MatIconModule,
     RouterLink,
     EmptyStateComponent,
+    SearchBoxComponent,
     ErrorStateComponent,
     StatCardComponent,
     TodayItemComponent,
@@ -50,12 +52,12 @@ export class TodayPageComponent {
   readonly todayLabel = this.capitalize(formatIsoDateHuman(todayIsoDate()));
   readonly formatIsoDateHuman = formatIsoDateHuman;
   readonly formatDateTimeHuman = formatDateTimeHuman;
-  readonly overdueEvents = computed(() => this.groupByEvent(this.store.board().overdue));
-  readonly todayEvents = computed(() => [
-    ...this.groupByEvent(this.store.board().today),
-    ...this.eventsWithoutPendingSubtasks()
-  ]);
-  readonly upcomingEvents = computed(() => this.groupByEvent(this.store.board().upcoming));
+  readonly overdueEvents = computed(() => this.applySearch(this.groupByEvent(this.store.board().overdue)));
+  readonly todayEvents = computed(() =>
+    this.applySearch([...this.groupByEvent(this.store.board().today), ...this.eventsWithoutPendingSubtasks()])
+  );
+  readonly upcomingEvents = computed(() => this.applySearch(this.groupByEvent(this.store.board().upcoming)));
+  readonly hasSearch = computed(() => !!this.store.search().query || !!this.store.search().eventId);
 
   constructor() {
     this.store.load();
@@ -67,8 +69,29 @@ export class TodayPageComponent {
   }
 
   get isEmpty(): boolean {
-    const board = this.store.board();
     return this.overdueEvents().length === 0 && this.todayEvents().length === 0 && this.upcomingEvents().length === 0;
+  }
+
+  private applySearch(groups: TodayEventGroup[]): TodayEventGroup[] {
+    const { query, eventId } = this.store.search();
+    const term = this.normalize(query);
+
+    return groups.filter((group) => {
+      if (eventId && group.eventId !== eventId) {
+        return false;
+      }
+      if (!term) {
+        return true;
+      }
+      const haystack = [group.eventName, group.event?.place, group.event?.type, ...group.subtasks.map((s) => s.name)]
+        .filter(Boolean)
+        .map((value) => this.normalize(value as string));
+      return haystack.some((value) => value.includes(term));
+    });
+  }
+
+  private normalize(value: string): string {
+    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   }
 
   private groupByEvent(items: Subtask[]): TodayEventGroup[] {

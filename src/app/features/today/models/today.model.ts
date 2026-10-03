@@ -45,6 +45,12 @@ export interface TodayFilters {
   status: string;
 }
 
+/** Filtros de búsqueda aplicados en cliente sobre los eventos mostrados en Hoy. */
+export interface TodaySearch {
+  query: string;
+  eventId: string;
+}
+
 // --- Contrato real del backend (events-api) — ver hoy.md ---------------------
 
 export interface TodayResponseDto {

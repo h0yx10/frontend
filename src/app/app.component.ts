@@ -36,6 +36,7 @@ export class AppComponent {
     ...(this.canOrganize() ? [
     { path: '/hoy', label: 'Hoy', icon: 'calendar_today' },
     { path: '/crear', label: 'Crear evento', icon: 'add_circle' },
+    { path: '/actividades', label: 'Actividades', icon: 'event_note' },
     { path: '/progreso', label: 'Progreso', icon: 'bar_chart' }
     ] : [])
   ]);

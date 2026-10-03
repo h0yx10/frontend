@@ -57,6 +57,30 @@ Contiene componentes UI organizados por Atomic Design y utilidades compartidas. 
 
 Cada feature es un módulo funcional independiente con su propia ruta, componentes, servicios y store.
 
+### Rutas principales
+
+| Ruta           | Feature / componente                    | Guards                       |
+| -------------- | --------------------------------------- | ---------------------------- |
+| `/hoy`         | `features/today` · TodayPage            | `authGuard`, `organizerGuard`|
+| `/crear`       | `features/events` · EventCreatePage     | `authGuard`, `organizerGuard`|
+| `/evento/:id`  | `features/events` · EventDetailPage     | `authGuard`, `organizerGuard`|
+| `/actividades` | `features/events` · ActivitiesPage      | `authGuard`, `organizerGuard`|
+| `/progreso`    | `features/events` · EventsProgressPage  | `authGuard`, `organizerGuard`|
+| `/cuenta`      | `core/auth` · AccountPage               | `authGuard`                  |
+
+### Feature `today/` — búsqueda de eventos
+
+La vista Hoy incluye filtros de búsqueda sobre los eventos mostrados (texto libre sobre
+nombre, lugar, tipo y subtareas, sin distinguir tildes ni mayúsculas, y selector de evento).
+El estado vive en `TodayStore.search` (`TodaySearch`) y el componente lo aplica con `computed`.
+El campo de texto es `shared/ui/molecules/search-box` (Reactive Forms con debounce de 250 ms).
+
+## Estilos
+
+Todos los componentes se estilizan con Tailwind CSS usando los tokens del tema
+(`bg-surface`, `text-ink`, `text-muted`, `border-border`, `text-accent`, etc.) definidos en
+`tailwind.config.js`. No se usan colores ni estilos en línea arbitrarios.
+
 ## Restricciones de importación
 
 Las siguientes reglas de importación garantizan la separación de responsabilidades y evitan dependencias circulares:

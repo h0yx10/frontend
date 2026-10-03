@@ -6,7 +6,7 @@ import {
   SubtaskExecutionPayload
 } from '../../events/models/subtask.model';
 import { SubtasksService } from '../../events/services/subtasks.service';
-import { TodayBoard, TodayFilters } from '../models/today.model';
+import { TodayBoard, TodayFilters, TodaySearch } from '../models/today.model';
 import { TodayService } from '../services/today.service';
 
 const EMPTY_BOARD: TodayBoard = {
@@ -38,6 +38,8 @@ export class TodayStore {
   readonly error = signal('');
   readonly filters = signal<TodayFilters>({ eventId: '', status: '' });
 
+  readonly search = signal<TodaySearch>({ query: '', eventId: '' });
+
   load(): void {
     this.loading.set(true);
     this.error.set('');
@@ -59,6 +61,14 @@ export class TodayStore {
   clearFilters(): void {
     this.filters.set({ eventId: '', status: '' });
     this.load();
+  }
+
+  setSearch(search: Partial<TodaySearch>): void {
+    this.search.update((current) => ({ ...current, ...search }));
+  }
+
+  clearSearch(): void {
+    this.search.set({ query: '', eventId: '' });
   }
 
   executeSubtask(id: string, payload: SubtaskExecutionPayload): void {

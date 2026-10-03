@@ -1,0 +1,20 @@
+<div class="relative">
+  <mat-icon class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-muted">search</mat-icon>
+  <input
+    type="search"
+    [formControl]="control"
+    [placeholder]="placeholder()"
+    [attr.aria-label]="ariaLabel()"
+    class="w-full rounded-lg border border-border bg-canvas py-2 pl-9 pr-8 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+  />
+  @if (control.value) {
+    <button
+      type="button"
+      class="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
+      aria-label="Limpiar búsqueda"
+      (click)="clear()"
+    >
+      <mat-icon class="text-[16px]">close</mat-icon>
+    </button>
+  }
+</div>
