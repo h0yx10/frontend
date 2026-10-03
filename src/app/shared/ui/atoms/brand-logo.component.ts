@@ -11,7 +11,7 @@ import { Component } from '@angular/core';
       display: block;
       width: 11rem;
       max-width: 100%;
-      margin-inline: auto;
+      margin-inline: 0;
     }
 
     img {
