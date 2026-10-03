@@ -1,11 +1,13 @@
 <div class="flex min-h-screen bg-canvas text-ink">
   <!-- Left panel -->
-  <aside class="relative hidden w-1/2 flex-col justify-between overflow-hidden border-r border-border px-16 py-14 lg:flex">
+  <aside class="relative hidden w-1/2 grid-rows-[1fr_auto_1fr] overflow-hidden border-r border-border px-16 py-14 lg:grid">
     <span class="pointer-events-none absolute left-[38%] top-[12%] size-1.5 rounded-full bg-primary" aria-hidden="true"></span>
     <span class="pointer-events-none absolute left-[42%] top-[34%] size-1.5 rounded-full bg-success" aria-hidden="true"></span>
     <span class="pointer-events-none absolute left-[40%] top-[76%] size-1.5 rounded-full bg-primary" aria-hidden="true"></span>
 
-    <div class="flex max-w-md flex-col items-start">
+    <div aria-hidden="true"></div>
+
+    <div class="mx-auto flex w-full max-w-md flex-col items-start">
       <app-brand-logo class="mb-8" />
       <span class="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-widest text-success">
         <span class="size-1.5 rounded-full bg-success"></span>
@@ -20,7 +22,7 @@
       </p>
     </div>
 
-    <p class="font-mono text-[11px] tracking-wide text-muted">
+    <p class="self-end font-mono text-[11px] tracking-wide text-muted">
       750018C · PROYECTO INTEGRADOR I · 2026-II
     </p>
   </aside>
