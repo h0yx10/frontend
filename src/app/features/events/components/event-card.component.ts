@@ -21,10 +21,10 @@ export class EventCardComponent {
   readonly percentageClass = computed(() => {
     const percentage = this.event().progress.percentage;
     if (percentage >= 100) {
-      return 'text-success';
+      return 'text-success-muted';
     }
     if (percentage < 40) {
-      return 'text-danger';
+      return 'text-danger-warm';
     }
     return 'text-accent';
   });

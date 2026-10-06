@@ -2,8 +2,8 @@
   <app-modal titleId="subtask-form-title" [heading]="heading" size="sm" (closed)="closed.emit()">
     <form class="space-y-4" (ngSubmit)="submit()" novalidate>
       <div>
-        <label for="subtask-name" class="mb-1.5 block text-sm font-medium text-ink">
-          Título <span class="text-danger">*</span>
+        <label for="subtask-name" class="mb-2 block text-sm font-medium text-ink">
+          Nombre <span class="text-danger">*</span>
         </label>
         <input
           id="subtask-name"
@@ -16,8 +16,8 @@
           [class.border-danger]="store.subtaskFieldErrors()['nombre']"
           [attr.aria-invalid]="!!store.subtaskFieldErrors()['nombre']"
         />
-        @if (store.subtaskFieldErrors()['nombre']) {
-          <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['nombre'] }}</p>
+        @if (store.subtaskFieldErrors()['name']) {
+          <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['name'] }}</p>
         }
       </div>
 
@@ -37,8 +37,8 @@
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label for="subtask-date" class="mb-1.5 block text-sm font-medium text-ink">
-            Fecha objetivo <span class="text-danger">*</span>
+          <label for="subtask-date" class="mb-2 block text-sm font-medium text-ink">
+            Plazo <span class="text-danger">*</span>
           </label>
           <input
             id="subtask-date"
@@ -50,13 +50,13 @@
             [class.border-danger]="store.subtaskFieldErrors()['fechaObjetivo']"
             [attr.aria-invalid]="!!store.subtaskFieldErrors()['fechaObjetivo']"
           />
-          @if (store.subtaskFieldErrors()['fechaObjetivo']) {
-            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['fechaObjetivo'] }}</p>
+          @if (store.subtaskFieldErrors()['targetDate']) {
+            <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['targetDate'] }}</p>
           }
         </div>
 
         <div>
-          <label for="subtask-hours" class="mb-1.5 block text-sm font-medium text-ink">
+          <label for="subtask-hours" class="mb-2 block text-sm font-medium text-ink">
             Horas estimadas <span class="text-danger">*</span>
           </label>
           <input
@@ -71,8 +71,8 @@
             [class.border-danger]="store.subtaskFieldErrors()['horasEstimadas']"
             [attr.aria-invalid]="!!store.subtaskFieldErrors()['horasEstimadas']"
           />
-          @if (store.subtaskFieldErrors()['horasEstimadas']) {
-            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['horasEstimadas'] }}</p>
+          @if (store.subtaskFieldErrors()['estimatedHours']) {
+            <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['estimatedHours'] }}</p>
           }
         </div>
       </div>

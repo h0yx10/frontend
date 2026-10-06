@@ -11,14 +11,14 @@
   } @else if (store.error()) {
     <app-error-state [message]="store.error()" (retry)="store.load()" />
   } @else {
-    <div class="grid grid-cols-2 gap-2 xl:grid-cols-4">
-      <app-stat-card label="Vencidas" [value]="store.board().stats.overdueCount" hint="requieren acción inmediata" valueClass="text-danger" />
+    <div class="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <app-stat-card label="Vencidas" [value]="store.board().stats.overdueCount" hint="requieren acción inmediata" valueClass="text-danger-warm" />
       <app-stat-card label="Para hoy" [value]="store.board().stats.todayCount" hint="gestiones con plazo hoy" valueClass="text-accent" />
       <app-stat-card
-        label="Completadas (7 días)"
+        label="Completadas 7 d"
         [value]="store.board().stats.completedLast7Days"
         [hint]="store.board().stats.completedTrendPercentage === null ? 'sin datos de la semana previa' : (store.board().stats.completedTrendPercentage! >= 0 ? '+' : '') + store.board().stats.completedTrendPercentage + '% vs. semana pasada'"
-        valueClass="text-success"
+        valueClass="text-success-muted"
       />
       <app-stat-card
         label="Próximas 7 días"
@@ -28,11 +28,11 @@
     </div>
 
     @if (store.board().conflictAlert; as alert) {
-      <div class="mt-3 flex flex-col gap-2 rounded-lg border border-l-4 border-danger bg-danger-soft px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+      <div class="mt-3 flex flex-col gap-2 rounded-lg border border-danger-warm/30 bg-danger-warm/10 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-3">
-          <mat-icon class="text-danger">warning</mat-icon>
+          <mat-icon class="text-danger-warm">warning</mat-icon>
           <div>
-            <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-danger">
+            <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-danger-warm">
               Conflicto de sobrecarga detectado
             </p>
             <p class="mt-0.5 text-xs text-ink">
@@ -87,25 +87,52 @@
       {{ store.board().rule }}
     </p>
 
-    <div class="mt-4 grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(220px,1fr)]">
-      <div class="min-w-0 rounded-xl border border-border bg-surface-raised p-3">
-        @if (isEmpty && hasSearch()) {
+    <div class="mt-4 grid grid-cols-1 items-center gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <label for="today-search" class="sr-only">Buscar eventos, lugares o subtareas</label>
+      <div class="relative min-w-0 lg:col-span-3">
+        <mat-icon
+          class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[20px] text-muted"
+          aria-hidden="true"
+        >
+          search
+        </mat-icon>
+        <input
+          id="today-search"
+          type="search"
+          placeholder="Buscar eventos, lugares o subtareas…"
+          [ngModel]="query()"
+          (ngModelChange)="query.set($event)"
+          class="h-11 w-full rounded-xl border border-border bg-surface pl-11 pr-3.5 text-sm text-ink placeholder:text-muted"
+        />
+      </div>
+      <label for="today-event-filter" class="sr-only">Filtrar por evento</label>
+      <select
+        id="today-event-filter"
+        class="h-11 w-full min-w-0 rounded-xl border border-border bg-surface px-3.5 text-sm font-medium text-ink"
+        [ngModel]="store.filters().eventId"
+        (ngModelChange)="onEventFilter($event)"
+      >
+        <option value="">Todos los eventos</option>
+        @for (option of eventOptions(); track option.id) {
+          <option [value]="option.id">{{ option.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="mt-4 grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <ng-container>
+        @if (isEmpty) {
           <app-empty-state
-            icon="search_off"
-            title="Sin resultados"
-            message="Ningún evento coincide con tu búsqueda."
-          />
-        } @else if (isEmpty) {
-          <app-empty-state
+            class="flex min-h-full w-full lg:col-span-3 [&>section]:flex [&>section]:h-full [&>section]:min-h-56 [&>section]:flex-col [&>section]:items-center [&>section]:justify-center"
             icon="task_alt"
-            title="Todo al día"
-            message="No tienes tareas pendientes para hoy."
+            [title]="query().trim() ? 'Sin resultados' : 'Todo al día'"
+            [message]="query().trim() ? 'No encontramos eventos, lugares o subtareas con esa búsqueda.' : 'No tienes tareas pendientes para hoy.'"
           />
         } @else {
-            <div class="grid gap-4 lg:grid-cols-3">
-              <section class="min-w-0">
+            <div class="contents">
+              <section class="flex min-w-0 flex-col rounded-xl border border-border bg-surface-raised p-4">
                 <div class="mb-2 flex items-center gap-1.5">
-                  <mat-icon class="text-[18px] text-danger">warning_amber</mat-icon>
+                  <mat-icon class="text-[18px] text-danger-warm">warning_amber</mat-icon>
                   <h2 class="text-sm font-bold text-ink">Requieren atención</h2>
                   <span class="text-xs text-muted">{{ store.board().overdue.length }}</span>
                 </div>
@@ -114,10 +141,10 @@
                 } @else {
                   <div class="space-y-2">
                     @for (group of overdueEvents(); track group.eventId) {
-                      <article class="rounded-xl border border-border bg-surface p-3 shadow-sm">
+                      <article class="today-event-card glow-overdue rounded-xl border bg-surface p-2.5">
                         <header class="flex items-center justify-between gap-2">
                           <div class="flex min-w-0 items-center gap-2">
-                            <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-danger-soft text-danger">
+                            <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-danger-warm/10 text-danger-warm">
                               <mat-icon class="text-[17px]">event</mat-icon>
                             </span>
                             <div class="min-w-0">
@@ -135,9 +162,9 @@
                             Ver evento
                           </a>
                         </header>
-                        <div class="mt-3 rounded-lg border border-danger/20 bg-canvas p-2">
-                          <div class="mb-2 flex items-center gap-1.5 text-[10px] font-semibold text-danger">
-                            <span class="size-2 rounded-full bg-danger"></span>
+                        <div class="today-subtasks-panel mt-3 rounded-lg border bg-canvas p-1.5">
+                          <div class="mb-2 flex items-center gap-1.5 text-[10px] font-semibold text-danger-warm">
+                            <span class="size-2 rounded-full bg-danger-warm"></span>
                             {{ group.subtasks.length }} subtareas vencidas
                           </div>
                           <div class="space-y-3">
@@ -157,7 +184,7 @@
                 }
               </section>
 
-              <section class="min-w-0">
+              <section class="flex min-w-0 flex-col rounded-xl border border-border bg-surface-raised p-4">
                 <div class="mb-2 flex items-center gap-1.5">
                   <mat-icon class="text-[18px] text-accent">today</mat-icon>
                   <h2 class="text-sm font-bold text-ink">Para hoy</h2>
@@ -168,10 +195,10 @@
                 } @else {
                   <div class="space-y-2">
                     @for (group of todayEvents(); track group.eventId) {
-                      <article class="rounded-xl border border-border bg-surface p-3 shadow-sm">
+                      <article class="today-event-card glow-today rounded-xl border bg-surface p-2.5">
                         <header class="flex items-center justify-between gap-2">
                           <div class="flex min-w-0 items-center gap-2">
-                            <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-warning-soft text-warning">
+                            <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-warning-warm/10 text-warning-warm">
                               <mat-icon class="text-[17px]">event</mat-icon>
                             </span>
                             <div class="min-w-0">
@@ -194,12 +221,12 @@
                             Este evento no tiene subtareas pendientes.
                           </p>
                         } @else {
-                          <div class="mt-3 rounded-lg border border-warning/20 bg-canvas p-2">
-                          <div class="mb-2 flex items-center gap-1.5 text-[10px] font-semibold text-warning">
-                              <span class="size-2 rounded-full bg-warning"></span>
+                          <div class="today-subtasks-panel mt-3 rounded-lg border bg-canvas p-1.5">
+                            <div class="mb-2 flex items-center gap-1.5 text-[10px] font-semibold text-warning-warm">
+                              <span class="size-2 rounded-full bg-warning-warm"></span>
                               {{ group.subtasks.length }} subtareas pendientes
                             </div>
-                            <div class="space-y-3">
+                            <div class="flex flex-col gap-3">
                               @for (subtask of group.subtasks; track subtask.id) {
                                 <app-today-item
                                   [subtask]="subtask"
@@ -218,7 +245,7 @@
                 }
               </section>
 
-              <section class="min-w-0">
+              <section class="flex min-w-0 flex-col rounded-xl border border-border bg-surface-raised p-4">
                 <div class="mb-2 flex items-center gap-1.5">
                   <mat-icon class="text-[18px] text-muted">schedule</mat-icon>
                   <h2 class="text-sm font-bold text-ink">Próximas</h2>
@@ -229,7 +256,7 @@
                 } @else {
                   <div class="space-y-2">
                     @for (group of upcomingEvents(); track group.eventId) {
-                      <article class="rounded-xl border border-border bg-surface p-3 shadow-sm">
+                      <article class="rounded-xl border border-border bg-surface p-2.5">
                         <header class="flex items-center justify-between gap-2">
                           <div class="flex min-w-0 items-center gap-2">
                             <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-surface-raised text-accent">
@@ -250,7 +277,7 @@
                             Ver evento
                           </a>
                         </header>
-                        <div class="mt-3 rounded-lg border border-border bg-canvas p-2">
+                        <div class="mt-3 rounded-lg border border-border bg-canvas p-1.5">
                           <div class="mb-2 flex items-center gap-1.5 text-[10px] font-semibold text-muted">
                             <span class="size-2 rounded-full bg-muted"></span>
                             {{ group.subtasks.length }} subtareas próximas
@@ -273,9 +300,9 @@
               </section>
           </div>
         }
-      </div>
+      </ng-container>
 
-      <aside class="space-y-4 rounded-xl border border-border bg-surface-raised p-3">
+      <aside class="flex min-w-0 flex-col gap-6 rounded-xl border border-border bg-surface-raised p-4">
         <section>
           <h2 class="text-sm font-bold text-ink">Gestiones clave de hoy</h2>
           @if (store.board().keyTasks.length === 0) {

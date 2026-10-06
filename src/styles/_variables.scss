@@ -13,6 +13,10 @@ $color-success: #34d399;
 $color-success-soft: #0f2a20;
 $color-warning: #fbbf24;
 $color-warning-soft: #2a2110;
+$color-danger-warm: #d97762;
+$color-success-muted: #7aa88f;
+$color-warning-warm: #c39a55;
+$color-glow-soft: #8875d8;
 
 :root {
   --color-primary: #{$color-primary};
@@ -30,4 +34,35 @@ $color-warning-soft: #2a2110;
   --color-success-soft: #{$color-success-soft};
   --color-warning: #{$color-warning};
   --color-warning-soft: #{$color-warning-soft};
+  --color-danger-warm: #{$color-danger-warm};
+  --color-success-muted: #{$color-success-muted};
+  --color-warning-warm: #{$color-warning-warm};
+  --color-glow-soft: #{$color-glow-soft};
+  --shadow-glow-soft: 0 0 12px rgb(136 117 216 / 14%);
+
+  // Tarjeta con resplandor cálido y discreto
+  --color-glow: 251 191 136;
+  --color-surface-warm: #14121a;
+
+  // Escala de espaciado (múltiplos de 4 px)
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  // Movimiento: una duración y un easing por tipo de transición
+  --duration-micro: 160ms;
+  --duration-panel: 240ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  // Scrollbar unificado
+  --scrollbar-size: 8px;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: #2a3045;
+  --scrollbar-thumb-hover: #3b4360;
 }

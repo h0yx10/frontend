@@ -13,7 +13,7 @@
 
       <div class="mt-5 grid gap-5 sm:grid-cols-2">
         <div>
-          <label for="event-name" class="mb-1.5 block text-sm font-medium text-ink">
+          <label for="event-name" class="mb-2 block text-sm font-medium text-ink">
             Nombre del evento <span class="text-danger">*</span>
           </label>
           <input
@@ -26,13 +26,13 @@
             class="w-full rounded-xl border border-border bg-canvas px-3.5 py-2.5 text-sm text-ink"
             [class.border-danger]="fieldErrors()['nombre']"
           />
-          @if (fieldErrors()['nombre']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['nombre'] }}</p>
+          @if (fieldErrors()['name']) {
+            <p class="mt-2 text-xs text-danger">{{ fieldErrors()['name'] }}</p>
           }
         </div>
 
         <div>
-          <label for="event-type" class="mb-1.5 block text-sm font-medium text-ink">
+          <label for="event-type" class="mb-2 block text-sm font-medium text-ink">
             Tipo de evento <span class="text-danger">*</span>
           </label>
           <input
@@ -51,13 +51,13 @@
               <option [value]="suggestion"></option>
             }
           </datalist>
-          @if (fieldErrors()['tipo']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['tipo'] }}</p>
+          @if (fieldErrors()['type']) {
+            <p class="mt-2 text-xs text-danger">{{ fieldErrors()['type'] }}</p>
           }
         </div>
 
         <div>
-          <label for="event-contact" class="mb-1.5 block text-sm font-medium text-ink">
+          <label for="event-contact" class="mb-2 block text-sm font-medium text-ink">
             Cliente / contacto
           </label>
           <input
@@ -71,7 +71,7 @@
         </div>
 
         <div>
-          <label for="event-datetime" class="mb-1.5 block text-sm font-medium text-ink">
+          <label for="event-datetime" class="mb-2 block text-sm font-medium text-ink">
             Fecha y hora del evento <span class="text-danger">*</span>
           </label>
           <input
@@ -83,13 +83,13 @@
             class="w-full rounded-xl border border-border bg-canvas px-3.5 py-2.5 text-sm text-ink"
             [class.border-danger]="fieldErrors()['fechaHora']"
           />
-          @if (fieldErrors()['fechaHora']) {
-            <p class="mt-1 text-xs text-danger">{{ fieldErrors()['fechaHora'] }}</p>
+          @if (fieldErrors()['datetime']) {
+            <p class="mt-2 text-xs text-danger">{{ fieldErrors()['datetime'] }}</p>
           }
         </div>
 
         <div class="sm:col-span-2">
-          <label for="event-place" class="mb-1.5 block text-sm font-medium text-ink">
+          <label for="event-place" class="mb-2 block text-sm font-medium text-ink">
             Lugar / plazo límite de confirmación
           </label>
           <input
@@ -177,7 +177,7 @@
                 </tr>
                 @if (rowErrors()[$index]) {
                   <tr>
-                    <td colspan="4" class="pb-3 pt-0 text-xs text-danger">{{ rowErrors()[$index] }}</td>
+                    <td colspan="4" class="pb-4 pt-0 text-center text-xs text-danger">{{ rowErrors()[$index] }}</td>
                   </tr>
                 }
               }
@@ -185,14 +185,28 @@
           </table>
         </div>
       } @else {
-        <p class="mt-5 text-sm text-muted">
+        <p class="mx-auto mt-6 max-w-md text-center text-sm text-muted">
           Aún no has agregado subtareas. Puedes crearlas ahora o después desde el detalle del evento.
         </p>
       }
     </section>
 
     @if (error()) {
-      <p class="mt-4 text-sm text-danger" role="alert">{{ error() }}</p>
+      <div class="mt-6 flex justify-center">
+        <p
+          class="w-full max-w-md rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-center text-sm text-danger"
+          role="alert"
+        >
+          {{ error() }}
+        </p>
+      </div>
+    }
+    @if (overload(); as conflict) {
+      <div class="mx-auto mt-3 w-full max-w-md rounded-xl border border-warning/40 bg-warning-soft px-4 py-3 text-center text-sm text-ink" role="alert">
+        Capacidad: {{ conflict.limitHours }} h. Total planificado: {{ conflict.plannedHours }} h.
+        Exceso: {{ conflict.exceedsBy }} h. La creación inicial se valida en una sola petición;
+        ajusta las filas para continuar.
+      </div>
     }
 
     <div class="mt-6 flex justify-end gap-3">

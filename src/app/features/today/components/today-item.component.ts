@@ -23,11 +23,11 @@ export class TodayItemComponent {
   readonly borderClass = computed(() => {
     switch (this.bucket()) {
       case 'OVERDUE':
-        return 'border-l-danger';
+        return 'border-l-2 today-item-glow';
       case 'TODAY':
-        return 'border-l-primary';
+        return 'border-l-2 today-item-glow';
       default:
-        return 'border-l-border';
+        return 'border-l-2 border-l-border';
     }
   });
 

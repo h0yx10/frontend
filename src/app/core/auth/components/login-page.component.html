@@ -22,9 +22,6 @@
       </p>
     </div>
 
-    <p class="self-end font-mono text-[11px] tracking-wide text-muted">
-      750018C · PROYECTO INTEGRADOR I · 2026-II
-    </p>
   </aside>
 
   <!-- Right panel -->
@@ -116,7 +113,7 @@
           @if (fieldError('password')) {
             <p id="password-error" class="mt-1 text-xs text-danger" role="alert">{{ fieldError('password') }}</p>
           } @else if (mode() === 'register') {
-            <p id="password-hint" class="mt-1 text-xs text-muted">Mínimo {{ passwordMinLength }} caracteres y máximo 72 bytes UTF-8.</p>
+            <p id="password-hint" class="mt-1 text-xs text-muted">Mínimo {{ passwordMinLength }} caracteres.</p>
           }
         </div>
 

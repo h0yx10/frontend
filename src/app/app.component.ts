@@ -6,13 +6,14 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { finalize } from 'rxjs';
 
 import { BrandLogoComponent } from './shared/ui/atoms/brand-logo.component';
+import { ProgressBarComponent } from './shared/ui/atoms/progress-bar.component';
 import { AuthStore } from './core/auth/store/auth.store';
 import { CapacityStore } from './features/capacity/store/capacity.store';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, FormsModule, BrandLogoComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, FormsModule, BrandLogoComponent, ProgressBarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

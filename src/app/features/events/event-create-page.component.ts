@@ -4,8 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 
-import { AppHttpError } from '../../core/interceptors/http-error.interceptor';
-import { InfoDialogComponent } from '../../shared/ui/molecules/info-dialog.component';
+import { AppHttpError, OverloadErrorInfo } from '../../core/interceptors/http-error.interceptor';
 import { EVENT_TYPE_SUGGESTIONS, EventPayload, SubtareaInicialRequestDto } from './models/event.model';
 import { EventsService } from './services/events.service';
 
@@ -30,7 +29,7 @@ export class EventCreatePageComponent {
   readonly error = signal('');
   readonly fieldErrors = signal<Record<string, string>>({});
   readonly rowErrors = signal<Record<number, string>>({});
-  readonly createdEventId = signal<string | null>(null);
+  readonly overload = signal<OverloadErrorInfo | null>(null);
 
   name = '';
   type = '';
@@ -111,6 +110,11 @@ export class EventCreatePageComponent {
         horasEstimadas: Number(row.estimatedHours)
       }));
 
+    this.saving.set(true);
+    this.error.set('');
+    this.fieldErrors.set({});
+    this.overload.set(null);
+
     this.eventsService.create(payload, subtareas).subscribe({
       next: (event) => {
         this.saving.set(false);
@@ -118,17 +122,20 @@ export class EventCreatePageComponent {
       },
       error: (error: AppHttpError) => {
         this.saving.set(false);
-        this.error.set(error.message);
+        if (error.status === 409 && error.overload) {
+          this.overload.set(error.overload);
+          this.error.set(
+            `Las subtareas iniciales superan tu capacidad diaria por ${this.roundHours(error.overload.exceedsBy)} h. Ajusta las horas o sus fechas e inténtalo de nuevo.`
+          );
+        } else {
+          this.error.set(error.message);
+        }
         this.fieldErrors.set(error.fieldErrors ?? {});
       }
     });
   }
 
-  acceptCreated(): void {
-    const id = this.createdEventId();
-    this.createdEventId.set(null);
-    if (id) {
-      this.router.navigate(['/evento', id]);
-    }
+  private roundHours(value: number): number {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
   }
 }

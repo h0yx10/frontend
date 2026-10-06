@@ -39,6 +39,9 @@ export class SubtaskFormComponent {
           this.estimatedHours = editing?.estimatedHours ?? null;
           this.store.subtaskFieldErrors.set({});
         }
+        if (this.open() && this.store.overloadTarget()) {
+          this.closed.emit();
+        }
       },
       { allowSignalWrites: true }
     );

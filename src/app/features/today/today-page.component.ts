@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { DateBucket, formatDateTimeHuman, formatIsoDateHuman, todayIsoDate } from '../../core/utils/date.util';
@@ -28,6 +29,7 @@ interface TodayEventGroup {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatIconModule,
     RouterLink,
     EmptyStateComponent,
@@ -52,16 +54,34 @@ export class TodayPageComponent {
   readonly todayLabel = this.capitalize(formatIsoDateHuman(todayIsoDate()));
   readonly formatIsoDateHuman = formatIsoDateHuman;
   readonly formatDateTimeHuman = formatDateTimeHuman;
-  readonly overdueEvents = computed(() => this.applySearch(this.groupByEvent(this.store.board().overdue)));
+  readonly query = signal('');
+  readonly overdueEvents = computed(() => this.applyQuery(this.groupByEvent(this.store.board().overdue)));
   readonly todayEvents = computed(() =>
-    this.applySearch([...this.groupByEvent(this.store.board().today), ...this.eventsWithoutPendingSubtasks()])
+    this.applyQuery([...this.groupByEvent(this.store.board().today), ...this.eventsWithoutPendingSubtasks()])
   );
-  readonly upcomingEvents = computed(() => this.applySearch(this.groupByEvent(this.store.board().upcoming)));
-  readonly hasSearch = computed(() => !!this.store.search().query || !!this.store.search().eventId);
+  readonly upcomingEvents = computed(() => this.applyQuery(this.groupByEvent(this.store.board().upcoming)));
 
   constructor() {
     this.store.load();
     this.eventsService.list().subscribe((events) => this.eventOptions.set(events));
+  }
+
+  onEventFilter(eventId: string): void {
+    this.store.setFilters({ ...this.store.filters(), eventId });
+  }
+
+  /** Búsqueda local por evento, lugar o subtarea; no altera lo que devuelve el servidor. */
+  private applyQuery(groups: TodayEventGroup[]): TodayEventGroup[] {
+    const term = this.query().trim().toLowerCase();
+    if (!term) {
+      return groups;
+    }
+    return groups.filter(
+      (group) =>
+        group.eventName.toLowerCase().includes(term) ||
+        (group.event?.place ?? '').toLowerCase().includes(term) ||
+        group.subtasks.some((subtask) => subtask.name.toLowerCase().includes(term))
+    );
   }
 
   private capitalize(value: string): string {

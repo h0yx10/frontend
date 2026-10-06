@@ -1,9 +1,9 @@
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-[app-fade-in_160ms_var(--ease-out)]"
   (click)="onBackdropClick()"
 >
   <div
-    class="w-full rounded-2xl border border-border bg-surface-raised shadow-modal"
+    class="w-full rounded-2xl border border-border bg-surface-raised shadow-modal animate-[app-pop-in_240ms_var(--ease-out)]"
     [class.max-w-md]="size() === 'sm'"
     [class.max-w-xl]="size() === 'md'"
     [class.max-w-3xl]="size() === 'lg'"
@@ -14,7 +14,7 @@
     cdkTrapFocusAutoCapture
     (click)="$event.stopPropagation()"
   >
-    <header class="flex items-center justify-between border-b border-border px-6 py-4">
+    <header class="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
       <h2 [id]="titleId()" class="text-lg font-bold text-ink">{{ heading() }}</h2>
       <button
         type="button"
@@ -25,7 +25,7 @@
         <mat-icon>close</mat-icon>
       </button>
     </header>
-    <div class="max-h-[75vh] overflow-y-auto px-6 py-5">
+    <div class="max-h-[75vh] overflow-y-auto overscroll-contain p-6">
       <ng-content />
     </div>
   </div>

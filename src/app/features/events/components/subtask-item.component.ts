@@ -26,11 +26,11 @@ export class SubtaskItemComponent {
   readonly borderClass = computed(() => {
     switch (this.subtask().status) {
       case 'DONE':
-        return 'border-l-success';
+        return 'border-l-2 border-l-success-muted';
       case 'POSTPONED':
-        return 'border-l-warning';
+        return 'border-l-2 border-l-warning-warm';
       default:
-        return 'border-l-primary';
+        return 'border-l-2 border-l-accent';
     }
   });
 }
