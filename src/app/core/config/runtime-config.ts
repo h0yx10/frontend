@@ -1,5 +1,5 @@
 export const runtimeConfig = {
-  apiUrl: 'http://localhost:8080/api',
+  apiUrl: 'https://backend-sspa.onrender.com/api',
   /**
    * https://backend-sspa.onrender.com/api  
    * Valor por defecto que usa la UI antes de que responda `GET /api/capacity`
