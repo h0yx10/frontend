@@ -2,7 +2,7 @@
   <app-modal titleId="subtask-form-title" [heading]="heading" size="sm" (closed)="closed.emit()">
     <form class="space-y-4" (ngSubmit)="submit()" novalidate>
       <div>
-        <label for="subtask-name" class="mb-1.5 block text-sm font-medium text-ink">
+        <label for="subtask-name" class="mb-2 block text-sm font-medium text-ink">
           Nombre <span class="text-danger">*</span>
         </label>
         <input
@@ -16,13 +16,13 @@
           [class.border-danger]="store.subtaskFieldErrors()['name']"
         />
         @if (store.subtaskFieldErrors()['name']) {
-          <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['name'] }}</p>
+          <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['name'] }}</p>
         }
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label for="subtask-date" class="mb-1.5 block text-sm font-medium text-ink">
+          <label for="subtask-date" class="mb-2 block text-sm font-medium text-ink">
             Plazo <span class="text-danger">*</span>
           </label>
           <input
@@ -35,12 +35,12 @@
             [class.border-danger]="store.subtaskFieldErrors()['targetDate']"
           />
           @if (store.subtaskFieldErrors()['targetDate']) {
-            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['targetDate'] }}</p>
+            <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['targetDate'] }}</p>
           }
         </div>
 
         <div>
-          <label for="subtask-hours" class="mb-1.5 block text-sm font-medium text-ink">
+          <label for="subtask-hours" class="mb-2 block text-sm font-medium text-ink">
             Horas estimadas <span class="text-danger">*</span>
           </label>
           <input
@@ -55,7 +55,7 @@
             [class.border-danger]="store.subtaskFieldErrors()['estimatedHours']"
           />
           @if (store.subtaskFieldErrors()['estimatedHours']) {
-            <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['estimatedHours'] }}</p>
+            <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['estimatedHours'] }}</p>
           }
         </div>
       </div>

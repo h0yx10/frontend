@@ -31,6 +31,7 @@ export class RescheduleDialogComponent {
   private readonly subtasksService = inject(SubtasksService);
 
   readonly subtask = input<Subtask | null>(null);
+  readonly initialConflict = input<OverloadCheckResult | null>(null);
 
   @Output() readonly closed = new EventEmitter<void>();
   @Output() readonly changed = new EventEmitter<Subtask>();
@@ -45,6 +46,7 @@ export class RescheduleDialogComponent {
   readonly reducedHours = signal(1);
   readonly showReduceForm = signal(false);
   readonly error = signal('');
+  readonly roundHours = (value: number): number => Math.round((value + Number.EPSILON) * 100) / 100;
 
   constructor() {
     effect(
@@ -54,6 +56,11 @@ export class RescheduleDialogComponent {
           this.targetDate = subtask.targetDate;
           this.reducedHours.set(subtask.estimatedHours);
           this.resetConflictState();
+          const conflict = this.initialConflict();
+          if (conflict) {
+            this.conflict.set(conflict);
+            this.loadSuggestions(subtask);
+          }
         }
       },
       { allowSignalWrites: true }
@@ -155,7 +162,7 @@ export class RescheduleDialogComponent {
     if (!conflict) {
       return 0;
     }
-    return Math.max(0.5, +(conflict.limitHours - conflict.plannedHours).toFixed(2));
+    return Math.max(0.5, +(this.reducedHours() - conflict.exceedsBy).toFixed(2));
   }
 
   confirmReduceHours(): void {

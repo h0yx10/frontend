@@ -1,6 +1,6 @@
 <form class="space-y-4" (ngSubmit)="submit()" novalidate>
   <div>
-    <label for="event-name" class="mb-1.5 block text-sm font-medium text-ink">
+    <label for="event-name" class="mb-2 block text-sm font-medium text-ink">
       Nombre del evento <span class="text-danger">*</span>
     </label>
     <input
@@ -22,7 +22,7 @@
 
   <div class="grid gap-4 sm:grid-cols-2">
     <div>
-      <label for="event-type" class="mb-1.5 block text-sm font-medium text-ink">
+      <label for="event-type" class="mb-2 block text-sm font-medium text-ink">
         Tipo <span class="text-danger">*</span>
       </label>
       <input
@@ -43,12 +43,12 @@
         }
       </datalist>
       @if (fieldErrors()['type']) {
-        <p class="mt-1 text-xs text-danger">{{ fieldErrors()['type'] }}</p>
+        <p class="mt-2 text-xs text-danger">{{ fieldErrors()['type'] }}</p>
       }
     </div>
 
     <div>
-      <label for="event-contact" class="mb-1.5 block text-sm font-medium text-ink">
+      <label for="event-contact" class="mb-2 block text-sm font-medium text-ink">
         Cliente / contacto
       </label>
       <input
@@ -64,7 +64,7 @@
 
   <div class="grid gap-4 sm:grid-cols-2">
     <div>
-      <label for="event-datetime" class="mb-1.5 block text-sm font-medium text-ink">
+      <label for="event-datetime" class="mb-2 block text-sm font-medium text-ink">
         Fecha y hora <span class="text-danger">*</span>
       </label>
       <input
@@ -78,12 +78,12 @@
         [attr.aria-invalid]="!!fieldErrors()['datetime']"
       />
       @if (fieldErrors()['datetime']) {
-        <p class="mt-1 text-xs text-danger">{{ fieldErrors()['datetime'] }}</p>
+        <p class="mt-2 text-xs text-danger">{{ fieldErrors()['datetime'] }}</p>
       }
     </div>
 
     <div>
-      <label for="event-place" class="mb-1.5 block text-sm font-medium text-ink">
+      <label for="event-place" class="mb-2 block text-sm font-medium text-ink">
         Lugar / plazo límite
       </label>
       <input

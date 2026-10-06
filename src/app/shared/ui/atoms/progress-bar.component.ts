@@ -8,6 +8,7 @@ import { Component, computed, input } from '@angular/core';
 export class ProgressBarComponent {
   readonly percentage = input.required<number>();
   readonly label = input('');
+  readonly ariaValueText = input('');
   readonly autoTone = input(false);
 
   readonly clamped = computed(() => Math.min(100, Math.max(0, this.percentage())));

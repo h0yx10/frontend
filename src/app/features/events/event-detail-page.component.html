@@ -17,7 +17,7 @@
   @if (store.event(); as event) {
     <div class="grid gap-6 lg:grid-cols-[1fr_300px]">
       <div>
-        <section class="rounded-2xl border border-border bg-surface p-6 sm:p-8">
+        <section class="card-glow rounded-2xl p-6 sm:p-8">
           @if (editingEvent()) {
             <app-event-form
               [initial]="event"
@@ -74,12 +74,12 @@
           }
         </section>
 
-        <section class="mt-6">
+        <section class="mt-6 rounded-2xl border border-border bg-surface p-4">
           <div class="mb-4 flex items-center justify-between">
             <h2 class="text-base font-bold text-ink">Subtareas logísticas</h2>
             <button
               type="button"
-              class="inline-flex items-center gap-1.5 rounded-xl border border-border px-3.5 py-2 text-sm font-semibold text-ink transition hover:bg-surface-raised"
+              class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border px-3.5 py-2 text-sm font-semibold text-ink transition hover:bg-surface-raised"
               (click)="openAddSubtask()"
             >
               <mat-icon class="text-[18px]">add</mat-icon>
@@ -89,6 +89,9 @@
 
           @if (store.error()) {
             <p class="mb-3 text-sm text-danger" role="alert">{{ store.error() }}</p>
+          }
+          @if (store.successMessage()) {
+            <p class="mb-3 text-center text-sm text-success" role="status">{{ store.successMessage() }}</p>
           }
 
           @if (store.subtasks().length === 0) {
@@ -194,9 +197,10 @@
 />
 
 <app-reschedule-dialog
-  [subtask]="rescheduleTarget()"
-  (closed)="rescheduleTarget.set(null)"
-  (changed)="store.applySubtaskUpdate($event)"
+  [subtask]="store.overloadTarget() || rescheduleTarget()"
+  [initialConflict]="store.overload()"
+  (closed)="store.overloadTarget() ? closeOverloadDialog() : rescheduleTarget.set(null)"
+  (changed)="store.overloadTarget() ? completeOverloadResolution($event) : store.applySubtaskUpdate($event)"
 />
 
 @if (deleteEventConfirm()) {

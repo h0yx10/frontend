@@ -129,11 +129,13 @@ export class EventDetailPageComponent {
   }
 
   openAddSubtask(): void {
+    this.store.clearOverload();
     this.subtaskEditing.set(null);
     this.subtaskDialogOpen.set(true);
   }
 
   openEditSubtask(subtask: Subtask): void {
+    this.store.clearOverload();
     this.subtaskEditing.set(subtask);
     this.subtaskDialogOpen.set(true);
   }
@@ -141,6 +143,15 @@ export class EventDetailPageComponent {
   closeSubtaskDialog(): void {
     this.subtaskDialogOpen.set(false);
     this.subtaskEditing.set(null);
+  }
+
+  closeOverloadDialog(): void {
+    this.store.clearOverload();
+  }
+
+  completeOverloadResolution(updated: Subtask): void {
+    this.store.applySubtaskUpdate(updated);
+    this.store.markResolutionComplete();
   }
 
   markDone(subtask: Subtask): void {

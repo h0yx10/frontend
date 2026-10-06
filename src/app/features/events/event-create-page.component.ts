@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 
-import { AppHttpError } from '../../core/interceptors/http-error.interceptor';
+import { AppHttpError, OverloadErrorInfo } from '../../core/interceptors/http-error.interceptor';
 import { EVENT_TYPE_SUGGESTIONS, EventPayload, SubtareaInicialRequestDto } from './models/event.model';
 import { EventsService } from './services/events.service';
 
@@ -29,6 +29,7 @@ export class EventCreatePageComponent {
   readonly error = signal('');
   readonly fieldErrors = signal<Record<string, string>>({});
   readonly rowErrors = signal<Record<number, string>>({});
+  readonly overload = signal<OverloadErrorInfo | null>(null);
 
   name = '';
   type = '';
@@ -88,6 +89,7 @@ export class EventCreatePageComponent {
     this.saving.set(true);
     this.error.set('');
     this.fieldErrors.set({});
+    this.overload.set(null);
 
     this.eventsService.create(payload, subtareas).subscribe({
       next: (event) => {
@@ -96,9 +98,20 @@ export class EventCreatePageComponent {
       },
       error: (error: AppHttpError) => {
         this.saving.set(false);
-        this.error.set(error.message);
+        if (error.status === 409 && error.overload) {
+          this.overload.set(error.overload);
+          this.error.set(
+            `Las subtareas iniciales superan tu capacidad diaria por ${this.roundHours(error.overload.exceedsBy)} h. Ajusta las horas o sus fechas e inténtalo de nuevo.`
+          );
+        } else {
+          this.error.set(error.message);
+        }
         this.fieldErrors.set(error.fieldErrors ?? {});
       }
     });
+  }
+
+  private roundHours(value: number): number {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
   }
 }

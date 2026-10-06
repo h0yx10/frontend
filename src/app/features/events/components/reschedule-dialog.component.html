@@ -5,7 +5,7 @@
     </p>
 
     <div class="mt-4">
-      <label for="reschedule-date" class="mb-1.5 block text-sm font-medium text-ink">
+      <label for="reschedule-date" class="mb-2 block text-sm font-medium text-ink">
         Nuevo plazo
       </label>
       <input
@@ -43,8 +43,9 @@
       <div class="mt-5 rounded-xl border border-warning/40 bg-warning-soft p-4" role="alert">
         <p class="text-sm font-semibold text-warning">Sobrecarga detectada</p>
         <p class="mt-1 text-sm text-ink">
-          Quedarías con {{ conflict()!.plannedHours }} h planificadas (límite
-          {{ conflict()!.limitHours }} h) el {{ formatIsoDateHuman(targetDate) }}.
+          Con este cambio superas tu capacidad diaria por {{ roundHours(conflict()!.exceedsBy) }} h.
+          Capacidad: {{ roundHours(conflict()!.limitHours) }} h. Total: {{ roundHours(conflict()!.plannedHours) }} h
+          el {{ formatIsoDateHuman(targetDate) }}.
         </p>
 
         @if (suggestions().length) {
@@ -83,7 +84,7 @@
 
         @if (showReduceForm()) {
           <div class="rounded-xl border border-border bg-canvas p-4">
-            <label for="reduced-hours" class="mb-1.5 block text-sm font-medium text-ink">
+            <label for="reduced-hours" class="mb-2 block text-sm font-medium text-ink">
               Nuevas horas estimadas (máx. {{ maxReducibleHours }} h)
             </label>
             <input

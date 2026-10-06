@@ -107,7 +107,7 @@ export class LoginPageComponent {
       return 'Escribe un correo valido.';
     }
     if (errors['passwordSize']) {
-      return 'La contrasena debe tener al menos 8 caracteres y un maximo de 72 bytes UTF-8.';
+      return 'La contrasena debe tener al menos 8 caracteres.';
     }
     if (errors['maxlength']) {
       return field === 'name' ? 'El nombre puede tener maximo 120 caracteres.' : 'Escribe un correo valido.';

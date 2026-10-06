@@ -114,3 +114,180 @@ $app-theme: mat.define-dark-theme(
   line-height: 1 !important;
   vertical-align: middle;
 }
+
+// --- Scrollbar unificado (página, modales, listas, paneles) -------------------
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: var(--scrollbar-thumb);
+  background-clip: content-box;
+  border: 2px solid transparent;
+}
+
+@media (hover: hover) {
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+    background-clip: content-box;
+  }
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+// --- Retroalimentación al presionar y movimiento reducido ---------------------
+button:not(:disabled),
+a[class*='rounded'] {
+  transition-timing-function: var(--ease-out);
+  transition-duration: var(--duration-micro);
+}
+
+button:not(:disabled):active,
+a[class*='rounded-full']:active,
+a[class*='bg-primary']:active {
+  transform: scale(0.97);
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes app-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  button:not(:disabled):active {
+    transform: none;
+  }
+}
+
+// --- Tarjeta con borde de resplandor cálido (sutil, sin ruido visual) ---------
+.card-glow {
+  border: 1px solid rgb(var(--color-glow) / 28%);
+  background-color: var(--color-surface-warm);
+  box-shadow:
+    0 0 0 1px rgb(var(--color-glow) / 6%),
+    0 0 18px rgb(var(--color-glow) / 12%),
+    inset 0 0 20px rgb(var(--color-glow) / 6%);
+  transition:
+    border-color var(--duration-panel) var(--ease-out),
+    box-shadow var(--duration-panel) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .card-glow:hover {
+    border-color: rgb(var(--color-glow) / 42%);
+    box-shadow:
+      0 0 0 1px rgb(var(--color-glow) / 8%),
+      0 0 24px rgb(var(--color-glow) / 16%),
+      inset 0 0 22px rgb(var(--color-glow) / 8%);
+  }
+}
+
+// --- Hoy: resplandor suave por sección (color en --glow, canal RGB) ----------
+.glow-overdue {
+  --glow: 217 119 98; // rojo cálido
+}
+
+.glow-today {
+  --glow: 136 130 222; // azul cálido
+}
+
+.today-event-card,
+.today-subtasks-panel {
+  border-color: rgb(var(--glow, var(--color-glow)) / 30%);
+  box-shadow:
+    0 0 14px rgb(var(--glow, var(--color-glow)) / 10%),
+    inset 0 0 12px rgb(var(--glow, var(--color-glow)) / 5%);
+}
+
+// --- Hoy: acciones de cada gestión en una sola línea --------------------------
+// El item mide su propio ancho: con poco espacio muestra solo el texto; con
+// espacio suficiente añade los iconos.
+app-today-item {
+  display: block;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+// Espacio justo: solo el icono; el texto aparece como etiqueta al pasar el mouse
+// o al enfocar con teclado.
+.today-action-label {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  z-index: 20;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 40%);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity var(--duration-micro) var(--ease-out),
+    transform var(--duration-micro) var(--ease-out);
+}
+
+button:focus-visible > .today-action-label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (hover: hover) {
+  button:hover > .today-action-label {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+// Con espacio suficiente: icono y texto en línea.
+@container (min-width: 300px) {
+  .today-action-label {
+    position: static;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: inherit;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+    margin-left: 0.25rem;
+  }
+}
+
+// Gestión de hoy: franja lateral con el mismo resplandor cálido de la tarjeta.
+.today-item-glow {
+  border-left-color: rgb(var(--glow, var(--color-glow)) / 55%);
+  box-shadow: -4px 0 12px -6px rgb(var(--glow, var(--color-glow)) / 22%);
+}

@@ -1,9 +1,11 @@
-<div class="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2.5">
-  <p class="font-mono text-[10px] font-semibold uppercase tracking-wide text-muted">
+<div class="flex h-full min-w-0 flex-col rounded-xl border border-border bg-surface p-4">
+  <p class="w-full truncate whitespace-nowrap font-mono text-[10px] font-semibold uppercase tracking-wide text-muted">
     {{ label() }}
   </p>
-  <p class="text-xl font-extrabold leading-none" [class]="valueClass()">{{ value() }}</p>
-  @if (hint()) {
-    <p class="hidden text-[10px] text-muted 2xl:block">{{ hint() }}</p>
-  }
+  <div class="mt-auto flex min-w-0 items-end gap-3 pt-3">
+    <p class="shrink-0 text-2xl font-extrabold leading-none" [class]="valueClass()">{{ value() }}</p>
+    @if (hint()) {
+      <p class="min-w-0 truncate text-[10px] leading-4 text-muted">{{ hint() }}</p>
+    }
+  </div>
 </div>
