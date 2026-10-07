@@ -4,12 +4,12 @@ import { Component } from '@angular/core';
   selector: 'app-brand-logo',
   standalone: true,
   template: `
-    <img src="assets/images/eventia-logo.svg" alt="Eventia — Logistics command" width="990" height="720" />
+    <img src="assets/images/eventia-logo.png" alt="Eventia — Logistics command" width="154" height="40" />
   `,
   styles: `
     :host {
       display: block;
-      width: 11rem;
+      width: 9.625rem;
       max-width: 100%;
       margin-inline: 0;
     }
@@ -18,7 +18,6 @@ import { Component } from '@angular/core';
       display: block;
       width: 100%;
       height: auto;
-      filter: drop-shadow(0 4px 12px rgb(139 92 246 / 12%));
     }
   `
 })

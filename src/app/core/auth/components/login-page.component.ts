@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,11 @@ import {
   PASSWORD_MIN_LENGTH
 } from '../models/auth.model';
 import { AuthStore } from '../store/auth.store';
+import { ButtonComponent } from '../../../shared/ui/atoms/button.component';
+import { FormFieldComponent } from '../../../shared/ui/molecules/form-field.component';
+import { InfoDialogComponent } from '../../../shared/ui/molecules/info-dialog.component';
+import { OrbitSceneComponent } from '../../../shared/ui/organisms/orbit-scene/orbit-scene.component';
+import { OrbitPhase } from '../../../shared/ui/organisms/orbit-scene/orbit-scene.model';
 import { BrandLogoComponent } from '../../../shared/ui/atoms/brand-logo.component';
 import { AppHttpError } from '../../interceptors/http-error.interceptor';
 
@@ -29,20 +34,34 @@ const BACKEND_FIELD_MAP: Record<string, AuthField> = {
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [ReactiveFormsModule, MatIconModule, BrandLogoComponent],
-  templateUrl: './login-page.component.html'
+  imports: [ReactiveFormsModule, MatIconModule, BrandLogoComponent, ButtonComponent, FormFieldComponent, OrbitSceneComponent, InfoDialogComponent],
+  templateUrl: './login-page.component.html',
+  styleUrl: './login-page.component.scss'
 })
 export class LoginPageComponent {
   private readonly auth = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
+  @ViewChild('authForm', { static: true }) private authForm!: ElementRef<HTMLFormElement>;
 
   readonly mode = signal<AuthMode>('login');
 
   readonly loading = signal(false);
   readonly error = signal('');
   readonly passwordVisible = signal(false);
+  readonly info = signal<{ heading: string; message: string } | null>(null);
+  readonly orbitPhases: readonly OrbitPhase[] = [
+    { id: 'planning', tone: 'plan', radius: 1.85, speed: 0.3, items: [
+      { id: 'date', label: 'Fecha' }, { id: 'budget', label: 'Presupuesto' }, { id: 'venue', label: 'Salón' }
+    ] },
+    { id: 'coordination', tone: 'coordinate', radius: 2.85, speed: 0.2, items: [
+      { id: 'catering', label: 'Catering' }, { id: 'music', label: 'Música' }, { id: 'transport', label: 'Transporte' }
+    ] },
+    { id: 'followup', tone: 'followup', radius: 3.85, speed: 0.13, items: [
+      { id: 'confirmations', label: 'Confirmaciones' }, { id: 'payments', label: 'Pagos' }
+    ] }
+  ];
   readonly serverFieldErrors = signal<Partial<Record<AuthField, string>>>({});
   readonly sessionExpired = signal(this.route.snapshot.queryParamMap.has('expired'));
 
@@ -66,6 +85,14 @@ export class LoginPageComponent {
         });
       });
     }
+  }
+
+  showRecoveryInfo(): void {
+    this.info.set({ heading: 'Recuperar contraseña', message: 'La recuperación de contraseña todavía no está disponible. Si no puedes acceder, solicita ayuda al administrador de tu cuenta.' });
+  }
+
+  showHelp(): void {
+    this.info.set({ heading: 'Ayuda para acceder', message: 'Inicia sesión con tu correo y contraseña. Si aún no tienes una cuenta, elige Crear una cuenta. Revisa los mensajes debajo de cada campo para corregir los datos.' });
   }
 
   togglePasswordVisibility(): void {
@@ -107,7 +134,7 @@ export class LoginPageComponent {
       return 'Escribe un correo valido.';
     }
     if (errors['passwordSize']) {
-      return 'La contrasena debe tener al menos 8 caracteres.';
+      return 'La contrasena debe tener al menos 8 caracteres y un maximo de 72 bytes UTF-8.';
     }
     if (errors['maxlength']) {
       return field === 'name' ? 'El nombre puede tener maximo 120 caracteres.' : 'Escribe un correo valido.';
@@ -123,6 +150,7 @@ export class LoginPageComponent {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.shakeForm();
       return;
     }
 
@@ -140,6 +168,15 @@ export class LoginPageComponent {
         this.serverFieldErrors.set(mapServerFieldErrors(error.fieldErrors));
       }
     });
+  }
+
+  /** Sacude el formulario y lleva el foco al primer campo inválido. */
+  private shakeForm(): void {
+    const form = this.authForm.nativeElement;
+    form.classList.remove('shake');
+    void form.offsetWidth; // fuerza un reflow para reiniciar la animación si se repite el envío
+    form.classList.add('shake');
+    form.querySelector<HTMLInputElement>('input.ng-invalid')?.focus();
   }
 
   private setMode(mode: AuthMode): void {

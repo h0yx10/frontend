@@ -2,8 +2,11 @@
   mat-flat-button
   color="primary"
   class="w-full sm:w-auto"
+  [class.orbit-button]="appearance() === 'orbit'"
   [type]="type()"
-  [disabled]="disabled()"
+  [disabled]="disabled() || loading()"
+  [attr.aria-busy]="loading()"
 >
+  @if (loading()) { <span class="button-spinner" aria-hidden="true"></span> }
   <ng-content />
 </button>

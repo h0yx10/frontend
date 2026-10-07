@@ -88,3 +88,17 @@ CHROME_BIN=/opt/brave-bin/brave npm test
 Las pruebas de autenticación cubren contratos HTTP, sesión y expiración, roles,
 guards, interceptores, formularios de login/registro y cuenta, y errores del backend.
 También se verifican las rutas del servicio administrativo de usuarios.
+
+## Autenticación Órbita
+
+Login y registro usan una tarjeta orbital con Three.js y formulario Reactive Forms.
+El módulo de Three.js se carga de forma diferida; pausa la escena desde su control.
+La animación arranca de inmediato; sin WebGL se anima una versión SVG equivalente. Los colores
+están encapsulados mediante tokens `--auth-*` y `--orbit-*`.
+
+Las dependencias Three.js y sus tipos están fijadas para TypeScript 5.4. Al cambiar
+las dependencias, sincroniza `pnpm-lock.yaml` y `package-lock.json`: Vercel instala con
+pnpm y `--frozen-lockfile`. Mantén `.npmrc` (`node-linker=hoisted`) para Angular Material.
+
+La recuperación de contraseña del login es informativa; no envía correos ni llama a
+un endpoint de restablecimiento.

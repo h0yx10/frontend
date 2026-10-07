@@ -1,0 +1,25 @@
+<div class="scene" [class.static-scene]="fallback()" role="group" aria-label="Ilustración de gestiones alrededor de un evento">
+  <svg class="fallback-art" [class.invisible]="!fallback()" viewBox="0 0 600 400" aria-hidden="true">
+    <g #svgScene></g>
+  </svg>
+  <canvas #canvas [class.invisible]="fallback()" aria-hidden="true"></canvas>
+  <div class="chips" aria-hidden="true">
+    @for (item of items(); track item.id) {
+      <div #chip class="chip" [class]="'chip ' + item.tone" [style.left.%]="item.x" [style.top.%]="item.y">
+        <span class="task-dot">
+          <svg width="9" height="9" viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6 9.6 3.6" /></svg>
+        </span>
+        <span>{{ item.label }}</span>
+      </div>
+    }
+  </div>
+  <div class="sun-label" aria-live="polite" [class.complete]="progress() === 100">
+    <b>{{ centerLabel() }}</b>
+    <span>{{ progress() === 100 ? 'Todo listo' : progress() + '% listo' }}</span>
+  </div>
+  <button type="button" class="pause-button" [attr.aria-pressed]="paused()"
+    [attr.aria-label]="paused() ? 'Reanudar animación' : 'Pausar animación'" (click)="togglePause()">
+    <mat-icon aria-hidden="true">{{ paused() ? 'play_arrow' : 'pause' }}</mat-icon>
+    {{ paused() ? 'Reanudar' : 'Pausar' }}
+  </button>
+</div>

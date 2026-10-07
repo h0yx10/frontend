@@ -34,6 +34,29 @@ y el arranque de la aplicación consultan el store. `AuthService` no conserva es
 Los componentes de autenticación pueden importar componentes de UI de `shared/`;
 esta es una excepción explícita a la restricción general de `core/`.
 
+El login y registro comparten la composición **Eventia Órbita**. `LoginPageComponent`
+conserva los Reactive Forms, validaciones y llamadas al store. Los campos se componen
+con `shared/ui/molecules/form-field`; el logo horizontal y el botón de autenticación
+reutilizan los átomos `brand-logo` y `button` (apariencia `orbit`).
+
+`shared/ui/organisms/orbit-scene` es una ilustración independiente de la autenticación.
+Recibe `phases: readonly OrbitPhase[]` y `centerLabel`; las fases definen gestiones,
+radio, velocidad y tono. Su progreso es una demostración visual, no datos de la cuenta.
+Three.js se importa dinámicamente mediante una fábrica de renderizado reemplazable en
+pruebas. La escena corre fuera de la zona de Angular, se pausa al ocultarse y libera
+geometrías, materiales, texturas y observadores al desmontarse. Usa un SVG con la misma perspectiva y animación cuando WebGL falla. Ambos motores
+respetan pausa y visibilidad. La animación arranca sin interacción incluso con movimiento reducido; el botón de pausa
+es el control para detenerla.
+
+La paleta `--auth-*` y `--orbit-*` se define junto a los tokens del tema; sólo los
+componentes de autenticación y su ilustración la consumen. La geometría, proyección y
+animaciones específicas se encapsulan en SCSS y en el renderer del organismo. Las
+coordenadas geométricas se actualizan por frame sin disparar detección de cambios;
+los cambios de progreso sí actualizan señales de Angular.
+
+La recuperación de contraseña y la ayuda abren `InfoDialogComponent`. Recuperación
+explica que el flujo aún no está disponible; el pie muestra Español como idioma actual.
+
 El cierre de sesión usa `POST /api/auth/logout` sin body y con el token Bearer actual.
 `AuthStore.logout()` limpia la sesión en memoria y almacenamiento tras 200 o 401.
 Los errores de red y 500 conservan la sesión y se muestran con una opción de reintento.

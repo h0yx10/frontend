@@ -5,6 +5,8 @@ import { of, Subject, throwError } from 'rxjs';
 import { AuthStore } from '../store/auth.store';
 import { user } from '../testing/auth.fixtures';
 import { AppHttpError } from '../../interceptors/http-error.interceptor';
+import { ORBIT_RENDERER_FACTORY } from '../../../shared/ui/organisms/orbit-scene/orbit-scene.renderer';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { LoginPageComponent } from './login-page.component';
 
 describe('LoginPageComponent', () => {
@@ -23,6 +25,8 @@ describe('LoginPageComponent', () => {
     router = jasmine.createSpyObj<Router>('Router',['navigate','navigateByUrl']);
     snapshot = {data:{}, queryParamMap:convertToParamMap({})};
     await TestBed.configureTestingModule({imports:[LoginPageComponent],providers:[
+      provideNoopAnimations(),
+      {provide:ORBIT_RENDERER_FACTORY,useValue:async () => { throw new Error('WebGL desactivado en pruebas del formulario'); }},
       {provide:AuthStore,useValue:auth}, {provide:Router,useValue:router},
       {provide:ActivatedRoute,useValue:{snapshot}}
     ]}).compileComponents();
@@ -224,4 +228,32 @@ describe('LoginPageComponent', () => {
     component.toggleMode();
     expect(router.navigate).toHaveBeenCalledWith(['/register'],{queryParamsHandling:'preserve'});
   });
+  it('la recuperación abre un diálogo informativo sin enviar peticiones de autenticación', () => {
+    create();
+    component.showRecoveryInfo();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('La recuperación de contraseña todavía no está disponible.');
+    expect(auth.login).not.toHaveBeenCalled();
+    expect(auth.register).not.toHaveBeenCalled();
+    component.info.set(null);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-info-dialog')).toBeNull();
+  });
+
+  it('la ayuda explica el acceso y el registro', () => {
+    create();
+    component.showHelp();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Ayuda para acceder');
+    expect(component.info()?.message).toContain('Crear una cuenta');
+  });
+
+  it('compone el nuevo encabezado, ilustración y campos reutilizables', () => {
+    create();
+    expect(fixture.nativeElement.querySelector('header img').getAttribute('src')).toBe('assets/images/eventia-logo.png');
+    expect(fixture.nativeElement.querySelector('app-orbit-scene')).not.toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('app-form-field').length).toBe(2);
+    expect(fixture.nativeElement.textContent).toContain('Todo gira alrededor de tu evento.');
+  });
+
 });

@@ -58,6 +58,7 @@ $color-glow-soft: #8875d8;
   --duration-micro: 160ms;
   --duration-panel: 240ms;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
 
   // Scrollbar unificado
@@ -65,4 +66,30 @@ $color-glow-soft: #8875d8;
   --scrollbar-track: transparent;
   --scrollbar-thumb: #2a3045;
   --scrollbar-thumb-hover: #3b4360;
+}
+
+// Paleta de autenticación Órbita: consumida sólo por la página y su ilustración.
+:root {
+  --auth-canvas: #08080f;
+  --auth-surface: #0e0e19;
+  --auth-card: #151522;
+  --auth-input: #11111c;
+  --auth-border: rgb(160 150 255 / 14%);
+  --auth-ink: #f4f3ff;
+  --auth-muted: #a3a1bd;
+  --auth-dim: #7d7b98;
+  --auth-primary: #6352f0;
+  --auth-primary-hover: #7464ff;
+  --auth-link: #a99bff;
+  --auth-danger: #ff8a84;
+  --auth-focus: rgb(99 82 240 / 28%);
+  --orbit-plan: #8b7cff;
+  --orbit-coordinate: #4da3ff;
+  --orbit-followup: #ffb340;
+  --orbit-success: #30d158;
+  --orbit-sun: #d9d3ff;
+  --orbit-halo: #7464ff;
+  --orbit-star: #b9b3e8;
+  --orbit-glow: rgb(139 124 255 / 26%);
+  --orbit-shadow: rgb(0 0 0 / 40%);
 }

@@ -11,4 +11,6 @@ import { MatButtonModule } from '@angular/material/button';
 export class ButtonComponent {
   readonly type = input<'button' | 'submit'>('button');
   readonly disabled = input(false);
+  readonly loading = input(false);
+  readonly appearance = input<'default' | 'orbit'>('default');
 }
