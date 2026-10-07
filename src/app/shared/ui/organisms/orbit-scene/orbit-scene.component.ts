@@ -40,6 +40,8 @@ export class OrbitSceneComponent implements AfterViewInit, OnChanges, OnDestroy 
   private destroyed = false;
   private viewReady = false;
   private generation = 0;
+  private readonly stackOrder: number[] = [];
+  private readonly stackRank: number[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.viewReady && changes['phases']) {
@@ -144,6 +146,14 @@ export class OrbitSceneComponent implements AfterViewInit, OnChanges, OnDestroy 
   }
 
   private applyFrame(frame: OrbitFrame): void {
+    // Apilamiento por orden relativo, no por profundidad absoluta: así el z-index sólo cambia cuando
+    // dos etiquetas se cruzan. Cambiarlo cada pocos frames obliga a repintar el chip y su texto tiembla.
+    const order = this.stackOrder;
+    order.length = frame.items.length;
+    for (let i = 0; i < order.length; i++) order[i] = i;
+    order.sort((a, b) => frame.items[a].zIndex - frame.items[b].zIndex || a - b);
+    // Las etiquetas de la mitad delantera pasan por encima del rótulo del sol (z-index 50).
+    order.forEach((itemIndex, rank) => this.stackRank[itemIndex] = rank + 1 + (frame.items[itemIndex].zIndex >= 50 ? 60 : 0));
     this.chips.forEach((chip, index) => {
       const item = frame.items[index];
       if (!item) return;
@@ -156,8 +166,7 @@ export class OrbitSceneComponent implements AfterViewInit, OnChanges, OnDestroy 
       // Subpíxeles intactos: redondear a píxeles enteros produce saltos visibles en movimientos lentos.
       element.style.transform = `translate3d(${item.x.toFixed(2)}px, ${item.y.toFixed(2)}px, 0) translate(-50%, -100%) scale(${item.scale.toFixed(4)})`;
       element.style.opacity = item.opacity.toFixed(3);
-      // Cambiar el apilamiento fuerza a recomponer capas; sólo se escribe cuando realmente cambia.
-      const zIndex = String(item.zIndex);
+      const zIndex = String(this.stackRank[index]);
       if (element.style.zIndex !== zIndex) element.style.zIndex = zIndex;
       if (element.classList.contains('done') !== item.done) element.classList.toggle('done', item.done);
     });
