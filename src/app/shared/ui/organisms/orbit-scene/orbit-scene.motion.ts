@@ -56,10 +56,18 @@ export function bornFactor(elapsed: number, index: number): number {
   return Math.min(1, Math.max(0, (elapsed - (0.35 + index * 0.12)) / 0.6));
 }
 
-/** Distancia de cámara que encuadra la órbita mayor; en pantallas estrechas se aleja más. */
+/** Encuadra la órbita mayor y deja espacio para las etiquetas HTML sobre los planetas. */
 export function cameraDistance(width: number, height: number, maxRadius: number): number {
   const fit = maxRadius * (width < 600 ? 1.5 : 1.18) / (Math.tan(ORBIT_FOV * Math.PI / 360) * (width / height));
-  return Math.max(9.5, fit);
+  const focal = height / (2 * Math.tan(ORBIT_FOV * Math.PI / 360));
+  const nearDepth = maxRadius * Math.sin(ORBIT_TILT);
+  const verticalRadius = maxRadius * Math.hypot(Math.sin(ORBIT_ROTATION), Math.cos(ORBIT_TILT) * Math.cos(ORBIT_ROTATION));
+  // 34 px cubren la etiqueta de 30 px y su animación de escala; otros 12 px evitan el recorte.
+  // El desplazamiento de 14 px sobre el planeta también crece con la perspectiva.
+  const labelOffset = 14;
+  const available = Math.max(1, height / 2 - 34 - 12 - labelOffset);
+  const verticalFit = nearDepth + (verticalRadius * focal + labelOffset * nearDepth) / available;
+  return Math.max(9.5, fit, verticalFit);
 }
 
 /** Generador determinista para que estrellas y composición sean estables entre cargas y pruebas. */

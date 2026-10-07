@@ -24,9 +24,6 @@ app-starfield { position: fixed; z-index: -1; }
 .form-subtitle { font-size: 14px; letter-spacing: -0.01em; }
 app-orbit-scene { margin-inline: -40px; }
 .auth-form { display: flex; flex-direction: column; max-width: 380px; justify-self: center; }
-.lock-icon { align-self: flex-start; }
-.lock-icon { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--auth-border); background: var(--auth-card); color: var(--auth-link); }
-.lock-icon mat-icon { font-size: 20px; }
 .form-title { margin: 0; font-size: 32px; line-height: 1.2; letter-spacing: -0.025em; }
 .field-input {
   height: 52px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--auth-border);
