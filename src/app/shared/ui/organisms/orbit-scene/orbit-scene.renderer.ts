@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
-import type { BufferGeometry, Color, Material, Mesh, MeshStandardMaterial, Points, PointsMaterial, Scene, Sprite, SpriteMaterial, PerspectiveCamera, Vector3, WebGLRenderer } from 'three';
+import type { BufferGeometry, Color, Material, Mesh, MeshStandardMaterial, Scene, Sprite, SpriteMaterial, PerspectiveCamera, Vector3, WebGLRenderer } from 'three';
 import { OrbitFrame, OrbitPalette, OrbitPhase, OrbitProjection } from './orbit-scene.model';
-import { approach, bornFactor, cameraDistance, completedCount, FrameClock, ORBIT_FOV, ORBIT_ROTATION, ORBIT_TILT, seededRandom } from './orbit-scene.motion';
+import { approach, bornFactor, cameraDistance, completedCount, FrameClock, ORBIT_FOV, ORBIT_ROTATION, ORBIT_TILT } from './orbit-scene.motion';
 
 type ThreeModule = typeof import('three');
 export interface OrbitRendererHandle {
@@ -40,7 +40,6 @@ class OrbitRenderer implements OrbitRendererHandle {
   private readonly glowTexture: import('three').DataTexture;
   private readonly sun: Mesh;
   private readonly halo: Sprite;
-  private readonly starMaterial: PointsMaterial;
   private readonly success: Color;
   private readonly scratch: Color;
   private readonly maxRadius: number;
@@ -98,17 +97,7 @@ class OrbitRenderer implements OrbitRendererHandle {
       });
     });
 
-    // Cúpula de estrellas alrededor de la escena, siempre detrás de la cámara.
-    const random = seededRandom(41);
-    const positions = new Float32Array(500 * 3);
-    const direction = new three.Vector3();
-    for (let i = 0; i < 500; i++) {
-      direction.set(random() * 2 - 1, random() * 2 - 1, random() * 2 - 1).normalize().multiplyScalar(18 + random() * 12);
-      if (direction.z > 5) direction.z = -direction.z;
-      positions.set([direction.x, direction.y, direction.z], i * 3);
-    }
-    this.starMaterial = new three.PointsMaterial({ color: palette.star, size: 0.09, transparent: true, opacity: 0.6 });
-    this.scene.add(new three.Points(new three.BufferGeometry().setAttribute('position', new three.BufferAttribute(positions, 3)), this.starMaterial));
+
   }
 
   resize(width: number, height: number): void {
@@ -169,7 +158,6 @@ class OrbitRenderer implements OrbitRendererHandle {
     const pulse = 1 + 0.04 * Math.sin(this.elapsed * 2);
     this.sun.scale.setScalar(pulse);
     this.halo.scale.setScalar(4.2 * pulse);
-    this.starMaterial.opacity = 0.45 + 0.15 * Math.sin(this.elapsed);
     const focal = this.height / (2 * Math.tan(ORBIT_FOV * Math.PI / 360));
     this.planets.forEach((planet, index) => {
       const done = index < completed;

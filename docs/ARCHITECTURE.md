@@ -38,6 +38,9 @@ El login y registro comparten la composición **Eventia Órbita**. `LoginPageCom
 conserva los Reactive Forms, validaciones y llamadas al store. Los campos se componen
 con `shared/ui/molecules/form-field`; el logo horizontal y el botón de autenticación
 reutilizan los átomos `brand-logo` y `button` (apariencia `orbit`).
+El átomo decorativo `starfield` cubre el fondo de toda la pantalla de autenticación;
+las estrellas quedan fuera de los renderers orbitales. La presentación de las órbitas
+es transparente, sin borde ni tarjeta exterior.
 
 `shared/ui/organisms/orbit-scene` es una ilustración independiente de la autenticación.
 Recibe `phases: readonly OrbitPhase[]` y `centerLabel`; las fases definen gestiones,

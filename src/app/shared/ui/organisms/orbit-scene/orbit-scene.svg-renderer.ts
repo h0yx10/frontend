@@ -1,6 +1,6 @@
 import { OrbitFrame, OrbitPalette, OrbitPhase, OrbitProjection } from './orbit-scene.model';
 import type { OrbitRendererHandle } from './orbit-scene.renderer';
-import { approach, bornFactor, cameraDistance, completedCount, FrameClock, mixHex, ORBIT_FOV, ORBIT_ROTATION, ORBIT_TILT, seededRandom } from './orbit-scene.motion';
+import { approach, bornFactor, cameraDistance, completedCount, FrameClock, mixHex, ORBIT_FOV, ORBIT_ROTATION, ORBIT_TILT } from './orbit-scene.motion';
 
 interface SvgPlanet {
   phase: OrbitPhase;
@@ -18,7 +18,6 @@ export class SvgOrbitRenderer implements OrbitRendererHandle {
   private readonly id = `orbit-glow-${SvgOrbitRenderer.nextId++}`;
   private readonly planets: SvgPlanet[] = [];
   private readonly rings: { phase: OrbitPhase; path: SVGPathElement }[] = [];
-  private readonly stars: { node: SVGCircleElement; x: number; y: number; phase: number }[] = [];
   private readonly items: OrbitProjection[] = [];
   private readonly frame: { items: OrbitProjection[]; progress: number } = { items: this.items, progress: 0 };
   // Los planetas detrás del sol se dibujan antes que él y los de delante después.
@@ -58,15 +57,6 @@ export class SvgOrbitRenderer implements OrbitRendererHandle {
     defs.append(haloGradient, sunGradient);
     root.append(defs);
 
-    const starLayer = this.element('g');
-    const random = seededRandom(41);
-    for (let i = 0; i < 140; i++) {
-      const node = this.element('circle', { fill: palette.star, r: (random() * 1.1 + 0.3).toFixed(2) });
-      this.stars.push({ node, x: random(), y: random(), phase: random() * 6 });
-      starLayer.append(node);
-    }
-    root.append(starLayer);
-
     phases.forEach((phase, phaseIndex) => {
       const path = this.element('path', { fill: 'none', stroke: palette[phase.tone], 'stroke-opacity': '0.32', 'stroke-width': '1' });
       root.append(path);
@@ -101,10 +91,6 @@ export class SvgOrbitRenderer implements OrbitRendererHandle {
         return `${index ? 'L' : 'M'}${point.x.toFixed(2)},${point.y.toFixed(2)}`;
       });
       path.setAttribute('d', points.join(' ') + 'Z');
-    });
-    this.stars.forEach(star => {
-      star.node.setAttribute('cx', (star.x * width).toFixed(1));
-      star.node.setAttribute('cy', (star.y * height).toFixed(1));
     });
     this.draw(0);
   }
@@ -152,8 +138,6 @@ export class SvgOrbitRenderer implements OrbitRendererHandle {
     const pulse = 1 + 0.04 * Math.sin(this.elapsed * 2);
     this.circle(this.sun, center.x, center.y, 0.62 * center.scale * pulse);
     this.circle(this.halo, center.x, center.y, 2.1 * center.scale * pulse);
-    this.stars.forEach(star => star.node.setAttribute('opacity',
-      (0.25 + 0.35 * (0.5 + 0.5 * Math.sin(this.elapsed * 1.3 + star.phase))).toFixed(3)));
     this.planets.forEach((planet, index) => {
       const point = this.project(planet.phase.radius, planet.angle + this.elapsed * planet.phase.speed);
       const done = index < completed;

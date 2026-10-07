@@ -1,10 +1,13 @@
 :host { display: block; }
 .auth-page {
+  position: relative;
+  isolation: isolate;
   min-height: 100dvh;
   padding: 24px 28px;
   background: var(--auth-canvas);
   color: var(--auth-ink);
 }
+app-starfield { position: fixed; z-index: -1; }
 .auth-header { min-height: 40px; }
 .header-caption, .form-subtitle, .hero-lead, .signup { color: var(--auth-muted); }
 .auth-main { grid-template-columns: minmax(0, 5fr) minmax(0, 3fr); gap: 44px; padding-block: 40px; }
@@ -12,9 +15,6 @@
   --orbit-inset: 40px;
   gap: 18px;
   padding: 40px;
-  border: 1px solid var(--auth-border);
-  border-radius: 24px;
-  background: var(--auth-surface);
   overflow: hidden;
 }
 .eyebrow, .text-link { color: var(--auth-link); }

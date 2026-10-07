@@ -17,6 +17,7 @@ import { FormFieldComponent } from '../../../shared/ui/molecules/form-field.comp
 import { InfoDialogComponent } from '../../../shared/ui/molecules/info-dialog.component';
 import { OrbitSceneComponent } from '../../../shared/ui/organisms/orbit-scene/orbit-scene.component';
 import { OrbitPhase } from '../../../shared/ui/organisms/orbit-scene/orbit-scene.model';
+import { StarfieldComponent } from '../../../shared/ui/atoms/starfield.component';
 import { BrandLogoComponent } from '../../../shared/ui/atoms/brand-logo.component';
 import { AppHttpError } from '../../interceptors/http-error.interceptor';
 
@@ -34,7 +35,7 @@ const BACKEND_FIELD_MAP: Record<string, AuthField> = {
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [ReactiveFormsModule, MatIconModule, BrandLogoComponent, ButtonComponent, FormFieldComponent, OrbitSceneComponent, InfoDialogComponent],
+  imports: [ReactiveFormsModule, MatIconModule, BrandLogoComponent, StarfieldComponent, ButtonComponent, FormFieldComponent, OrbitSceneComponent, InfoDialogComponent],
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.scss'
 })
