@@ -75,14 +75,14 @@ function deriveTodayResponse(
   const referenceDate = todayIsoDate();
   const subtasks = events
     .flatMap((event) => event.subtareas)
-    .filter((subtask) => subtask.estado !== 'DONE')
-    .filter((subtask) => !filters.eventId || subtask.eventoId === filters.eventId)
-    .filter((subtask) => !filters.status || subtask.estado === filters.status);
+    .filter((subtask) => subtask.status !== 'DONE')
+    .filter((subtask) => !filters.eventId || subtask.eventId === filters.eventId)
+    .filter((subtask) => !filters.status || subtask.status === filters.status);
 
   return {
-    vencidas: subtasks.filter((subtask) => subtask.fechaObjetivo.slice(0, 10) < referenceDate),
-    paraHoy: subtasks.filter((subtask) => subtask.fechaObjetivo.slice(0, 10) === referenceDate),
-    proximas: subtasks.filter((subtask) => subtask.fechaObjetivo.slice(0, 10) > referenceDate),
+    vencidas: subtasks.filter((subtask) => subtask.targetDate.slice(0, 10) < referenceDate),
+    paraHoy: subtasks.filter((subtask) => subtask.targetDate.slice(0, 10) === referenceDate),
+    proximas: subtasks.filter((subtask) => subtask.targetDate.slice(0, 10) > referenceDate),
     regla: rule
   };
 }
@@ -95,7 +95,7 @@ function buildBoard(
 ): TodayBoard {
   const eventNameById = new Map(events.map((event) => [event.id, event.nombre]));
   const toSubtasks = (dtos: SubtareaResponseDto[]) =>
-    dtos.map((dto) => mapSubtaskFromDto(dto, eventNameById.get(dto.eventoId) ?? ''));
+    dtos.map((dto) => mapSubtaskFromDto(dto, eventNameById.get(dto.eventId) ?? ''));
 
   const overdue = toSubtasks(filtered.vencidas);
   const today = toSubtasks(filtered.paraHoy);
@@ -173,7 +173,7 @@ function buildEventsToday(events: EventoResponseDto[], items: Subtask[]): EventT
         return null;
       }
       const total = event.subtareas.length;
-      const done = event.subtareas.filter((subtarea) => subtarea.estado === 'DONE').length;
+      const done = event.subtareas.filter((subtarea) => subtarea.status === 'DONE').length;
       return {
         eventId,
         eventName: event.nombre,

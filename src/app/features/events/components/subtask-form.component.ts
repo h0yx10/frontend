@@ -55,13 +55,16 @@ export class SubtaskFormComponent {
     const errors: Record<string, string> = {};
 
     if (!this.name.trim()) {
-      errors['nombre'] = 'No ingresaste el título de la subtarea.';
+      errors['name'] = 'No ingresaste el título de la subtarea.';
+    }
+    if (this.description.length > 255) {
+      errors['description'] = 'La descripcion puede tener maximo 255 caracteres.';
     }
     if (!this.targetDate) {
-      errors['fechaObjetivo'] = 'No seleccionaste la fecha objetivo.';
+      errors['targetDate'] = 'No seleccionaste la fecha objetivo.';
     }
     if (!this.estimatedHours || this.estimatedHours <= 0) {
-      errors['horasEstimadas'] = 'No ingresaste las horas estimadas.';
+      errors['estimatedHours'] = 'No ingresaste las horas estimadas.';
     }
 
     this.store.subtaskFieldErrors.set(errors);
@@ -75,7 +78,7 @@ export class SubtaskFormComponent {
 
     const payload = {
       name: this.name.trim(),
-      description: this.description.trim() || undefined,
+      description: this.description.trim(),
       targetDate: this.targetDate,
       estimatedHours: Number(this.estimatedHours)
     };

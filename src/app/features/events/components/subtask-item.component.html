@@ -22,8 +22,8 @@
         <p class="mt-1 text-xs text-muted">
           Plazo original {{ formatIsoDateHuman(subtask().targetDate) }} · {{ subtask().estimatedHours }} h
         </p>
-        @if (subtask().postponeNote) {
-          <p class="mt-1 text-xs italic text-warning">Nota: {{ subtask().postponeNote }}</p>
+        @if (subtask().note) {
+          <p class="mt-1 text-xs italic text-warning">Nota: {{ subtask().note }}</p>
         }
       } @else {
         <p class="font-semibold text-ink">{{ subtask().name }}</p>

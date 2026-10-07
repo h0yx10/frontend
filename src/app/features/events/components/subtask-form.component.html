@@ -13,8 +13,8 @@
           placeholder="Ej. Reservar salón"
           [(ngModel)]="name"
           class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
-          [class.border-danger]="store.subtaskFieldErrors()['nombre']"
-          [attr.aria-invalid]="!!store.subtaskFieldErrors()['nombre']"
+          [class.border-danger]="store.subtaskFieldErrors()['name']"
+          [attr.aria-invalid]="!!store.subtaskFieldErrors()['name']"
         />
         @if (store.subtaskFieldErrors()['name']) {
           <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['name'] }}</p>
@@ -31,8 +31,14 @@
           rows="3"
           placeholder="Agrega una descripción…"
           [(ngModel)]="description"
+          [class.border-danger]="store.subtaskFieldErrors()['description']"
+          [attr.aria-invalid]="!!store.subtaskFieldErrors()['description']"
+          [attr.aria-describedby]="store.subtaskFieldErrors()['description'] ? 'subtask-description-error' : null"
           class="w-full resize-none rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
         ></textarea>
+        @if (store.subtaskFieldErrors()['description']) {
+          <p id="subtask-description-error" class="mt-2 text-xs text-danger" role="alert">{{ store.subtaskFieldErrors()['description'] }}</p>
+        }
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
@@ -47,8 +53,8 @@
             required
             [(ngModel)]="targetDate"
             class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
-            [class.border-danger]="store.subtaskFieldErrors()['fechaObjetivo']"
-            [attr.aria-invalid]="!!store.subtaskFieldErrors()['fechaObjetivo']"
+            [class.border-danger]="store.subtaskFieldErrors()['targetDate']"
+            [attr.aria-invalid]="!!store.subtaskFieldErrors()['targetDate']"
           />
           @if (store.subtaskFieldErrors()['targetDate']) {
             <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['targetDate'] }}</p>
@@ -68,8 +74,8 @@
             required
             [(ngModel)]="estimatedHours"
             class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
-            [class.border-danger]="store.subtaskFieldErrors()['horasEstimadas']"
-            [attr.aria-invalid]="!!store.subtaskFieldErrors()['horasEstimadas']"
+            [class.border-danger]="store.subtaskFieldErrors()['estimatedHours']"
+            [attr.aria-invalid]="!!store.subtaskFieldErrors()['estimatedHours']"
           />
           @if (store.subtaskFieldErrors()['estimatedHours']) {
             <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['estimatedHours'] }}</p>

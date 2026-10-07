@@ -10,21 +10,21 @@ export interface Subtask {
   targetDate: string;
   estimatedHours: number;
   status: SubtaskStatus;
-  postponeNote: string | null;
+  note: string | null;
   doneAt: string | null;
   createdAt: string;
 }
 
 export interface SubtaskPayload {
   name: string;
-  description?: string;
+  description?: string | null;
   targetDate: string;
   estimatedHours: number;
 }
 
 export interface SubtaskUpdatePayload {
   name?: string;
-  description?: string;
+  description?: string | null;
   targetDate?: string;
   estimatedHours?: number;
 }
@@ -44,32 +44,32 @@ export const DEFAULT_LOGISTIC_SUBTASKS: Array<Pick<SubtaskPayload, 'name' | 'est
 
 export interface SubtareaResponseDto {
   id: string;
-  eventoId: string;
-  nombre: string;
-  descripcion: string | null;
-  fechaObjetivo: string;
-  horasEstimadas: number;
-  estado: SubtaskStatus;
-  nota: string | null;
+  eventId: string;
+  name: string;
+  description: string | null;
+  targetDate: string;
+  estimatedHours: number;
+  status: SubtaskStatus;
+  note: string | null;
   doneAt: string | null;
   createdAt: string;
 }
 
 export interface CreateSubtareaRequestDto {
-  nombre: string;
-  descripcion?: string;
-  fechaObjetivo: string;
-  horasEstimadas: number;
+  name: string;
+  description?: string | null;
+  targetDate: string;
+  estimatedHours: number;
 }
 
 export interface UpdateSubtareaRequestDto {
-  nombre?: string;
-  descripcion?: string;
-  fechaObjetivo?: string;
-  horasEstimadas?: number;
+  name?: string;
+  description?: string | null;
+  targetDate?: string;
+  estimatedHours?: number;
 }
 
 export interface ChangeSubtareaStatusRequestDto {
-  estado: SubtaskStatus;
-  nota?: string | null;
+  status: SubtaskStatus;
+  note?: string | null;
 }

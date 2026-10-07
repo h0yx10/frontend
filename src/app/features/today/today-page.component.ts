@@ -55,15 +55,24 @@ export class TodayPageComponent {
   readonly formatIsoDateHuman = formatIsoDateHuman;
   readonly formatDateTimeHuman = formatDateTimeHuman;
   readonly query = signal('');
-  readonly overdueEvents = computed(() => this.applyQuery(this.groupByEvent(this.store.board().overdue)));
+  readonly hasSearch = computed(() => {
+    const search = this.store.search();
+    return Boolean(this.query().trim() || search.query.trim() || search.eventId);
+  });
+  readonly overdueEvents = computed(() => this.applySearch(this.applyQuery(this.groupByEvent(this.store.board().overdue))));
   readonly todayEvents = computed(() =>
-    this.applyQuery([...this.groupByEvent(this.store.board().today), ...this.eventsWithoutPendingSubtasks()])
+    this.applySearch(this.applyQuery([...this.groupByEvent(this.store.board().today), ...this.eventsWithoutPendingSubtasks()]))
   );
-  readonly upcomingEvents = computed(() => this.applyQuery(this.groupByEvent(this.store.board().upcoming)));
+  readonly upcomingEvents = computed(() => this.applySearch(this.applyQuery(this.groupByEvent(this.store.board().upcoming))));
 
   constructor() {
     this.store.load();
     this.eventsService.list().subscribe((events) => this.eventOptions.set(events));
+  }
+
+  clearSearch(): void {
+    this.query.set('');
+    this.store.clearSearch();
   }
 
   onEventFilter(eventId: string): void {
@@ -111,7 +120,7 @@ export class TodayPageComponent {
   }
 
   private normalize(value: string): string {
-    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    return value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   }
 
   private groupByEvent(items: Subtask[]): TodayEventGroup[] {

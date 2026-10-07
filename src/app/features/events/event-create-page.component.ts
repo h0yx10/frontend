@@ -7,6 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AppHttpError, OverloadErrorInfo } from '../../core/interceptors/http-error.interceptor';
 import { EVENT_TYPE_SUGGESTIONS, EventPayload, SubtareaInicialRequestDto } from './models/event.model';
 import { EventsService } from './services/events.service';
+import { InfoDialogComponent } from '../../shared/ui/molecules/info-dialog.component';
 
 interface DraftSubtask {
   name: string;
@@ -26,6 +27,7 @@ export class EventCreatePageComponent {
 
   readonly typeSuggestions = EVENT_TYPE_SUGGESTIONS;
   readonly saving = signal(false);
+  readonly createdEventId = signal<string | null>(null);
   readonly error = signal('');
   readonly fieldErrors = signal<Record<string, string>>({});
   readonly rowErrors = signal<Record<number, string>>({});
@@ -66,10 +68,11 @@ export class EventCreatePageComponent {
   }
 
   submit(): void {
+    if (this.saving() || this.createdEventId()) return;
     this.saving.set(true);
     this.error.set('');
     this.fieldErrors.set({});
-    
+
     const errors: Record<string, string> = {};
 
     if (!this.name.trim()) {
@@ -105,9 +108,9 @@ export class EventCreatePageComponent {
     const subtareas: SubtareaInicialRequestDto[] = this.rows
       .filter((row) => row.name.trim())
       .map((row) => ({
-        nombre: row.name.trim(),
-        fechaObjetivo: row.targetDate,
-        horasEstimadas: Number(row.estimatedHours)
+        name: row.name.trim(),
+        targetDate: row.targetDate,
+        estimatedHours: Number(row.estimatedHours)
       }));
 
     this.saving.set(true);
@@ -133,6 +136,13 @@ export class EventCreatePageComponent {
         this.fieldErrors.set(error.fieldErrors ?? {});
       }
     });
+  }
+
+  acceptCreated(): void {
+    const eventId = this.createdEventId();
+    if (!eventId) return;
+    this.createdEventId.set(null);
+    this.router.navigate(['/evento', eventId]);
   }
 
   private roundHours(value: number): number {

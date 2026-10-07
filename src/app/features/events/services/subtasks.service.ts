@@ -30,10 +30,10 @@ export class SubtasksService {
 
   create(eventId: string, payload: SubtaskPayload): Observable<Subtask> {
     const body: CreateSubtareaRequestDto = {
-      nombre: payload.name,
-      ...(payload.description !== undefined ? { descripcion: payload.description } : {}),
-      fechaObjetivo: payload.targetDate,
-      horasEstimadas: payload.estimatedHours
+      name: payload.name,
+      ...(payload.description !== undefined ? { description: payload.description } : {}),
+      targetDate: payload.targetDate,
+      estimatedHours: payload.estimatedHours
     };
     return this.http
       .post<ApiResponse<SubtareaResponseDto>>(`${this.base}/events/${eventId}/subtasks`, body)
@@ -43,10 +43,10 @@ export class SubtasksService {
   /** Actualiza campos y/o reprograma (fecha/horas); el backend valida sobrecarga y puede responder 409. */
   update(id: string, payload: SubtaskUpdatePayload): Observable<Subtask> {
     const body: UpdateSubtareaRequestDto = {
-      ...(payload.name !== undefined ? { nombre: payload.name } : {}),
-      ...(payload.description !== undefined ? { descripcion: payload.description } : {}),
-      ...(payload.targetDate !== undefined ? { fechaObjetivo: payload.targetDate } : {}),
-      ...(payload.estimatedHours !== undefined ? { horasEstimadas: payload.estimatedHours } : {})
+      ...(payload.name !== undefined ? { name: payload.name } : {}),
+      ...(payload.description !== undefined ? { description: payload.description } : {}),
+      ...(payload.targetDate !== undefined ? { targetDate: payload.targetDate } : {}),
+      ...(payload.estimatedHours !== undefined ? { estimatedHours: payload.estimatedHours } : {})
     };
     return this.http
       .patch<ApiResponse<SubtareaResponseDto>>(`${this.base}/subtasks/${id}`, body)
@@ -58,7 +58,7 @@ export class SubtasksService {
   }
 
   execute(id: string, payload: SubtaskExecutionPayload): Observable<Subtask> {
-    const body: ChangeSubtareaStatusRequestDto = { estado: payload.status, nota: payload.note ?? null };
+    const body: ChangeSubtareaStatusRequestDto = { status: payload.status, note: payload.note ?? null };
     return this.http
       .patch<ApiResponse<SubtareaResponseDto>>(`${this.base}/subtasks/${id}/status`, body)
       .pipe(map((response) => mapSubtaskFromDto(response.data)));
@@ -68,14 +68,14 @@ export class SubtasksService {
 export function mapSubtaskFromDto(dto: SubtareaResponseDto, eventName = ''): Subtask {
   return {
     id: dto.id,
-    eventId: dto.eventoId,
+    eventId: dto.eventId,
     eventName,
-    name: dto.nombre,
-    description: dto.descripcion,
-    targetDate: dto.fechaObjetivo,
-    estimatedHours: dto.horasEstimadas,
-    status: dto.estado,
-    postponeNote: dto.nota,
+    name: dto.name,
+    description: dto.description,
+    targetDate: dto.targetDate,
+    estimatedHours: dto.estimatedHours,
+    status: dto.status,
+    note: dto.note,
     doneAt: dto.doneAt,
     createdAt: dto.createdAt
   };

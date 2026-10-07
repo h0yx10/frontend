@@ -49,9 +49,10 @@ export interface EventoResponseDto {
 }
 
 export interface SubtareaInicialRequestDto {
-  nombre: string;
-  fechaObjetivo: string;
-  horasEstimadas: number;
+  name: string;
+  description?: string | null;
+  targetDate: string;
+  estimatedHours: number;
 }
 
 export interface CreateEventoRequestDto {
