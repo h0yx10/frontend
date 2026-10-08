@@ -1,0 +1,91 @@
+<div class="flex h-full flex-col gap-5 px-4 py-5">
+  <div class="flex items-center justify-between gap-2">
+    <a [routerLink]="homePath()" class="flex min-w-0 items-center gap-3 rounded-xl" aria-label="Eventia, ir al inicio" (click)="navigated.emit()">
+      <app-brand-mark class="size-9 shrink-0" />
+      <span class="min-w-0 leading-tight">
+        <span class="block truncate text-[17px] font-bold text-ink">Eventia</span>
+        <span class="block truncate text-xs text-muted">Logística de eventos</span>
+      </span>
+    </a>
+    <button type="button" class="relative flex size-10 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:bg-surface-raised hover:text-ink" aria-label="Notificaciones">
+      <mat-icon class="text-[20px]" aria-hidden="true">notifications_none</mat-icon>
+      @if (alerts()) {
+        <span class="absolute right-2 top-2 size-2 rounded-full bg-danger" aria-hidden="true"></span>
+      }
+    </button>
+  </div>
+
+  @if (searchable()) {
+    <form class="relative" role="search" (submit)="$event.preventDefault(); submitSearch()">
+      <mat-icon class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-muted" aria-hidden="true">search</mat-icon>
+      <input
+        #searchInput
+        type="search"
+        placeholder="Buscar"
+        aria-label="Buscar evento, proveedor o tarea"
+        [formControl]="searchControl"
+        class="h-10 w-full rounded-xl border border-transparent bg-surface-raised pl-10 pr-14 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+      />
+      <kbd class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md border border-border-strong px-1.5 py-0.5 font-sans text-[10px] text-muted" aria-hidden="true">{{ shortcut }}</kbd>
+    </form>
+  }
+
+  @if (items().length) {
+    <nav aria-label="Navegación principal">
+      <p class="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">Planificación</p>
+      <ul class="flex flex-col gap-1">
+        @for (item of items(); track item.path) {
+          <li>
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="bg-primary-soft text-ink"
+              #link="routerLinkActive"
+              class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-muted transition hover:bg-surface-raised hover:text-ink"
+              (click)="navigated.emit()"
+            >
+              <mat-icon class="text-[20px]" [class.text-accent]="link.isActive" aria-hidden="true">{{ item.icon }}</mat-icon>
+              <span class="flex-1">{{ item.label }}</span>
+              @if (item.badge) {
+                <span
+                  class="flex size-6 items-center justify-center rounded-full text-xs font-semibold"
+                  [class]="link.isActive ? 'bg-primary text-white' : 'bg-border-strong text-ink'"
+                  [attr.aria-label]="item.badge + ' pendientes'"
+                >{{ item.badge }}</span>
+              }
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  }
+
+  <div class="mt-auto flex flex-col gap-3">
+    @if (workload(); as load) {
+      <app-workload-card [planned]="load.planned" [limit]="load.limit" />
+    }
+    <div class="flex items-center">
+      <a
+        routerLink="/cuenta"
+        routerLinkActive="bg-primary-soft"
+        class="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl p-1.5 transition hover:bg-surface-raised"
+        [attr.title]="userName() + ' · ' + userRole()"
+        (click)="navigated.emit()"
+      >
+        <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-raised text-sm font-bold text-ink" aria-hidden="true">{{ initial() }}</span>
+        <span class="min-w-0 leading-tight">
+          <span class="block truncate text-sm font-semibold text-ink">{{ userName() }}</span>
+          <span class="block truncate text-[11px] text-muted">{{ userRole() }} · Mi cuenta</span>
+        </span>
+      </a>
+      <button
+        type="button"
+        class="flex size-9 shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-surface-raised hover:text-ink disabled:opacity-60"
+        [disabled]="loggingOut()"
+        (click)="logout.emit()"
+      >
+        <mat-icon class="text-[20px]" aria-hidden="true">logout</mat-icon>
+        <span class="sr-only">{{ loggingOut() ? 'Cerrando sesión…' : 'Cerrar sesión' }}</span>
+      </button>
+    </div>
+  </div>
+</div>

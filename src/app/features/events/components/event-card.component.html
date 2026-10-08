@@ -1,32 +1,32 @@
-<article class="card-glow rounded-2xl p-5">
+<article class="surface-card flex h-full flex-col p-5">
   <div class="flex items-start justify-between gap-3">
     <div class="min-w-0">
-      <a [routerLink]="['/evento', event().id]" class="text-base font-bold text-ink hover:text-accent">
+      <a [routerLink]="['/evento', event().id]" class="block truncate text-base font-semibold text-ink hover:text-accent" [attr.title]="event().name">
         {{ event().name }}
       </a>
-      <p class="mt-0.5 text-xs text-muted">
+      <p class="mt-1 truncate text-sm text-muted" [attr.title]="event().place">
         {{ formatIsoDateHuman(eventDate()) }}@if (event().place) { · {{ event().place }} }
       </p>
     </div>
 
     @if (event().progress.total > 0) {
-      <div class="shrink-0 text-right">
-        <p class="text-lg font-extrabold" [class]="percentageClass()">{{ event().progress.percentage }}%</p>
-        <p class="text-xs text-muted">{{ event().progress.done }} de {{ event().progress.total }} completadas</p>
-      </div>
+      <p class="shrink-0 text-xl font-bold tabular-nums" [class]="percentageClass()">{{ event().progress.percentage }}%</p>
     }
   </div>
 
   @if (event().progress.total > 0) {
     <div class="mt-4">
-      <app-progress-bar [percentage]="event().progress.percentage" [autoTone]="true" />
+      <app-progress-bar
+        size="sm"
+        [percentage]="event().progress.percentage"
+        [tone]="event().progress.percentage >= 100 ? 'success' : 'primary'"
+      />
+      <p class="mt-3 text-sm text-muted">{{ event().progress.done }} de {{ event().progress.total }} completadas</p>
     </div>
   } @else {
-    <p class="mt-4 text-sm text-muted">
-      {{ event().name }} — sin subtareas registradas aún.
-      <a [routerLink]="['/evento', event().id]" class="font-semibold text-accent hover:underline">
-        Crear plan inicial
-      </a>
-    </p>
+    <div class="mt-4 flex items-center justify-between gap-3 rounded-xl bg-warning-soft px-3 py-3 text-[13px]">
+      <span class="whitespace-nowrap text-warning">Sin gestiones registradas</span>
+      <a [routerLink]="['/evento', event().id]" class="shrink-0 whitespace-nowrap font-semibold text-accent hover:text-ink">Crear plan</a>
+    </div>
   }
 </article>

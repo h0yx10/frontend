@@ -3,13 +3,14 @@ import { Component, computed, EventEmitter, input, Output } from '@angular/core'
 import { MatIconModule } from '@angular/material/icon';
 
 import { DateBucket, formatIsoDateShort } from '../../../core/utils/date.util';
+import { CheckButtonComponent } from '../../../shared/ui/atoms/check-button.component';
 import { BadgeTone, StatusBadgeComponent } from '../../../shared/ui/atoms/status-badge.component';
 import { Subtask } from '../../events/models/subtask.model';
 
 @Component({
   selector: 'app-today-item',
   standalone: true,
-  imports: [CommonModule, MatIconModule, StatusBadgeComponent],
+  imports: [CommonModule, MatIconModule, CheckButtonComponent, StatusBadgeComponent],
   templateUrl: './today-item.component.html'
 })
 export class TodayItemComponent {
@@ -20,25 +21,17 @@ export class TodayItemComponent {
   @Output() readonly postpone = new EventEmitter<Subtask>();
   @Output() readonly reschedule = new EventEmitter<Subtask>();
 
-  readonly borderClass = computed(() => {
-    switch (this.bucket()) {
-      case 'OVERDUE':
-        return 'border-l-2 today-item-glow';
-      case 'TODAY':
-        return 'border-l-2 today-item-glow';
-      default:
-        return 'border-l-2 border-l-border';
-    }
-  });
+  /** Franja lateral que distingue las vencidas del resto sin competir con el contenido. */
+  readonly accentClass = computed(() => (this.bucket() === 'OVERDUE' ? 'border-l-2 border-l-danger' : ''));
 
   readonly dateBadge = computed<{ label: string; tone: BadgeTone }>(() => {
     switch (this.bucket()) {
       case 'OVERDUE':
         return { label: `Venció ${formatIsoDateShort(this.subtask().targetDate)}`, tone: 'danger' };
       case 'TODAY':
-        return { label: 'Plazo hoy', tone: 'accent' };
+        return { label: 'Vence hoy', tone: 'accent' };
       default:
-        return { label: `Plazo ${formatIsoDateShort(this.subtask().targetDate)}`, tone: 'neutral' };
+        return { label: `Vence ${formatIsoDateShort(this.subtask().targetDate)}`, tone: 'neutral' };
     }
   });
 }

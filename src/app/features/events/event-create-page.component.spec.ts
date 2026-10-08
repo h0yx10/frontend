@@ -24,9 +24,7 @@ describe('EventCreatePageComponent', () => {
       {provide:EventsService,useValue:service}, {provide:Router,useValue:router}
     ]});
     component = TestBed.runInInjectionContext(() => new EventCreatePageComponent());
-    component.name = event.name;
-    component.type = event.type;
-    component.datetime = event.datetime;
+    component.form.patchValue({name:event.name,type:event.type,date:'2030-01-01',time:'10:00'});
   });
 
   it('guarda el ID para mostrar la confirmación y espera a que se acepte para navegar', () => {
@@ -45,6 +43,46 @@ describe('EventCreatePageComponent', () => {
     expect(service.create).toHaveBeenCalledWith(jasmine.any(Object),[
       {name:'Catering',targetDate:'2030-01-01',estimatedHours:2}
     ]);
+  });
+
+  it('envía fecha y hora unidas y el plazo de confirmación', () => {
+    component.form.patchValue({deadline:'2029-12-20'});
+    component.submit();
+    expect(service.create).toHaveBeenCalledWith(jasmine.objectContaining({datetime:'2030-01-01T10:00',deadline:'2029-12-20'}),[]);
+  });
+
+  it('exige la hora además de la fecha', () => {
+    component.form.patchValue({time:''});
+    component.submit();
+    expect(service.create).not.toHaveBeenCalled();
+    expect(component.fieldErrors()['hora']).toBeTruthy();
+  });
+
+  it('agrega gestiones validadas al plan y las puede quitar', () => {
+    const draft = component.form.controls.draft;
+    draft.patchValue({name:'  ',targetDate:'2030-01-01',hours:1});
+    expect(component.addRow()).toBeFalse();
+    draft.patchValue({name:'Catering',targetDate:'',hours:1});
+    expect(component.addRow()).toBeFalse();
+    expect(component.draftError()).toContain('plazo');
+    draft.patchValue({name:'Catering',targetDate:'2030-01-01',hours:2});
+    expect(component.addRow()).toBeTrue();
+    expect(component.rows).toEqual([{name:'Catering',targetDate:'2030-01-01',estimatedHours:2}]);
+    expect(component.totalHours()).toBe(2);
+    expect(draft.getRawValue().name).toBe('');
+    component.removeRow(0);
+    expect(component.rows).toEqual([]);
+  });
+
+  it('una gestión a medio redactar se agrega al guardar o detiene el envío con su error', () => {
+    const draft = component.form.controls.draft;
+    draft.patchValue({name:'Música',targetDate:'',hours:1});
+    component.submit();
+    expect(service.create).not.toHaveBeenCalled();
+    expect(component.draftError()).toBeTruthy();
+    draft.patchValue({targetDate:'2030-01-02'});
+    component.submit();
+    expect(service.create).toHaveBeenCalledWith(jasmine.any(Object),[{name:'Música',targetDate:'2030-01-02',estimatedHours:1}]);
   });
 
   it('aceptar sin evento creado no navega', () => {
@@ -75,7 +113,7 @@ describe('EventCreatePageComponent', () => {
   });
 
   it('los campos requeridos vacíos impiden crear el evento', () => {
-    component.name = '   ';
+    component.form.patchValue({name:'   '});
     component.submit();
     expect(service.create).not.toHaveBeenCalled();
     expect(component.fieldErrors()['nombre']).toBeTruthy();

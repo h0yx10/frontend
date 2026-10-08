@@ -58,6 +58,20 @@ export class TodayService {
     );
   }
 
+  /** Resumen ligero para el shell: sólo `/events`, sin los filtros ni las estadísticas del tablero. */
+  loadWorkload(): Observable<{ plannedHours: number; overdueCount: number; todayCount: number }> {
+    return this.http.get<ApiResponse<EventoResponseDto[]>>(this.eventsUrl).pipe(
+      map((response) => {
+        const { vencidas, paraHoy } = deriveTodayResponse(response.data, { eventId: '', status: '' }, '');
+        return {
+          plannedHours: paraHoy.reduce((total, subtask) => total + subtask.estimatedHours, 0),
+          overdueCount: vencidas.length,
+          todayCount: paraHoy.length
+        };
+      })
+    );
+  }
+
   private fetchToday(filters: TodayFilters): Observable<TodayResponseDto> {
     return this.http
       .get<ApiResponse<TodayResponseDto>>(this.todayUrl, {

@@ -23,7 +23,12 @@ export interface EventPayload {
   contact: string;
   datetime: string;
   place: string;
+  /** Fecha (`yyyy-MM-dd`) límite para confirmar asistentes; se envía como `plazoLimite` al final de ese día. */
+  deadline?: string;
 }
+
+/** Tipos que se ofrecen como opciones rápidas al crear un evento. */
+export const EVENT_TYPE_OPTIONS = ['Social', 'Corporativo', 'Boda', 'Cumpleaños', 'Otro'];
 
 export const EVENT_TYPE_SUGGESTIONS = [
   'Social',

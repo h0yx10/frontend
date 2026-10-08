@@ -35,7 +35,7 @@ export function classifyByDate(dateIso: string, referenceIso = todayIsoDate()): 
 }
 
 const HUMAN_DATE_FORMATTER = new Intl.DateTimeFormat('es-CO', {
-  day: '2-digit',
+  day: 'numeric',
   month: 'short',
   year: 'numeric'
 });
@@ -46,30 +46,52 @@ const SHORT_DATE_FORMATTER = new Intl.DateTimeFormat('es-CO', {
 });
 
 const HUMAN_DATETIME_FORMATTER = new Intl.DateTimeFormat('es-CO', {
-  day: '2-digit',
+  day: 'numeric',
   month: 'short',
   year: 'numeric',
   hour: '2-digit',
   minute: '2-digit'
 });
 
+const TIME_FORMATTER = new Intl.DateTimeFormat('es-CO', { hour: 'numeric', minute: '2-digit' });
+
+/** `8 de oct. de 2026` → `8 oct 2026`: sin conectores ni punto del mes (conserva `p. m.`). */
+const compact = (text: string): string => text.replace(/ de /g, ' ').replace(/(\p{L}{3,})\./gu, '$1');
+
+const LONG_DAY_FORMATTER = new Intl.DateTimeFormat('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+
 export function formatIsoDateHuman(dateIso: string): string {
   const [year, month, day] = dateIso.split('-').map(Number);
-  return HUMAN_DATE_FORMATTER.format(new Date(year, month - 1, day));
+  return compact(HUMAN_DATE_FORMATTER.format(new Date(year, month - 1, day)));
 }
 
 export function formatIsoDateShort(dateIso: string): string {
   const [year, month, day] = dateIso.split('-').map(Number);
-  return SHORT_DATE_FORMATTER.format(new Date(year, month - 1, day)).replace('.', '');
+  return compact(SHORT_DATE_FORMATTER.format(new Date(year, month - 1, day)));
 }
 
 export function formatDateTimeHuman(isoDateTime: string): string {
-  return HUMAN_DATETIME_FORMATTER.format(new Date(isoDateTime));
+  return compact(HUMAN_DATETIME_FORMATTER.format(new Date(isoDateTime)));
 }
 
 /** Formatea sólo la fecha (día + mes corto) de un timestamp ISO completo, p. ej. `doneAt`. */
 export function formatDateOnlyShort(isoDateTime: string): string {
-  return SHORT_DATE_FORMATTER.format(new Date(isoDateTime)).replace('.', '');
+  return compact(SHORT_DATE_FORMATTER.format(new Date(isoDateTime)));
+}
+
+/** Sólo la hora de un timestamp ISO, p. ej. `10:13 p. m.`. */
+export function formatTimeShort(isoDateTime: string): string {
+  return TIME_FORMATTER.format(new Date(isoDateTime));
+}
+
+/** Día y hora compactos, p. ej. `6 oct · 10:13 p. m.`. */
+export function formatDateTimeShort(isoDateTime: string): string {
+  return `${formatDateOnlyShort(isoDateTime)} · ${formatTimeShort(isoDateTime)}`;
+}
+
+/** Día de la semana completo, p. ej. `martes, 6 de octubre`. */
+export function formatLongDay(date: Date = new Date()): string {
+  return LONG_DAY_FORMATTER.format(date);
 }
 
 export function isValidIsoDate(value: string): boolean {

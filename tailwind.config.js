@@ -7,6 +7,7 @@ module.exports = {
       colors: {
         primary: 'var(--color-primary)',
         'primary-dark': 'var(--color-primary-dark)',
+        'primary-soft': 'var(--color-primary-soft)',
         accent: 'var(--color-accent)',
         canvas: 'var(--color-canvas)',
         surface: 'var(--color-surface)',
@@ -14,6 +15,7 @@ module.exports = {
         ink: 'var(--color-ink)',
         muted: 'var(--color-muted)',
         border: 'var(--color-border)',
+        'border-strong': 'var(--color-border-strong)',
         danger: 'var(--color-danger)',
         'danger-soft': 'var(--color-danger-soft)',
         success: 'var(--color-success)',

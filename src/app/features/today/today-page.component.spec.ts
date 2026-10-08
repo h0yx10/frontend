@@ -64,12 +64,10 @@ describe('TodayPageComponent', () => {
     expect(component.isEmpty).toBeFalse();
   });
 
-  it('limpia ambas búsquedas y restaura los grupos visibles', () => {
-    component.query.set('sin coincidencias');
+  it('limpia la búsqueda y restaura los grupos visibles', () => {
     search.set({query:'otra búsqueda',eventId:'otro-evento'});
     expect(component.isEmpty).toBeTrue();
     component.clearSearch();
-    expect(component.query()).toBe('');
     expect(clearSearch).toHaveBeenCalled();
     expect(component.hasSearch()).toBeFalse();
     expect(component.overdueEvents().length).toBe(1);

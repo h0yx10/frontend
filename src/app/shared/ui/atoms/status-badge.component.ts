@@ -14,15 +14,15 @@ export class StatusBadgeComponent {
   readonly toneClasses = computed(() => {
     switch (this.tone()) {
       case 'danger':
-        return 'bg-danger-warm/10 text-danger-warm';
+        return 'bg-danger-soft text-danger';
       case 'success':
-        return 'bg-success-muted/10 text-success-muted';
+        return 'bg-success-soft text-success';
       case 'warning':
-        return 'bg-warning-warm/10 text-warning-warm';
+        return 'bg-warning-soft text-warning';
       case 'accent':
-        return 'bg-primary/15 text-accent';
+        return 'bg-primary-soft text-accent';
       default:
-        return 'bg-surface text-muted';
+        return 'bg-surface-raised text-muted';
     }
   });
 }

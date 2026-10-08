@@ -1,13 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 import { CapacitySettingsComponent } from '../capacity/capacity-settings.component';
+import { ProgressRingComponent } from '../../shared/ui/atoms/progress-ring.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
 import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
+import { PageHeaderComponent } from '../../shared/ui/molecules/page-header.component';
+import { SearchBoxComponent } from '../../shared/ui/molecules/search-box.component';
 import { EventCardComponent } from './components/event-card.component';
 import { EventsStore } from './store/events.store';
 
@@ -15,36 +14,51 @@ import { EventsStore } from './store/events.store';
   selector: 'app-events-progress-page',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
     RouterLink,
     EventCardComponent,
     EmptyStateComponent,
     ErrorStateComponent,
+    PageHeaderComponent,
+    ProgressRingComponent,
+    SearchBoxComponent,
     CapacitySettingsComponent
   ],
   providers: [EventsStore],
   templateUrl: './events-progress-page.component.html'
 })
 export class EventsProgressPageComponent {
-  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
-  private readonly searchTerms = new Subject<string>();
 
   readonly store = inject(EventsStore);
 
-  query = '';
+  /** Término de la búsqueda (puede venir de la búsqueda global del menú lateral, `?q=`). */
+  readonly query = signal(this.route.snapshot.queryParamMap.get('q') ?? '');
+
+  /** El resumen siempre describe todos los eventos; la búsqueda sólo filtra las tarjetas. */
+  readonly summary = computed(() => {
+    const events = this.store.events();
+    const done = events.reduce((total, event) => total + event.progress.done, 0);
+    const total = events.reduce((sum, event) => sum + event.progress.total, 0);
+    return {
+      events: events.length,
+      complete: events.filter((event) => event.progress.total > 0 && event.progress.done === event.progress.total).length,
+      withoutPlan: events.filter((event) => event.progress.total === 0).length,
+      done,
+      total,
+      percentage: total === 0 ? 0 : Math.round((done / total) * 100)
+    };
+  });
+
+  readonly visibleEvents = computed(() => {
+    const term = normalize(this.query());
+    return term ? this.store.events().filter((event) => normalize(event.name).includes(term)) : this.store.events();
+  });
 
   constructor() {
-    this.query = this.route.snapshot.queryParamMap.get('q') ?? '';
-    this.store.load(this.query);
-
-    this.searchTerms
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
-      .subscribe((query) => this.store.load(query));
+    this.store.load();
   }
+}
 
-  onQueryChange(query: string): void {
-    this.searchTerms.next(query.trim());
-  }
+function normalize(value: string): string {
+  return value.trim().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }

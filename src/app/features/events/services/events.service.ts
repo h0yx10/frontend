@@ -83,6 +83,9 @@ function toEventDto(payload: Partial<EventPayload>): UpdateEventoRequestDto {
   if (payload.place !== undefined) {
     dto.lugar = payload.place;
   }
+  if (payload.deadline) {
+    dto.plazoLimite = withSeconds(`${payload.deadline}T23:59`);
+  }
   return dto;
 }
 

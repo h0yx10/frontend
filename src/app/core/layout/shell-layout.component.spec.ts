@@ -10,6 +10,7 @@ import { sessionDto, success } from '../auth/testing/auth.fixtures';
 import { runtimeConfig } from '../config/runtime-config';
 import { httpErrorInterceptor } from '../interceptors/http-error.interceptor';
 import { CapacityStore } from '../../features/capacity/store/capacity.store';
+import { WorkloadStore } from '../../features/today/store/workload.store';
 
 const storageKey = 'events_planner::session';
 
@@ -28,7 +29,8 @@ describe('ShellLayoutComponent', () => {
         provideRouter([]),
         provideHttpClient(withInterceptors([httpErrorInterceptor, authInterceptor])),
         provideHttpClientTesting(),
-        {provide:CapacityStore, useValue:{dailyLimitHours:() => 6, ensureLoaded:() => {}}}
+        {provide:CapacityStore, useValue:{dailyLimitHours:() => 6, ensureLoaded:() => {}}},
+        {provide:WorkloadStore, useValue:{plannedHours:() => 1, attentionCount:() => 2, overdueCount:() => 0, refresh:() => {}}}
       ]
     }).compileComponents();
     auth = TestBed.inject(AuthStore);

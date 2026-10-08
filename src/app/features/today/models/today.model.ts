@@ -1,4 +1,13 @@
+import { EventEntity } from '../../events/models/event.model';
 import { Subtask, SubtareaResponseDto } from '../../events/models/subtask.model';
+
+/** Gestiones de un mismo evento dentro de una columna del tablero. */
+export interface TodayEventGroup {
+  eventId: string;
+  eventName: string;
+  event: EventEntity | undefined;
+  subtasks: Subtask[];
+}
 
 export interface TodayCapacity {
   plannedHours: number;

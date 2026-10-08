@@ -1,351 +1,222 @@
-<div class="mx-auto max-w-7xl">
-  <header class="mb-3 flex items-center justify-between gap-3">
-    <div>
-      <h1 class="text-xl font-bold text-ink">Hoy</h1>
-      <p class="mt-0.5 text-xs text-muted">{{ todayLabel }}</p>
-    </div>
-  </header>
+<div class="mx-auto max-w-6xl">
+  <app-page-header [eyebrow]="todayLabel" title="Hoy">
+    <a routerLink="/crear" class="btn-primary">
+      <mat-icon class="text-[20px]" aria-hidden="true">add</mat-icon>
+      Nuevo evento
+    </a>
+  </app-page-header>
 
-  @if (store.loading()) {
+  @if (store.loading() && !store.loaded()) {
     <p class="text-sm text-muted" role="status">Cargando tus gestiones de hoy…</p>
   } @else if (store.error()) {
     <app-error-state [message]="store.error()" (retry)="store.load()" />
   } @else {
-    <div class="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <app-stat-card label="Vencidas" [value]="store.board().stats.overdueCount" hint="requieren acción inmediata" valueClass="text-danger-warm" />
-      <app-stat-card label="Para hoy" [value]="store.board().stats.todayCount" hint="gestiones con plazo hoy" valueClass="text-accent" />
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <app-stat-card
-        label="Completadas 7 d"
+        label="Vencidas"
+        [value]="store.board().stats.overdueCount"
+        [hint]="store.board().stats.overdueCount === 0 ? 'Nada atrasado' : 'Requieren acción inmediata'"
+        valueClass="text-danger"
+      />
+      <app-stat-card label="Para hoy" [value]="store.board().stats.todayCount" hint="Gestiones con plazo hoy" valueClass="text-accent" />
+      <app-stat-card
+        label="Completadas · 7 d"
         [value]="store.board().stats.completedLast7Days"
-        [hint]="store.board().stats.completedTrendPercentage === null ? 'sin datos de la semana previa' : (store.board().stats.completedTrendPercentage! >= 0 ? '+' : '') + store.board().stats.completedTrendPercentage + '% vs. semana pasada'"
-        valueClass="text-success-muted"
+        [hint]="statHint(store.board().stats.completedTrendPercentage)"
+        valueClass="text-success"
       />
       <app-stat-card
-        label="Próximas 7 días"
+        label="Próximas · 7 d"
         [value]="store.board().stats.upcoming7DaysCount"
-        [hint]="'en ' + store.board().stats.upcoming7DaysEventsCount + ' eventos activos'"
+        [hint]="'En ' + store.board().stats.upcoming7DaysEventsCount + ' eventos activos'"
+        valueClass="text-warning"
       />
     </div>
 
     @if (store.board().conflictAlert; as alert) {
-      <div class="mt-3 flex flex-col gap-2 rounded-lg border border-danger-warm/30 bg-danger-warm/10 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-3">
-          <mat-icon class="text-danger-warm">warning</mat-icon>
+      <div class="mt-4 flex flex-col gap-3 rounded-2xl border border-danger bg-danger-soft p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-start gap-3">
+          <mat-icon class="mt-0.5 text-danger" aria-hidden="true">warning_amber</mat-icon>
           <div>
-            <p class="font-mono text-[10px] font-bold uppercase tracking-widest text-danger-warm">
-              Conflicto de sobrecarga detectado
-            </p>
-            <p class="mt-0.5 text-xs text-ink">
+            <p class="text-sm font-semibold text-danger">Conflicto de sobrecarga detectado</p>
+            <p class="mt-0.5 text-sm text-ink">
               Reprogramar "{{ alert.subtask.name }}" al {{ formatIsoDateHuman(alert.candidateDate) }} dejaría
               {{ alert.plannedHours }} h planificadas (límite: {{ alert.limitHours }} h).
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          class="shrink-0 rounded-md bg-danger px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
-          (click)="openConflict()"
-        >
+        <button type="button" class="btn-primary shrink-0 bg-danger text-canvas hover:bg-danger hover:opacity-90" (click)="openConflict()">
           Resolver conflicto
         </button>
       </div>
     }
 
-    <form class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center" role="search" (submit)="$event.preventDefault()">
+    <form class="mt-5 flex flex-col gap-3 sm:flex-row" role="search" (submit)="$event.preventDefault()">
       <div class="min-w-0 flex-1">
         <app-search-box
           placeholder="Buscar eventos, lugares o subtareas…"
-          ariaLabel="Buscar eventos"
+          ariaLabel="Buscar eventos, lugares o subtareas"
           [value]="store.search().query"
           (search)="store.setSearch({ query: $event })"
         />
       </div>
-      <select
-        class="rounded-lg border border-border bg-canvas px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none sm:w-56"
-        aria-label="Filtrar por evento"
-        [value]="store.search().eventId"
-        (change)="store.setSearch({ eventId: $any($event.target).value })"
-      >
-        <option value="">Todos los eventos</option>
-        @for (event of eventOptions(); track event.id) {
-          <option [value]="event.id">{{ event.name }}</option>
-        }
-      </select>
-      @if (hasSearch()) {
-        <button
-          type="button"
-          class="shrink-0 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted transition hover:bg-surface-raised hover:text-ink"
-          (click)="clearSearch()"
+      <div class="relative sm:w-60">
+        <select
+          class="input-control appearance-none bg-surface pr-10"
+          aria-label="Filtrar por evento"
+          [value]="store.search().eventId"
+          (change)="store.setSearch({ eventId: $any($event.target).value })"
         >
-          Limpiar filtros
-        </button>
-      }
+          <option value="">Todos los eventos</option>
+          @for (event of eventOptions(); track event.id) {
+            <option [value]="event.id" [selected]="store.search().eventId === event.id">{{ event.name }}</option>
+          }
+        </select>
+        <mat-icon class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[20px] text-muted" aria-hidden="true">expand_more</mat-icon>
+      </div>
     </form>
 
-    <p class="mt-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-muted">
-      <span aria-hidden="true">ⓘ</span>
-      {{ store.board().rule }}
-    </p>
+    @if (store.board().rule) {
+      <p class="mt-3 flex items-center gap-2 text-sm text-muted">
+        <mat-icon class="text-[16px]" aria-hidden="true">info_outline</mat-icon>
+        {{ store.board().rule }}
+      </p>
+    }
 
-    <div class="mt-4 grid grid-cols-1 items-center gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <label for="today-search" class="sr-only">Buscar eventos, lugares o subtareas</label>
-      <div class="relative min-w-0 lg:col-span-3">
-        <mat-icon
-          class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[20px] text-muted"
-          aria-hidden="true"
-        >
-          search
-        </mat-icon>
-        <input
-          id="today-search"
-          type="search"
-          placeholder="Buscar eventos, lugares o subtareas…"
-          [ngModel]="query()"
-          (ngModelChange)="query.set($event)"
-          class="h-11 w-full rounded-xl border border-border bg-surface pl-11 pr-3.5 text-sm text-ink placeholder:text-muted"
-        />
-      </div>
-      <label for="today-event-filter" class="sr-only">Filtrar por evento</label>
-      <select
-        id="today-event-filter"
-        class="h-11 w-full min-w-0 rounded-xl border border-border bg-surface px-3.5 text-sm font-medium text-ink"
-        [ngModel]="store.filters().eventId"
-        (ngModelChange)="onEventFilter($event)"
+    @if (hasSearch() && isEmpty) {
+      <app-empty-state
+        class="mt-5 block"
+        icon="search_off"
+        title="Sin resultados"
+        message="No encontramos eventos, lugares o subtareas con esa búsqueda."
       >
-        <option value="">Todos los eventos</option>
-        @for (option of eventOptions(); track option.id) {
-          <option [value]="option.id">{{ option.name }}</option>
-        }
-      </select>
-    </div>
-
-    <div class="mt-4 grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <ng-container>
-        @if (isEmpty) {
-          <app-empty-state
-            class="flex min-h-full w-full lg:col-span-3 [&>section]:flex [&>section]:h-full [&>section]:min-h-56 [&>section]:flex-col [&>section]:items-center [&>section]:justify-center"
-            icon="task_alt"
-            [title]="hasSearch() ? 'Sin resultados' : 'Todo al día'"
-            [message]="hasSearch() ? 'No encontramos eventos, lugares o subtareas con esa búsqueda.' : 'No tienes tareas pendientes para hoy.'"
-          />
-        } @else {
-            <div class="contents">
-              <section class="flex min-w-0 flex-col rounded-xl border border-border bg-surface-raised p-4">
-                <div class="mb-2 flex items-center gap-1.5">
-                  <mat-icon class="text-[18px] text-danger-warm">warning_amber</mat-icon>
-                  <h2 class="text-sm font-bold text-ink">Requieren atención</h2>
-                  <span class="text-xs text-muted">{{ store.board().overdue.length }}</span>
-                </div>
-                @if (overdueEvents().length === 0) {
-                  <p class="py-3 text-center text-[11px] text-muted">No hay subtareas vencidas.</p>
-                } @else {
-                  <div class="space-y-2">
-                    @for (group of overdueEvents(); track group.eventId) {
-                      <article class="today-event-card glow-overdue rounded-xl border bg-surface p-2.5">
-                        <header class="flex items-center justify-between gap-2">
-                          <div class="flex min-w-0 items-center gap-2">
-                            <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-danger-warm/10 text-danger-warm">
-                              <mat-icon class="text-[17px]">event</mat-icon>
-                            </span>
-                            <div class="min-w-0">
-                            <h3 class="truncate text-sm font-bold text-ink">{{ group.eventName }}</h3>
-                            <p class="truncate text-[10px] text-muted">
-                                @if (group.event) {
-                                  {{ formatDateTimeHuman(group.event.datetime) }} · {{ group.event.place || 'Sin ubicación' }}
-                                } @else {
-                                  Evento sin información adicional
-                                }
-                              </p>
-                            </div>
-                          </div>
-                          <a [routerLink]="['/evento', group.eventId]" class="text-xs font-semibold text-accent hover:text-primary">
-                            Ver evento
-                          </a>
-                        </header>
-                        <div class="today-subtasks-panel mt-3 rounded-lg border bg-canvas p-1.5">
-                          <div class="mb-2 flex items-center gap-1.5 text-[10px] font-semibold text-danger-warm">
-                            <span class="size-2 rounded-full bg-danger-warm"></span>
-                            {{ group.subtasks.length }} subtareas vencidas
-                          </div>
-                          <div class="space-y-3">
-                            @for (subtask of group.subtasks; track subtask.id) {
-                              <app-today-item
-                                [subtask]="subtask"
-                                bucket="OVERDUE"
-                                (markDone)="markDone($event)"
-                                (reschedule)="rescheduleTarget.set($event)"
-                              />
-                            }
-                          </div>
-                        </div>
-                      </article>
-                    }
-                  </div>
-                }
-              </section>
-
-              <section class="flex min-w-0 flex-col rounded-xl border border-border bg-surface-raised p-4">
-                <div class="mb-2 flex items-center gap-1.5">
-                  <mat-icon class="text-[18px] text-accent">today</mat-icon>
-                  <h2 class="text-sm font-bold text-ink">Para hoy</h2>
-                  <span class="text-xs text-muted">{{ store.board().today.length }}</span>
-                </div>
-                @if (todayEvents().length === 0) {
-                  <p class="py-3 text-center text-[11px] text-muted">No hay subtareas para hoy.</p>
-                } @else {
-                  <div class="space-y-2">
-                    @for (group of todayEvents(); track group.eventId) {
-                      <article class="today-event-card glow-today rounded-xl border bg-surface p-2.5">
-                        <header class="flex items-center justify-between gap-2">
-                          <div class="flex min-w-0 items-center gap-2">
-                            <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-warning-warm/10 text-warning-warm">
-                              <mat-icon class="text-[17px]">event</mat-icon>
-                            </span>
-                            <div class="min-w-0">
-                              <h3 class="truncate text-sm font-bold text-ink">{{ group.eventName }}</h3>
-                              <p class="truncate text-[10px] text-muted">
-                                @if (group.event) {
-                                  {{ formatDateTimeHuman(group.event.datetime) }} · {{ group.event.place || 'Sin ubicación' }}
-                                } @else {
-                                  Evento sin información adicional
-                                }
-                              </p>
-                            </div>
-                          </div>
-                          <a [routerLink]="['/evento', group.eventId]" class="text-xs font-semibold text-accent hover:text-primary">
-                            Ver evento
-                          </a>
-                        </header>
-                        @if (group.subtasks.length === 0) {
-                          <p class="mt-3 rounded-lg border border-dashed border-border px-3 py-3 text-xs text-muted">
-                            Este evento no tiene subtareas pendientes.
-                          </p>
-                        } @else {
-                          <div class="today-subtasks-panel mt-3 rounded-lg border bg-canvas p-1.5">
-                            <div class="mb-2 flex items-center gap-1.5 text-[10px] font-semibold text-warning-warm">
-                              <span class="size-2 rounded-full bg-warning-warm"></span>
-                              {{ group.subtasks.length }} subtareas pendientes
-                            </div>
-                            <div class="flex flex-col gap-3">
-                              @for (subtask of group.subtasks; track subtask.id) {
-                                <app-today-item
-                                  [subtask]="subtask"
-                                  bucket="TODAY"
-                                  (markDone)="markDone($event)"
-                                  (postpone)="postponeTarget.set($event)"
-                                  (reschedule)="rescheduleTarget.set($event)"
-                                />
-                              }
-                            </div>
-                          </div>
-                        }
-                      </article>
-                    }
-                  </div>
-                }
-              </section>
-
-              <section class="flex min-w-0 flex-col rounded-xl border border-border bg-surface-raised p-4">
-                <div class="mb-2 flex items-center gap-1.5">
-                  <mat-icon class="text-[18px] text-muted">schedule</mat-icon>
-                  <h2 class="text-sm font-bold text-ink">Próximas</h2>
-                  <span class="text-xs text-muted">{{ store.board().upcoming.length }}</span>
-                </div>
-                @if (upcomingEvents().length === 0) {
-                  <p class="py-3 text-center text-[11px] text-muted">No hay próximas subtareas.</p>
-                } @else {
-                  <div class="space-y-2">
-                    @for (group of upcomingEvents(); track group.eventId) {
-                      <article class="rounded-xl border border-border bg-surface p-2.5">
-                        <header class="flex items-center justify-between gap-2">
-                          <div class="flex min-w-0 items-center gap-2">
-                            <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-surface-raised text-accent">
-                              <mat-icon class="text-[17px]">event</mat-icon>
-                            </span>
-                            <div class="min-w-0">
-                              <h3 class="truncate text-sm font-bold text-ink">{{ group.eventName }}</h3>
-                              <p class="truncate text-[10px] text-muted">
-                                @if (group.event) {
-                                  {{ formatDateTimeHuman(group.event.datetime) }} · {{ group.event.place || 'Sin ubicación' }}
-                                } @else {
-                                  Evento sin información adicional
-                                }
-                              </p>
-                            </div>
-                          </div>
-                          <a [routerLink]="['/evento', group.eventId]" class="text-xs font-semibold text-accent hover:text-primary">
-                            Ver evento
-                          </a>
-                        </header>
-                        <div class="mt-3 rounded-lg border border-border bg-canvas p-1.5">
-                          <div class="mb-2 flex items-center gap-1.5 text-[10px] font-semibold text-muted">
-                            <span class="size-2 rounded-full bg-muted"></span>
-                            {{ group.subtasks.length }} subtareas próximas
-                          </div>
-                          <div class="space-y-3">
-                            @for (subtask of group.subtasks; track subtask.id) {
-                              <app-today-item
-                                [subtask]="subtask"
-                                bucket="UPCOMING"
-                                (markDone)="markDone($event)"
-                                (reschedule)="rescheduleTarget.set($event)"
-                              />
-                            }
-                          </div>
-                        </div>
-                      </article>
-                    }
-                  </div>
-                }
-              </section>
-          </div>
-        }
-      </ng-container>
-
-      <aside class="flex min-w-0 flex-col gap-6 rounded-xl border border-border bg-surface-raised p-4">
-        <section>
-          <h2 class="text-sm font-bold text-ink">Gestiones clave de hoy</h2>
-          @if (store.board().keyTasks.length === 0) {
-            <p class="mt-3 text-xs text-muted">No hay gestiones urgentes por ahora.</p>
-          } @else {
-            <ul class="mt-3 space-y-2.5">
-              @for (task of store.board().keyTasks; track task.id) {
-                <li class="flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    class="mt-0.5 size-4 rounded border-border bg-canvas accent-primary"
-                    [attr.aria-label]="'Marcar hecha: ' + task.name"
-                    (change)="markDone(task)"
-                  />
-                  <span class="text-sm text-ink">{{ task.name }}</span>
-                </li>
-              }
-            </ul>
+        <button type="button" class="btn-ghost border border-border" (click)="clearSearch()">Limpiar filtros</button>
+      </app-empty-state>
+    } @else {
+      <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <app-today-column
+          title="Requieren atención"
+          icon="warning_amber"
+          tone="danger"
+          [count]="store.board().overdue.length"
+          [empty]="overdueEvents().length === 0"
+          emptyIcon="check_circle_outline"
+          emptyIconClass="text-success"
+          emptyTitle="Estás al día"
+          emptyMessage="No hay subtareas vencidas."
+        >
+          @for (group of overdueEvents(); track group.eventId) {
+            <app-today-event-card
+              [group]="group"
+              bucket="OVERDUE"
+              (markDone)="markDone($event)"
+              (reschedule)="rescheduleTarget.set($event)"
+            />
           }
-        </section>
+        </app-today-column>
 
-        <section>
-          <h2 class="text-sm font-bold text-ink">Eventos con gestiones hoy</h2>
-          @if (store.board().eventsToday.length === 0) {
-            <p class="mt-3 text-xs text-muted">Ningún evento requiere atención hoy.</p>
-          } @else {
-            <ul class="mt-3 space-y-2.5">
-              @for (item of store.board().eventsToday; track item.eventId) {
-                <li>
-                  <a
-                    [routerLink]="['/evento', item.eventId]"
-                    class="flex items-center justify-between gap-2 text-sm text-ink hover:text-accent"
-                  >
-                    <span class="truncate">{{ item.eventName }}</span>
-                    <span class="shrink-0 font-mono text-xs font-semibold text-accent">{{ item.percentage }}%</span>
-                  </a>
-                </li>
-              }
-            </ul>
+        <app-today-column
+          title="Para hoy"
+          icon="calendar_today"
+          tone="accent"
+          [count]="store.board().today.length"
+          [empty]="todayEvents().length === 0"
+          [highlighted]="todayEvents().length > 0"
+          emptyIcon="event_available"
+          emptyTitle="Nada para hoy"
+          emptyMessage="No hay subtareas con plazo hoy."
+        >
+          @for (group of todayEvents(); track group.eventId) {
+            <app-today-event-card
+              [group]="group"
+              bucket="TODAY"
+              (markDone)="markDone($event)"
+              (postpone)="postponeTarget.set($event)"
+              (reschedule)="rescheduleTarget.set($event)"
+            />
           }
-        </section>
-      </aside>
-    </div>
+        </app-today-column>
+
+        <app-today-column
+          title="Próximas"
+          icon="schedule"
+          tone="warning"
+          [count]="store.board().upcoming.length"
+          [empty]="upcomingEvents().length === 0"
+          emptyIcon="calendar_today"
+          emptyTitle="Nada en los próximos 7 días"
+          emptyLink="/crear"
+          emptyLinkLabel="Planear un evento"
+        >
+          @for (group of upcomingEvents(); track group.eventId) {
+            <app-today-event-card
+              [group]="group"
+              bucket="UPCOMING"
+              (markDone)="markDone($event)"
+              (reschedule)="rescheduleTarget.set($event)"
+            />
+          }
+        </app-today-column>
+
+        <div class="flex min-w-0 flex-col gap-4 md:col-span-2 lg:col-span-1">
+          <section class="surface-card p-4" aria-labelledby="key-tasks-title">
+            <h2 id="key-tasks-title" class="text-[15px] font-semibold text-ink">Gestiones clave de hoy</h2>
+            @if (store.board().keyTasks.length === 0) {
+              <p class="mt-3 text-sm text-muted">No hay gestiones urgentes por ahora.</p>
+            } @else {
+              <ul class="mt-3 flex flex-col gap-2">
+                @for (task of store.board().keyTasks; track task.id) {
+                  <li class="flex items-center gap-3 rounded-xl bg-surface-raised px-3 py-2.5">
+                    <app-check-button [label]="'Marcar hecha: ' + task.name" (toggled)="markDone(task)" />
+                    <span class="min-w-0 flex-1 truncate text-sm text-ink">{{ task.name }}</span>
+                    <span class="shrink-0 text-xs text-muted tabular-nums">{{ task.estimatedHours }} h</span>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+
+          <section class="surface-card p-4" aria-labelledby="events-today-title">
+            <h2 id="events-today-title" class="text-[15px] font-semibold text-ink">Eventos con gestiones hoy</h2>
+            @if (store.board().eventsToday.length === 0) {
+              <p class="mt-3 text-sm text-muted">Ningún evento requiere atención hoy.</p>
+            } @else {
+              <ul class="mt-3 flex flex-col gap-3">
+                @for (item of store.board().eventsToday; track item.eventId) {
+                  <li>
+                    <a [routerLink]="['/evento', item.eventId]" class="block rounded-lg text-sm text-ink hover:text-accent">
+                      <span class="flex items-center justify-between gap-2">
+                        <span class="truncate">{{ item.eventName }}</span>
+                        <span class="shrink-0 tabular-nums">{{ item.percentage }}%</span>
+                      </span>
+                      <span class="mt-2 block">
+                        <app-progress-bar [percentage]="item.percentage" size="sm" tone="primary" />
+                      </span>
+                    </a>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+
+          <section class="surface-card p-4" aria-labelledby="day-load-title">
+            <div class="flex items-center justify-between gap-2">
+              <h2 id="day-load-title" class="text-[15px] font-semibold text-ink">Carga del día</h2>
+              <p class="text-sm text-muted tabular-nums">
+                {{ store.board().capacity.plannedHours | number: '1.0-1' }} h de {{ store.board().capacity.limitHours | number: '1.0-1' }} h
+              </p>
+            </div>
+            <div class="mt-3">
+              <app-progress-bar
+                [percentage]="store.board().capacity.percentage"
+                size="sm"
+                [tone]="store.board().capacity.percentage > 100 ? 'danger' : 'success'"
+              />
+            </div>
+          </section>
+        </div>
+      </div>
+    }
   }
 </div>
 

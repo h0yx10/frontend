@@ -1,48 +1,46 @@
-<section class="rounded-2xl border border-border bg-surface p-4 sm:p-6">
-  <h2 class="text-base font-bold text-ink">Capacidad diaria</h2>
-  <p class="mt-1 text-sm text-muted">
-    Se usa para detectar sobrecarga cuando reprogramas gestiones logísticas en "Hoy".
-  </p>
+<section class="surface-card flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between" aria-labelledby="capacity-title">
+  <div class="max-w-lg">
+    <h2 id="capacity-title" class="text-xl font-semibold text-ink">Capacidad diaria</h2>
+    <p class="mt-2 text-sm leading-relaxed text-muted">
+      Cuántas horas puedes dedicar a gestiones por día. La usamos para avisarte de sobrecarga al reprogramar en Hoy.
+    </p>
+    <p class="mt-2 text-xs text-muted">Entre {{ min }} y {{ max }} horas. Sin configurar se usan {{ defaultHours }} h.</p>
+  </div>
 
-  <form class="mt-6 flex flex-wrap items-end gap-3" (ngSubmit)="save()">
-    <div>
-      <label for="daily-limit" class="mb-2 block text-sm font-medium text-ink">
-        Límite de horas por día
-      </label>
-      <div class="flex items-center gap-2">
-        <input
-          id="daily-limit"
-          name="dailyLimitHours"
-          type="number"
-          [min]="min"
-          [max]="max"
-          step="0.5"
-          required
-          [(ngModel)]="hours"
-          class="h-11 w-24 rounded-xl border border-border bg-canvas px-3 text-ink"
-        />
-        <span class="text-sm text-muted">horas / día</span>
-      </div>
+  <div class="flex shrink-0 flex-wrap items-center gap-4">
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        class="flex size-12 items-center justify-center rounded-xl bg-surface-raised text-ink transition hover:bg-border-strong disabled:opacity-40"
+        aria-label="Reducir media hora"
+        [disabled]="hours() <= min || store.saving()"
+        (click)="adjust(-1)"
+      >
+        <mat-icon aria-hidden="true">remove</mat-icon>
+      </button>
+      <p class="min-w-20 text-center" role="status" aria-live="polite">
+        <span class="block text-3xl font-bold leading-none text-ink tabular-nums">{{ hours() | number: '1.0-1' }} h</span>
+        <span class="mt-1 block text-sm text-muted">por día</span>
+      </p>
+      <button
+        type="button"
+        class="flex size-12 items-center justify-center rounded-xl bg-surface-raised text-ink transition hover:bg-border-strong disabled:opacity-40"
+        aria-label="Aumentar media hora"
+        [disabled]="hours() >= max || store.saving()"
+        (click)="adjust(1)"
+      >
+        <mat-icon aria-hidden="true">add</mat-icon>
+      </button>
     </div>
-
-    <button
-      type="submit"
-      class="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
-      [disabled]="store.saving()"
-    >
+    <button type="button" class="btn-primary h-12 px-6" [disabled]="!changed() || store.saving()" (click)="save()">
       {{ store.saving() ? 'Guardando…' : 'Guardar' }}
     </button>
-  </form>
+  </div>
 
   @if (store.error()) {
-    <p class="mt-4 text-sm text-danger" role="alert">{{ store.error() }}</p>
+    <p class="text-sm text-danger sm:basis-full" role="alert">{{ store.error() }}</p>
   }
   @if (success()) {
-    <p class="mt-4 text-sm text-success" role="status">Capacidad actualizada.</p>
+    <p class="text-sm text-success sm:basis-full" role="status">Capacidad actualizada.</p>
   }
-
-  <p class="mt-4 text-xs text-muted">
-    Valor permitido: entre {{ min }} y {{ max }} horas. Si no configuras un límite, se usará
-    {{ defaultHours }} h por defecto.
-  </p>
 </section>

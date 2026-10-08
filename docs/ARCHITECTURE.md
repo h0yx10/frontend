@@ -94,12 +94,44 @@ Cada feature es un módulo funcional independiente con su propia ruta, component
 | `/progreso`    | `features/events` · EventsProgressPage  | `authGuard`, `organizerGuard`|
 | `/cuenta`      | `core/auth` · AccountPage               | `authGuard`                  |
 
+### Shell de las pantallas autenticadas
+
+`core/layout/ShellLayoutComponent` es la ruta padre de todas las páginas privadas (`/hoy`,
+`/actividades`, `/progreso`, `/crear`, `/evento/:id`, `/cuenta`); el login queda como ruta de
+pantalla completa. Compone la navegación con `shared/ui/organisms/app-sidebar`, un organismo
+**presentacional**: recibe ítems, usuario y carga diaria, y emite `search`, `logout` y `navigated`.
+
+La barra lateral contiene el logo, la campana, la búsqueda global (⌘K / Ctrl K → `/progreso?q=`),
+la navegación «Planificación» (Hoy, Actividades, Progreso), la tarjeta «Carga de hoy» y el acceso a
+«Mi cuenta» con cierre de sesión. Por debajo de `lg` se convierte en un drawer con una cabecera compacta.
+
+El shell es la raíz de composición de la zona privada y por eso conecta stores de `features/`
+(`CapacityStore` y `WorkloadStore`) con el organismo; el organismo en sí no conoce ninguna feature.
+`WorkloadStore` (`features/today/store`, singleton) expone las horas planificadas hoy y el contador de
+«Hoy»: la pantalla Hoy lo actualiza con su tablero y el shell lo refresca al terminar cada navegación.
+
+### Primitivas visuales compartidas
+
+Las pantallas Hoy, Actividades, Progreso y Nuevo evento comparten una misma capa visual:
+
+| Pieza | Ubicación | Uso |
+| ----- | --------- | --- |
+| `.surface-card`, `.input-control`, `.btn-primary`, `.btn-ghost` | `styles.scss` (`@layer components`) | Tarjetas, campos y botones; sólo componen tokens del tema |
+| `page-header` | `shared/ui/molecules` | Sobretítulo, título, subtítulo y acciones |
+| `segmented-control`, `search-box`, `workload-card` | `shared/ui/molecules` | Filtros, búsqueda con debounce y carga diaria |
+| `progress-bar`, `progress-ring`, `status-badge`, `check-button`, `brand-mark` | `shared/ui/atoms` | Indicadores y controles básicos |
+| `today-column`, `today-event-card`, `today-item`, `stat-card` | `features/today/components` | Tablero Hoy |
+
+Los colores con transparencia (`bg-primary/15`) **no** se generan con los tokens actuales (son
+`var(--…)` opacos); para fondos tenues se usan los tokens sólidos `primary-soft`, `success-soft`,
+`warning-soft` y `danger-soft`.
+
 ### Feature `today/` — búsqueda de eventos
 
 La vista Hoy incluye filtros de búsqueda sobre los eventos mostrados (texto libre sobre
 nombre, lugar, tipo y subtareas, sin distinguir tildes ni mayúsculas, y selector de evento).
 El estado vive en `TodayStore.search` (`TodaySearch`) y el componente lo aplica con `computed`.
-El campo de texto es `shared/ui/molecules/search-box` (Reactive Forms con debounce de 250 ms).
+El campo de texto es `shared/ui/molecules/search-box` (Reactive Forms con debounce de 250 ms) y el selector de evento filtra en el cliente sobre el mismo estado.
 
 ## Estilos
 

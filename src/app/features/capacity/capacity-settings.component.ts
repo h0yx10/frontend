@@ -1,15 +1,17 @@
-import { CommonModule } from '@angular/common';
-import { Component, effect, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 import { runtimeConfig } from '../../core/config/runtime-config';
 import { CapacityStore } from './store/capacity.store';
 import { CAPACITY_MAX_HOURS, CAPACITY_MIN_HOURS } from './models/capacity.model';
 
+const STEP = 0.5;
+
 @Component({
   selector: 'app-capacity-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [DecimalPipe, MatIconModule],
   templateUrl: './capacity-settings.component.html'
 })
 export class CapacitySettingsComponent {
@@ -20,15 +22,21 @@ export class CapacitySettingsComponent {
   readonly defaultHours = runtimeConfig.defaultDailyLimitHours;
   readonly success = signal(false);
 
-  hours = this.store.dailyLimitHours();
+  readonly hours = signal(this.store.dailyLimitHours());
+  readonly changed = computed(() => this.hours() !== this.store.dailyLimitHours());
 
   constructor() {
     this.store.ensureLoaded();
-    effect(() => (this.hours = this.store.dailyLimitHours()));
+    effect(() => this.hours.set(this.store.dailyLimitHours()), { allowSignalWrites: true });
+  }
+
+  adjust(direction: 1 | -1): void {
+    this.success.set(false);
+    this.hours.update((current) => Math.min(this.max, Math.max(this.min, current + direction * STEP)));
   }
 
   save(): void {
     this.success.set(false);
-    this.store.update(Number(this.hours), () => this.success.set(true));
+    this.store.update(this.hours(), () => this.success.set(true));
   }
 }

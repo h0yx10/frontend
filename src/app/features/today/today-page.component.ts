@@ -1,42 +1,42 @@
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { DateBucket, formatDateTimeHuman, formatIsoDateHuman, todayIsoDate } from '../../core/utils/date.util';
-import { SearchBoxComponent } from '../../shared/ui/molecules/search-box.component';
-import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
+import { formatIsoDateHuman, formatLongDay, todayIsoDate } from '../../core/utils/date.util';
+import { CheckButtonComponent } from '../../shared/ui/atoms/check-button.component';
+import { ProgressBarComponent } from '../../shared/ui/atoms/progress-bar.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
+import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
+import { PageHeaderComponent } from '../../shared/ui/molecules/page-header.component';
+import { SearchBoxComponent } from '../../shared/ui/molecules/search-box.component';
 import { PostponeDialogComponent } from '../events/components/postpone-dialog.component';
+import { RescheduleDialogComponent } from '../events/components/reschedule-dialog.component';
 import { EventEntity } from '../events/models/event.model';
 import { Subtask } from '../events/models/subtask.model';
 import { EventsService } from '../events/services/events.service';
-import { RescheduleDialogComponent } from '../events/components/reschedule-dialog.component';
 import { StatCardComponent } from './components/stat-card.component';
-import { TodayItemComponent } from './components/today-item.component';
+import { TodayColumnComponent } from './components/today-column.component';
+import { TodayEventCardComponent } from './components/today-event-card.component';
+import { TodayEventGroup } from './models/today.model';
 import { TodayStore } from './store/today.store';
-
-interface TodayEventGroup {
-  eventId: string;
-  eventName: string;
-  event: EventEntity | undefined;
-  subtasks: Subtask[];
-}
 
 @Component({
   selector: 'app-today-page',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
+    DecimalPipe,
     MatIconModule,
     RouterLink,
+    CheckButtonComponent,
+    ProgressBarComponent,
     EmptyStateComponent,
-    SearchBoxComponent,
     ErrorStateComponent,
+    PageHeaderComponent,
+    SearchBoxComponent,
     StatCardComponent,
-    TodayItemComponent,
+    TodayColumnComponent,
+    TodayEventCardComponent,
     RescheduleDialogComponent,
     PostponeDialogComponent
   ],
@@ -51,54 +51,45 @@ export class TodayPageComponent {
   readonly postponeTarget = signal<Subtask | null>(null);
   readonly eventOptions = signal<EventEntity[]>([]);
 
-  readonly todayLabel = this.capitalize(formatIsoDateHuman(todayIsoDate()));
+  readonly todayLabel = formatLongDay();
   readonly formatIsoDateHuman = formatIsoDateHuman;
-  readonly formatDateTimeHuman = formatDateTimeHuman;
-  readonly query = signal('');
   readonly hasSearch = computed(() => {
-    const search = this.store.search();
-    return Boolean(this.query().trim() || search.query.trim() || search.eventId);
+    const { query, eventId } = this.store.search();
+    return Boolean(query.trim() || eventId);
   });
-  readonly overdueEvents = computed(() => this.applySearch(this.applyQuery(this.groupByEvent(this.store.board().overdue))));
+  readonly overdueEvents = computed(() => this.applySearch(this.groupByEvent(this.store.board().overdue)));
   readonly todayEvents = computed(() =>
-    this.applySearch(this.applyQuery([...this.groupByEvent(this.store.board().today), ...this.eventsWithoutPendingSubtasks()]))
+    this.applySearch([...this.groupByEvent(this.store.board().today), ...this.eventsWithoutPendingSubtasks()])
   );
-  readonly upcomingEvents = computed(() => this.applySearch(this.applyQuery(this.groupByEvent(this.store.board().upcoming))));
+  readonly upcomingEvents = computed(() => this.applySearch(this.groupByEvent(this.store.board().upcoming)));
 
   constructor() {
     this.store.load();
     this.eventsService.list().subscribe((events) => this.eventOptions.set(events));
   }
 
+  get isEmpty(): boolean {
+    return this.overdueEvents().length === 0 && this.todayEvents().length === 0 && this.upcomingEvents().length === 0;
+  }
+
   clearSearch(): void {
-    this.query.set('');
     this.store.clearSearch();
   }
 
-  onEventFilter(eventId: string): void {
-    this.store.setFilters({ ...this.store.filters(), eventId });
+  markDone(subtask: Subtask): void {
+    this.store.executeSubtask(subtask.id, { status: 'DONE' });
   }
 
-  /** Búsqueda local por evento, lugar o subtarea; no altera lo que devuelve el servidor. */
-  private applyQuery(groups: TodayEventGroup[]): TodayEventGroup[] {
-    const term = this.query().trim().toLowerCase();
-    if (!term) {
-      return groups;
+  openConflict(): void {
+    const alert = this.store.board().conflictAlert;
+    if (alert) {
+      this.rescheduleTarget.set(alert.subtask);
     }
-    return groups.filter(
-      (group) =>
-        group.eventName.toLowerCase().includes(term) ||
-        (group.event?.place ?? '').toLowerCase().includes(term) ||
-        group.subtasks.some((subtask) => subtask.name.toLowerCase().includes(term))
-    );
   }
 
-  private capitalize(value: string): string {
-    return value.charAt(0).toUpperCase() + value.slice(1);
-  }
-
-  get isEmpty(): boolean {
-    return this.overdueEvents().length === 0 && this.todayEvents().length === 0 && this.upcomingEvents().length === 0;
+  statHint(trend: number | null): string {
+    if (trend === null) return 'Sin datos de la semana previa';
+    return `${trend >= 0 ? '+' : ''}${trend}% vs. semana pasada`;
   }
 
   private applySearch(groups: TodayEventGroup[]): TodayEventGroup[] {
@@ -120,7 +111,7 @@ export class TodayPageComponent {
   }
 
   private normalize(value: string): string {
-    return value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    return value.trim().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   }
 
   private groupByEvent(items: Subtask[]): TodayEventGroup[] {
@@ -144,6 +135,7 @@ export class TodayPageComponent {
     return Array.from(grouped.values());
   }
 
+  /** Eventos de hoy ya completos: se listan igualmente para que el día no parezca vacío. */
   private eventsWithoutPendingSubtasks(): TodayEventGroup[] {
     const today = todayIsoDate();
     const activeEventIds = new Set(this.store.board().today.map((subtask) => subtask.eventId));
@@ -161,16 +153,5 @@ export class TodayPageComponent {
         event,
         subtasks: []
       }));
-  }
-
-  markDone(subtask: Subtask): void {
-    this.store.executeSubtask(subtask.id, { status: 'DONE' });
-  }
-
-  openConflict(): void {
-    const alert = this.store.board().conflictAlert;
-    if (alert) {
-      this.rescheduleTarget.set(alert.subtask);
-    }
   }
 }
