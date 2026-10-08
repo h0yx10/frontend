@@ -3,18 +3,18 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
-import { AppComponent } from './app.component';
-import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
-import { AuthStore } from './core/auth/store/auth.store';
-import { sessionDto, success } from './core/auth/testing/auth.fixtures';
-import { runtimeConfig } from './core/config/runtime-config';
-import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
-import { CapacityStore } from './features/capacity/store/capacity.store';
+import { ShellLayoutComponent } from './shell-layout.component';
+import { authInterceptor } from '../auth/interceptors/auth.interceptor';
+import { AuthStore } from '../auth/store/auth.store';
+import { sessionDto, success } from '../auth/testing/auth.fixtures';
+import { runtimeConfig } from '../config/runtime-config';
+import { httpErrorInterceptor } from '../interceptors/http-error.interceptor';
+import { CapacityStore } from '../../features/capacity/store/capacity.store';
 
 const storageKey = 'events_planner::session';
 
-describe('AppComponent', () => {
-  let fixture: ComponentFixture<AppComponent>;
+describe('ShellLayoutComponent', () => {
+  let fixture: ComponentFixture<ShellLayoutComponent>;
   let auth: AuthStore;
   let http: HttpTestingController;
   let navigate: jasmine.Spy;
@@ -23,7 +23,7 @@ describe('AppComponent', () => {
   beforeEach(async () => {
     localStorage.removeItem(storageKey);
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [ShellLayoutComponent],
       providers: [
         provideRouter([]),
         provideHttpClient(withInterceptors([httpErrorInterceptor, authInterceptor])),
@@ -34,7 +34,7 @@ describe('AppComponent', () => {
     auth = TestBed.inject(AuthStore);
     http = TestBed.inject(HttpTestingController);
     navigate = spyOn(TestBed.inject(Router),'navigate').and.resolveTo(true);
-    fixture = TestBed.createComponent(AppComponent);
+    fixture = TestBed.createComponent(ShellLayoutComponent);
   });
 
   afterEach(() => {

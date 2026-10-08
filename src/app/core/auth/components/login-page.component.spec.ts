@@ -23,6 +23,7 @@ describe('LoginPageComponent', () => {
     auth.login.and.returnValue(of(user));
     auth.register.and.returnValue(of(user));
     router = jasmine.createSpyObj<Router>('Router',['navigate','navigateByUrl']);
+    router.navigateByUrl.and.resolveTo(true);
     snapshot = {data:{}, queryParamMap:convertToParamMap({})};
     await TestBed.configureTestingModule({imports:[LoginPageComponent],providers:[
       provideNoopAnimations(),

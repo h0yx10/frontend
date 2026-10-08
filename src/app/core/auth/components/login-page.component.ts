@@ -3,7 +3,6 @@ import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angu
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs';
 
 import {
   EMAIL_MAX_LENGTH,
@@ -135,7 +134,7 @@ export class LoginPageComponent {
       return 'Escribe un correo valido.';
     }
     if (errors['passwordSize']) {
-      return 'La contrasena debe tener al menos 8 caracteres y un maximo de 72 bytes UTF-8.';
+      return 'La contrasena debe tener al menos 8 caracteres.';
     }
     if (errors['maxlength']) {
       return field === 'name' ? 'El nombre puede tener maximo 120 caracteres.' : 'Escribe un correo valido.';
@@ -162,9 +161,11 @@ export class LoginPageComponent {
         ? this.auth.login({ email, password })
         : this.auth.register({ name, email, password });
 
-    request.pipe(finalize(() => this.loading.set(false))).subscribe({
-      next: () => this.router.navigateByUrl(this.returnUrl),
+    request.subscribe({
+      // El botón sigue en "Procesando…" hasta que la página destino está lista (guards incluidos).
+      next: () => void this.router.navigateByUrl(this.returnUrl).finally(() => this.loading.set(false)),
       error: (error: AppHttpError) => {
+        this.loading.set(false);
         this.error.set(error.message);
         this.serverFieldErrors.set(mapServerFieldErrors(error.fieldErrors));
       }

@@ -36,7 +36,7 @@
         </app-form-field>
 
         <app-form-field inputId="password" label="Contraseña" [error]="fieldError('password')"
-          [hint]="mode() === 'register' ? 'Mínimo ' + passwordMinLength + ' caracteres y máximo 72 bytes UTF-8.' : ''">
+          [hint]="mode() === 'register' ? 'Mínimo ' + passwordMinLength + ' caracteres.' : ''">
           <button field-action type="button" class="text-link inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 text-[13px] font-semibold"
             [attr.aria-label]="passwordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
             [attr.aria-pressed]="passwordVisible()" aria-controls="password" (click)="togglePasswordVisibility()">
