@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 
 import { InfoDialogComponent } from '../../../shared/ui/molecules/info-dialog.component';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
+import { OverloadResolutionDialogComponent } from './overload-resolution-dialog.component';
 import { Subtask } from '../models/subtask.model';
 import { EventDetailStore } from '../store/event-detail.store';
 
 @Component({
   selector: 'app-subtask-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, InfoDialogComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, InfoDialogComponent, OverloadResolutionDialogComponent],
   templateUrl: './subtask-form.component.html'
 })
 export class SubtaskFormComponent {
@@ -38,9 +39,6 @@ export class SubtaskFormComponent {
           this.targetDate = editing?.targetDate ?? '';
           this.estimatedHours = editing?.estimatedHours ?? null;
           this.store.subtaskFieldErrors.set({});
-        }
-        if (this.open() && this.store.overloadTarget()) {
-          this.closed.emit();
         }
       },
       { allowSignalWrites: true }
@@ -101,6 +99,22 @@ export class SubtaskFormComponent {
         });
       });
     }
+  }
+
+  moveToDate(date: string): void {
+    this.targetDate = date;
+    this.store.clearOverload();
+    this.submit();
+  }
+
+  reduceEstimatedHours(hours: number): void {
+    this.estimatedHours = hours;
+    this.store.clearOverload();
+    this.submit();
+  }
+
+  cancelOverload(): void {
+    this.store.clearOverload();
   }
 
   dismissSuccess(): void {

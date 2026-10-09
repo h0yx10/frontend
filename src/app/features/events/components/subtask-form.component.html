@@ -107,6 +107,18 @@
   </app-modal>
 }
 
+@if (store.overload(); as conflict) {
+  <app-overload-resolution-dialog
+    [conflict]="conflict"
+    [initialDate]="targetDate"
+    [initialHours]="estimatedHours ?? 0"
+    [busy]="store.saving()"
+    (move)="moveToDate($event)"
+    (reduce)="reduceEstimatedHours($event)"
+    (cancelled)="cancelOverload()"
+  />
+}
+
 @if (successInfo(); as info) {
   <app-info-dialog
     [heading]="info.heading"

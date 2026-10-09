@@ -19,7 +19,6 @@ export class EventDetailStore {
   private readonly eventsService = inject(EventsService);
   private readonly subtasksService = inject(SubtasksService);
   private readonly conflictsService = inject(ConflictsService);
-
   readonly event = signal<EventEntity | null>(null);
   readonly subtasks = signal<Subtask[]>([]);
   readonly loading = signal(false);
@@ -108,7 +107,7 @@ export class EventDetailStore {
 
   addSubtask(payload: SubtaskPayload, onSuccess: () => void): void {
     const current = this.event();
-    if (!current) {
+    if (!current || this.saving()) {
       return;
     }
 
@@ -124,30 +123,7 @@ export class EventDetailStore {
         next: (subtask) => {
           this.subtasks.update((subtasks) => [...subtasks, subtask]);
           this.reloadEvent();
-          this.conflictsService
-            .checkOverload(subtask.id, {
-              targetDate: subtask.targetDate,
-              estimatedHours: subtask.estimatedHours
-            })
-            .subscribe({
-              next: (result) => {
-                if (result.exceeds) {
-                  this.overload.set(result);
-                  this.overloadTarget.set(subtask);
-                  onSuccess();
-                  return;
-                }
-                const planned = this.roundHours(result.plannedHours);
-                const limit = this.roundHours(result.limitHours);
-                const remaining = this.roundHours(Math.max(0, limit - planned));
-                this.successMessage.set(`Subtarea creada. Llevas ${planned} h de ${limit} h hoy; te quedan ${remaining} h.`);
-                onSuccess();
-              },
-              error: () => {
-                this.error.set('Subtarea creada, pero no fue posible comprobar la capacidad diaria.');
-                onSuccess();
-              }
-            });
+          onSuccess();
         },
         error: (error: AppHttpError) => {
           this.subtaskFieldErrors.set(error.fieldErrors ?? {});
@@ -164,11 +140,42 @@ export class EventDetailStore {
   }
 
   updateSubtask(id: string, payload: SubtaskUpdatePayload, onSuccess: () => void): void {
+    if (this.saving()) {
+      return;
+    }
     this.saving.set(true);
     this.subtaskFieldErrors.set({});
     this.error.set('');
     this.successMessage.set('');
 
+    const current = this.subtasks().find((subtask) => subtask.id === id);
+    const date = payload.targetDate ?? current?.targetDate;
+    const hours = payload.estimatedHours ?? current?.estimatedHours;
+
+    if (date && hours !== undefined && current) {
+      this.conflictsService.checkOverload(id, { targetDate: date, estimatedHours: hours }).subscribe({
+        next: (result) => {
+          if (result.exceeds) {
+            this.overload.set(result);
+            this.overloadTarget.set({ ...current, ...payload });
+            this.saving.set(false);
+            return;
+          }
+          this.persistSubtaskUpdate(id, payload, onSuccess);
+        },
+        error: (error: AppHttpError) => {
+          this.saving.set(false);
+          this.subtaskFieldErrors.set(error.fieldErrors ?? {});
+          this.error.set(error.message);
+        }
+      });
+      return;
+    }
+
+    this.persistSubtaskUpdate(id, payload, onSuccess);
+  }
+
+  private persistSubtaskUpdate(id: string, payload: SubtaskUpdatePayload, onSuccess: () => void): void {
     this.subtasksService
       .update(id, payload)
       .pipe(finalize(() => this.saving.set(false)))

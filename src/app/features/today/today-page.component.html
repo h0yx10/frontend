@@ -51,8 +51,8 @@
       </div>
     }
 
-    <form class="mt-5 flex flex-col gap-3 sm:flex-row" role="search" (submit)="$event.preventDefault()">
-      <div class="min-w-0 flex-1">
+    <form class="mt-5 grid gap-3 sm:grid-cols-4" role="search" (submit)="$event.preventDefault()">
+      <div class="min-w-0 sm:col-span-3">
         <app-search-box
           placeholder="Buscar eventos, lugares o subtareas…"
           ariaLabel="Buscar eventos, lugares o subtareas"
@@ -60,7 +60,7 @@
           (search)="store.setSearch({ query: $event })"
         />
       </div>
-      <div class="relative sm:w-60">
+      <div class="relative min-w-0 sm:col-span-1">
         <select
           class="input-control appearance-none bg-surface pr-10"
           aria-label="Filtrar por evento"

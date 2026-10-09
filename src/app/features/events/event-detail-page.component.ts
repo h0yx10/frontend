@@ -151,17 +151,9 @@ export class EventDetailPageComponent {
   }
 
   closeSubtaskDialog(): void {
+    this.store.clearOverload();
     this.subtaskDialogOpen.set(false);
     this.subtaskEditing.set(null);
-  }
-
-  closeOverloadDialog(): void {
-    this.store.clearOverload();
-  }
-
-  completeOverloadResolution(updated: Subtask): void {
-    this.store.applySubtaskUpdate(updated);
-    this.store.markResolutionComplete();
   }
 
   markDone(subtask: Subtask): void {
