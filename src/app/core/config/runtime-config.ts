@@ -1,7 +1,7 @@
 export const runtimeConfig = {
-  apiUrl: 'https://backend-quarkus-aor3.onrender.com/api',
+  apiUrl: 'https://backend-quarkus-aor3.onrender.com/',
   /**
-   * https://backend-sspa.onrender.com/api  
+   * https://backend-sspa.onrender.com/  
    * Valor por defecto que usa la UI antes de que responda `GET /api/capacity`
    * (ver capacidad.md); el backend aplica el mismo default (6h) cuando el
    * organizador no tiene configuración guardada.
