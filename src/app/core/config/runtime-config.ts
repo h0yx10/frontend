@@ -1,5 +1,7 @@
 export const runtimeConfig = {
+
   apiUrl: 'https://backend-quarkus-aor3.onrender.com/',
+
   /**
    * https://backend-sspa.onrender.com/  
    * Valor por defecto que usa la UI antes de que responda `GET /api/capacity`

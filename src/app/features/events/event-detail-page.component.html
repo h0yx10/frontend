@@ -197,10 +197,9 @@
 />
 
 <app-reschedule-dialog
-  [subtask]="store.overloadTarget() || rescheduleTarget()"
-  [initialConflict]="store.overload()"
-  (closed)="store.overloadTarget() ? closeOverloadDialog() : rescheduleTarget.set(null)"
-  (changed)="store.overloadTarget() ? completeOverloadResolution($event) : store.applySubtaskUpdate($event)"
+  [subtask]="rescheduleTarget()"
+  (closed)="rescheduleTarget.set(null)"
+  (changed)="store.applySubtaskUpdate($event)"
 />
 
 @if (deleteEventConfirm()) {
