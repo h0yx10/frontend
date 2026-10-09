@@ -1,6 +1,6 @@
 export const runtimeConfig = {
 
-  apiUrl: 'https://backend-quarkus-aor3.onrender.com/',
+  apiUrl: 'https://backend-quarkus-aor3.onrender.com/api',
 
   /**
    * https://backend-sspa.onrender.com/  
