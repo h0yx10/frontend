@@ -248,3 +248,24 @@ app-today-item {
   display: block;
   min-width: 0;
 }
+
+// --- Entrada de contenido real tras un esqueleto de carga --------------------
+// Escalonar con `[style.animation-delay.ms]`. Es un fundido breve de 6 px: se mantiene con
+// movimiento reducido (la regla global lo anularía y el contenido aparecería de golpe).
+.real {
+  animation: real 420ms var(--ease-out) both;
+}
+
+@keyframes real {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .real {
+    animation-duration: 420ms !important;
+  }
+}

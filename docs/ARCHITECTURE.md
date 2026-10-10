@@ -120,7 +120,9 @@ pantalla no cambia mientras tanto. `core/layout/NavigationProgressService` expon
 - La barra lateral muestra un spinner en el ítem pulsado mientras su navegación está pendiente, y en
   «Hoy» y «Carga de hoy» mientras `WorkloadStore` consulta por primera vez (luego, un spinner pequeño junto
   al título en cada actualización).
-- Las páginas usan `loading-state` en su primera carga, y el botón de autenticación, el mismo `spinner`.
+- Hoy muestra en su primera carga un esqueleto con la forma del tablero; al llegar los datos, estadísticas,
+  filtros, columnas y widgets entran escalonados con `.real`. Las demás páginas usan `loading-state`, y el
+  botón de autenticación, el mismo `spinner`.
 
 ### Primitivas visuales compartidas
 
@@ -134,6 +136,8 @@ Las pantallas Hoy, Actividades, Progreso y Nuevo evento comparten una misma capa
 | `progress-bar`, `progress-ring`, `status-badge`, `check-button`, `brand-mark` | `shared/ui/atoms` | Indicadores y controles básicos |
 | `spinner` | `shared/ui/atoms` | Indicador de carga (estilo iOS, toma `currentColor`); sigue animado con movimiento reducido porque sólo cambia la opacidad |
 | `loading-state` | `shared/ui/molecules` | Carga de una página: spinner y mensaje |
+| `skeleton` | `shared/ui/atoms` | Bloque de esqueleto con brillo; `today-board-skeleton` lo compone con la forma del tablero Hoy |
+| `.real` | `styles.scss` | Entrada escalonada del contenido real tras un esqueleto (`[style.animation-delay.ms]`) |
 | `today-column`, `today-event-card`, `today-item`, `stat-card` | `features/today/components` | Tablero Hoy |
 
 Los colores con transparencia (`bg-primary/15`) **no** se generan con los tokens actuales (son

@@ -7,7 +7,6 @@ import { formatIsoDateHuman, formatLongDay, todayIsoDate } from '../../core/util
 import { CheckButtonComponent } from '../../shared/ui/atoms/check-button.component';
 import { ProgressBarComponent } from '../../shared/ui/atoms/progress-bar.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
-import { LoadingStateComponent } from '../../shared/ui/molecules/loading-state.component';
 import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
 import { PageHeaderComponent } from '../../shared/ui/molecules/page-header.component';
 import { SearchBoxComponent } from '../../shared/ui/molecules/search-box.component';
@@ -17,6 +16,7 @@ import { EventEntity } from '../events/models/event.model';
 import { Subtask } from '../events/models/subtask.model';
 import { EventsService } from '../events/services/events.service';
 import { StatCardComponent } from './components/stat-card.component';
+import { TodayBoardSkeletonComponent } from './components/today-board-skeleton.component';
 import { TodayColumnComponent } from './components/today-column.component';
 import { TodayEventCardComponent } from './components/today-event-card.component';
 import { TodayEventGroup } from './models/today.model';
@@ -26,7 +26,6 @@ import { TodayStore } from './store/today.store';
   selector: 'app-today-page',
   standalone: true,
   imports: [
-    LoadingStateComponent,
     DecimalPipe,
     MatIconModule,
     RouterLink,
@@ -37,6 +36,7 @@ import { TodayStore } from './store/today.store';
     PageHeaderComponent,
     SearchBoxComponent,
     StatCardComponent,
+    TodayBoardSkeletonComponent,
     TodayColumnComponent,
     TodayEventCardComponent,
     RescheduleDialogComponent,
