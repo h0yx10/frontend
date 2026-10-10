@@ -5,11 +5,9 @@
       [items]="navItems()"
       [userName]="user()?.name ?? ''"
       [userRole]="roleLabel()"
-      [searchable]="canOrganize()"
       [workload]="sidebarWorkload()"
       [alerts]="hasAlerts()"
       [loggingOut]="loggingOut()"
-      (search)="runSearch($event)"
       (logout)="logout()"
     />
   </aside>
@@ -54,11 +52,9 @@
         [items]="navItems()"
         [userName]="user()?.name ?? ''"
         [userRole]="roleLabel()"
-        [searchable]="canOrganize()"
         [workload]="sidebarWorkload()"
         [alerts]="hasAlerts()"
         [loggingOut]="loggingOut()"
-        (search)="runSearch($event)"
         (logout)="logout()"
         (navigated)="navOpen.set(false)"
       />

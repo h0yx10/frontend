@@ -15,21 +15,6 @@
     </button>
   </div>
 
-  @if (searchable()) {
-    <form class="relative" role="search" (submit)="$event.preventDefault(); submitSearch()">
-      <mat-icon class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-muted" aria-hidden="true">search</mat-icon>
-      <input
-        #searchInput
-        type="search"
-        placeholder="Buscar"
-        aria-label="Buscar evento, proveedor o tarea"
-        [formControl]="searchControl"
-        class="h-10 w-full rounded-xl border border-transparent bg-surface-raised pl-10 pr-14 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-      />
-      <kbd class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md border border-border-strong px-1.5 py-0.5 font-sans text-[10px] text-muted" aria-hidden="true">{{ shortcut }}</kbd>
-    </form>
-  }
-
   @if (items().length) {
     <nav aria-label="Navegación principal">
       <p class="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">Planificación</p>

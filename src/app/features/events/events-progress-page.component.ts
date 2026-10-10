@@ -33,7 +33,7 @@ export class EventsProgressPageComponent {
 
   readonly store = inject(EventsStore);
 
-  /** Término de la búsqueda (puede venir de la búsqueda global del menú lateral, `?q=`). */
+  /** Término de la búsqueda, inicializado desde el parámetro `?q=` si está presente. */
   readonly query = signal(this.route.snapshot.queryParamMap.get('q') ?? '');
 
   /** El resumen siempre describe todos los eventos; la búsqueda sólo filtra las tarjetas. */
