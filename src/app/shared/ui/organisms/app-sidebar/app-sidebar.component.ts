@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { BrandMarkComponent } from '../../atoms/brand-mark.component';
+import { SpinnerComponent } from '../../atoms/spinner.component';
 import { WorkloadCardComponent } from '../../molecules/workload-card.component';
 
 export interface SidebarItem {
@@ -12,11 +13,15 @@ export interface SidebarItem {
   icon: string;
   /** Contador opcional junto a la etiqueta; no se muestra si es 0 o no está definido. */
   badge?: number;
+  /** Muestra un spinner en lugar del contador mientras se consulta por primera vez. */
+  loading?: boolean;
 }
 
 export interface SidebarWorkload {
   planned: number;
   limit: number;
+  loading: boolean;
+  ready: boolean;
 }
 
 /**
@@ -27,7 +32,7 @@ export interface SidebarWorkload {
   selector: 'app-sidebar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, RouterLinkActive, MatIconModule, BrandMarkComponent, WorkloadCardComponent],
+  imports: [ReactiveFormsModule, RouterLink, RouterLinkActive, MatIconModule, BrandMarkComponent, SpinnerComponent, WorkloadCardComponent],
   templateUrl: './app-sidebar.component.html',
   styles: `:host { display: block; height: 100%; }`
 })

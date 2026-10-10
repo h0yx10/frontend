@@ -1,4 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { finalize, Subscription } from 'rxjs';
 
 import { TodayService } from '../services/today.service';
 
@@ -9,14 +10,22 @@ import { TodayService } from '../services/today.service';
 @Injectable({ providedIn: 'root' })
 export class WorkloadStore {
   private readonly service = inject(TodayService);
+  private request?: Subscription;
 
   readonly plannedHours = signal(0);
   /** Gestiones vencidas más las que vencen hoy: lo que pide acción ahora. */
   readonly attentionCount = signal(0);
   readonly overdueCount = signal(0);
+  /** Hay una consulta en curso. */
+  readonly loading = signal(false);
+  /** Ya hay datos reales: antes de la primera respuesta los contadores no significan nada. */
+  readonly loaded = signal(false);
 
   refresh(): void {
-    this.service.loadWorkload().subscribe({
+    // Navegaciones seguidas: sólo cuenta la última consulta.
+    this.request?.unsubscribe();
+    this.loading.set(true);
+    this.request = this.service.loadWorkload().pipe(finalize(() => this.loading.set(false))).subscribe({
       next: (workload) => this.apply(workload),
       error: () => undefined // Decorativo: si falla, se conserva el último valor sin molestar al usuario.
     });
@@ -26,5 +35,6 @@ export class WorkloadStore {
     this.plannedHours.set(workload.plannedHours);
     this.overdueCount.set(workload.overdueCount);
     this.attentionCount.set(workload.overdueCount + workload.todayCount);
+    this.loaded.set(true);
   }
 }

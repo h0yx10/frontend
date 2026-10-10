@@ -7,7 +7,7 @@
   </app-page-header>
 
   @if (store.loading() && !store.loaded()) {
-    <p class="text-sm text-muted" role="status">Cargando tus gestiones de hoy…</p>
+    <app-loading-state message="Cargando tus gestiones de hoy…" />
   } @else if (store.error()) {
     <app-error-state [message]="store.error()" (retry)="store.load()" />
   } @else {

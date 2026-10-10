@@ -1,0 +1,42 @@
+:host {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--s, 28px);
+  height: var(--s, 28px);
+  color: var(--c, currentColor);
+}
+
+i {
+  position: absolute;
+  left: 46%;
+  top: 4%;
+  width: 8%;
+  height: 27%;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: 50% 171%;
+  opacity: 0.15;
+  animation: ios 0.8s linear infinite;
+}
+
+@for $n from 1 through 8 {
+  i:nth-child(#{$n}) {
+    transform: rotate(#{($n - 1) * 45}deg);
+    animation-delay: #{-0.8 + $n * 0.1}s;
+  }
+}
+
+@keyframes ios {
+  0% { opacity: 1; }
+  100% { opacity: 0.15; }
+}
+
+// Sólo cambia la opacidad, sin desplazamientos: se mantiene animado aunque el sistema pida movimiento
+// reducido (la regla global lo congelaría y parecería que la app se colgó).
+@media (prefers-reduced-motion: reduce) {
+  i {
+    animation-duration: 0.8s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

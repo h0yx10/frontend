@@ -7,6 +7,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { formatDateTimeHuman } from '../../core/utils/date.util';
 import { ConfirmDialogComponent } from '../../shared/ui/molecules/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
+import { LoadingStateComponent } from '../../shared/ui/molecules/loading-state.component';
 import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
 import { InfoDialogComponent } from '../../shared/ui/molecules/info-dialog.component';
 import { ProgressBarComponent } from '../../shared/ui/atoms/progress-bar.component';
@@ -23,6 +24,7 @@ import { EventDetailStore } from './store/event-detail.store';
   selector: 'app-event-detail-page',
   standalone: true,
   imports: [
+    LoadingStateComponent,
     CommonModule,
     RouterLink,
     MatIconModule,
