@@ -8,6 +8,7 @@ import { filter, finalize } from 'rxjs';
 import { BrandMarkComponent } from '../../shared/ui/atoms/brand-mark.component';
 import { AppSidebarComponent, SidebarItem } from '../../shared/ui/organisms/app-sidebar/app-sidebar.component';
 import { AuthStore } from '../auth/store/auth.store';
+import { NavigationProgressService } from './navigation-progress.service';
 import { CapacityStore } from '../../features/capacity/store/capacity.store';
 import { WorkloadStore } from '../../features/today/store/workload.store';
 
@@ -31,6 +32,7 @@ export class ShellLayoutComponent {
   private readonly router = inject(Router);
   private readonly capacity = inject(CapacityStore);
   private readonly workload = inject(WorkloadStore);
+  private readonly navigation = inject(NavigationProgressService);
 
   readonly user = computed(() => this.auth.user());
   readonly roleLabel = computed(() => (this.auth.hasRole('ADMIN') ? 'Administrador' : 'Organizador'));
@@ -39,17 +41,25 @@ export class ShellLayoutComponent {
   readonly logoutError = signal('');
 
   readonly canOrganize = this.auth.canOrganize;
-  readonly navItems = computed<SidebarItem[]>(() =>
-    this.canOrganize()
-      ? [
-          { path: '/hoy', label: 'Hoy', icon: 'calendar_today', badge: this.workload.attentionCount() },
-          { path: '/actividades', label: 'Actividades', icon: 'format_list_bulleted' },
-          { path: '/progreso', label: 'Progreso', icon: 'bar_chart' }
-        ]
-      : []
-  );
+  readonly navItems = computed<SidebarItem[]>(() => {
+    if (!this.canOrganize()) return [];
+    // El spinner marca el destino pulsado mientras su guard consulta el backend.
+    const pending = (path: string) => this.navigation.isPending(path);
+    return [
+      { path: '/hoy', label: 'Hoy', icon: 'calendar_today', badge: this.workload.attentionCount(), loading: pending('/hoy') || !this.workload.loaded() },
+      { path: '/actividades', label: 'Actividades', icon: 'format_list_bulleted', loading: pending('/actividades') },
+      { path: '/progreso', label: 'Progreso', icon: 'bar_chart', loading: pending('/progreso') }
+    ];
+  });
   readonly sidebarWorkload = computed(() =>
-    this.canOrganize() ? { planned: this.workload.plannedHours(), limit: this.capacity.dailyLimitHours() } : null
+    this.canOrganize()
+      ? {
+          planned: this.workload.plannedHours(),
+          limit: this.capacity.dailyLimitHours(),
+          loading: this.workload.loading() || this.capacity.loading(),
+          ready: this.workload.loaded()
+        }
+      : null
   );
   readonly hasAlerts = computed(() => this.workload.overdueCount() > 0);
 

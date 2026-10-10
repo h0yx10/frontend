@@ -4,7 +4,7 @@
   </a>
 
   @if (store.loading()) {
-    <p class="text-sm text-muted" role="status">Cargando evento…</p>
+    <app-loading-state message="Cargando evento…" />
   } @else if (store.notFound()) {
     <app-empty-state
       icon="search_off"

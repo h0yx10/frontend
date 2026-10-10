@@ -29,8 +29,8 @@ describe('ShellLayoutComponent', () => {
         provideRouter([]),
         provideHttpClient(withInterceptors([httpErrorInterceptor, authInterceptor])),
         provideHttpClientTesting(),
-        {provide:CapacityStore, useValue:{dailyLimitHours:() => 6, ensureLoaded:() => {}}},
-        {provide:WorkloadStore, useValue:{plannedHours:() => 1, attentionCount:() => 2, overdueCount:() => 0, refresh:() => {}}}
+        {provide:CapacityStore, useValue:{dailyLimitHours:() => 6, loading:() => false, ensureLoaded:() => {}}},
+        {provide:WorkloadStore, useValue:{plannedHours:() => 1, attentionCount:() => 2, overdueCount:() => 0, loading:() => false, loaded:() => true, refresh:() => {}}}
       ]
     }).compileComponents();
     auth = TestBed.inject(AuthStore);

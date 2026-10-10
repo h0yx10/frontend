@@ -45,7 +45,9 @@
             >
               <mat-icon class="text-[20px]" [class.text-accent]="link.isActive" aria-hidden="true">{{ item.icon }}</mat-icon>
               <span class="flex-1">{{ item.label }}</span>
-              @if (item.badge) {
+              @if (item.loading) {
+                <app-spinner class="text-muted" [size]="16" [label]="'Consultando ' + item.label" />
+              } @else if (item.badge) {
                 <span
                   class="flex size-6 items-center justify-center rounded-full text-xs font-semibold"
                   [class]="link.isActive ? 'bg-primary text-white' : 'bg-border-strong text-ink'"
@@ -61,7 +63,7 @@
 
   <div class="mt-auto flex flex-col gap-3">
     @if (workload(); as load) {
-      <app-workload-card [planned]="load.planned" [limit]="load.limit" />
+      <app-workload-card [planned]="load.planned" [limit]="load.limit" [loading]="load.loading" [ready]="load.ready" />
     }
     <div class="flex items-center">
       <a

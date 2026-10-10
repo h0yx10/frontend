@@ -110,6 +110,18 @@ El shell es la raíz de composición de la zona privada y por eso conecta stores
 `WorkloadStore` (`features/today/store`, singleton) expone las horas planificadas hoy y el contador de
 «Hoy»: la pantalla Hoy lo actualiza con su tablero y el shell lo refresca al terminar cada navegación.
 
+### Indicadores de carga
+
+Los guards (`organizerGuard` consulta `/auth/me`) se resuelven antes de activar la ruta, así que la
+pantalla no cambia mientras tanto. `core/layout/NavigationProgressService` expone la navegación en curso
+(con 120 ms de margen para no parpadear en cambios instantáneos):
+
+- `AppComponent` muestra un spinner a pantalla completa hasta completar la primera navegación.
+- La barra lateral muestra un spinner en el ítem pulsado mientras su navegación está pendiente, y en
+  «Hoy» y «Carga de hoy» mientras `WorkloadStore` consulta por primera vez (luego, un spinner pequeño junto
+  al título en cada actualización).
+- Las páginas usan `loading-state` en su primera carga, y el botón de autenticación, el mismo `spinner`.
+
 ### Primitivas visuales compartidas
 
 Las pantallas Hoy, Actividades, Progreso y Nuevo evento comparten una misma capa visual:
@@ -120,6 +132,8 @@ Las pantallas Hoy, Actividades, Progreso y Nuevo evento comparten una misma capa
 | `page-header` | `shared/ui/molecules` | Sobretítulo, título, subtítulo y acciones |
 | `segmented-control`, `search-box`, `workload-card` | `shared/ui/molecules` | Filtros, búsqueda con debounce y carga diaria |
 | `progress-bar`, `progress-ring`, `status-badge`, `check-button`, `brand-mark` | `shared/ui/atoms` | Indicadores y controles básicos |
+| `spinner` | `shared/ui/atoms` | Indicador de carga (estilo iOS, toma `currentColor`); sigue animado con movimiento reducido porque sólo cambia la opacidad |
+| `loading-state` | `shared/ui/molecules` | Carga de una página: spinner y mensaje |
 | `today-column`, `today-event-card`, `today-item`, `stat-card` | `features/today/components` | Tablero Hoy |
 
 Los colores con transparencia (`bg-primary/15`) **no** se generan con los tokens actuales (son

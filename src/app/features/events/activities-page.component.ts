@@ -6,6 +6,7 @@ import { formatIsoDateHuman, formatTimeShort } from '../../core/utils/date.util'
 import { ProgressBarComponent } from '../../shared/ui/atoms/progress-bar.component';
 import { BadgeTone, StatusBadgeComponent } from '../../shared/ui/atoms/status-badge.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
+import { LoadingStateComponent } from '../../shared/ui/molecules/loading-state.component';
 import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
 import { PageHeaderComponent } from '../../shared/ui/molecules/page-header.component';
 import { SearchBoxComponent } from '../../shared/ui/molecules/search-box.component';
@@ -20,6 +21,7 @@ type TimeFilter = 'all' | 'upcoming' | 'past';
   selector: 'app-activities-page',
   standalone: true,
   imports: [
+    LoadingStateComponent,
     MatIconModule,
     RouterLink,
     ProgressBarComponent,

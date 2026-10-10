@@ -7,6 +7,6 @@
   [disabled]="disabled() || loading()"
   [attr.aria-busy]="loading()"
 >
-  @if (loading()) { <span class="button-spinner" aria-hidden="true"></span> }
+  @if (loading()) { <app-spinner class="button-spinner" [size]="18" label="" /> }
   <ng-content />
 </button>

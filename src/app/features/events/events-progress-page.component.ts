@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CapacitySettingsComponent } from '../capacity/capacity-settings.component';
 import { ProgressRingComponent } from '../../shared/ui/atoms/progress-ring.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
+import { LoadingStateComponent } from '../../shared/ui/molecules/loading-state.component';
 import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
 import { PageHeaderComponent } from '../../shared/ui/molecules/page-header.component';
 import { SearchBoxComponent } from '../../shared/ui/molecules/search-box.component';
@@ -14,6 +15,7 @@ import { EventsStore } from './store/events.store';
   selector: 'app-events-progress-page',
   standalone: true,
   imports: [
+    LoadingStateComponent,
     RouterLink,
     EventCardComponent,
     EmptyStateComponent,
