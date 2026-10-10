@@ -101,7 +101,7 @@
         <button type="button" class="btn-ghost border border-border" (click)="clearSearch()">Limpiar filtros</button>
       </app-empty-state>
     } @else {
-      <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div class="mt-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3">
         <app-today-column
           class="real"
           [style.animation-delay.ms]="320"

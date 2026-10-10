@@ -29,7 +29,7 @@ import { SkeletonComponent } from '../../../shared/ui/atoms/skeleton.component';
       </div>
       <app-skeleton class="mt-3" height="14px" width="45%" radius="6px" />
 
-      <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div class="mt-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3">
         @for (column of columns; track column) {
           <div class="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4">
             <div class="flex items-center gap-2">

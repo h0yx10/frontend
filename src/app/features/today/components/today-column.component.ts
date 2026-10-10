@@ -25,7 +25,7 @@ export type ColumnTone = 'danger' | 'accent' | 'warning';
       </header>
 
       @if (empty()) {
-        <div class="flex min-h-64 flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border-strong px-4 py-8 text-center">
+        <div class="flex min-h-64 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border-strong px-4 py-8 text-center">
           <mat-icon class="mb-2 text-[40px]" [class]="emptyIconClass()" aria-hidden="true">{{ emptyIcon() }}</mat-icon>
           <p class="text-[15px] font-semibold text-ink">{{ emptyTitle() }}</p>
           <p class="text-sm text-muted">{{ emptyMessage() }}</p>
@@ -38,7 +38,7 @@ export type ColumnTone = 'danger' | 'accent' | 'warning';
       }
     </section>
   `,
-  styles: `:host { display: flex; min-width: 0; } section { flex: 1; }`
+  styles: `:host { display: block; min-width: 0; }`
 })
 export class TodayColumnComponent {
   readonly title = input.required<string>();
