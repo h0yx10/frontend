@@ -99,9 +99,9 @@ Cada feature es un módulo funcional independiente con su propia ruta, component
 `core/layout/ShellLayoutComponent` es la ruta padre de todas las páginas privadas (`/hoy`,
 `/actividades`, `/progreso`, `/crear`, `/evento/:id`, `/cuenta`); el login queda como ruta de
 pantalla completa. Compone la navegación con `shared/ui/organisms/app-sidebar`, un organismo
-**presentacional**: recibe ítems, usuario y carga diaria, y emite `search`, `logout` y `navigated`.
+**presentacional**: recibe ítems, usuario y carga diaria, y emite `logout` y `navigated`.
 
-La barra lateral contiene el logo, la campana, la búsqueda global (⌘K / Ctrl K → `/progreso?q=`),
+La barra lateral contiene el logo, la campana,
 la navegación «Planificación» (Hoy, Actividades, Progreso), la tarjeta «Carga de hoy» y el acceso a
 «Mi cuenta» con cierre de sesión. Por debajo de `lg` se convierte en un drawer con una cabecera compacta.
 

@@ -96,10 +96,4 @@ export class ShellLayoutComponent {
       error: (error: Error) => this.logoutError.set(error.message)
     });
   }
-
-  runSearch(term: string): void {
-    if (term && this.canOrganize()) {
-      this.router.navigate(['/progreso'], { queryParams: { q: term } });
-    }
-  }
 }
