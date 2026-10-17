@@ -27,14 +27,21 @@
         >
           Mover a otro día
         </button>
-        <button
-          type="button"
-          class="w-full rounded-xl border border-border px-4 py-3 text-left text-sm font-semibold text-ink transition hover:bg-surface disabled:opacity-60"
-          [disabled]="busy()"
-          (click)="chooseReduce()"
-        >
-          Reducir horas estimadas
-        </button>
+        @if (reduction.possible) {
+          <button
+            type="button"
+            class="w-full rounded-xl border border-border px-4 py-3 text-left text-sm font-semibold text-ink transition hover:bg-surface disabled:opacity-60"
+            [disabled]="busy()"
+            (click)="chooseReduce()"
+          >
+            Reducir horas estimadas (cabe hasta {{ reduction.max }} h)
+          </button>
+        } @else {
+          <p class="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted">
+            Reducir no alcanza: el exceso ({{ roundHours(conflict().exceedsBy) }} h) iguala o supera las
+            {{ initialHours() }} h de esta gestión. Muévela a otro día.
+          </p>
+        }
         <button
           type="button"
           class="w-full rounded-xl border border-border px-4 py-3 text-left text-sm text-muted transition hover:bg-surface"
@@ -77,6 +84,7 @@
         <label for="overload-new-hours" class="block text-sm font-medium text-ink">
           Nuevas horas estimadas (máx. {{ maxHours }} h)
         </label>
+        <p class="text-xs text-muted">Te sugerimos {{ reduction.suggested }} h: lo máximo que cabe ese día. Puedes ajustarlo.</p>
         <input
           id="overload-new-hours"
           type="number"

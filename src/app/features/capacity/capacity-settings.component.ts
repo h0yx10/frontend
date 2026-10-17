@@ -30,6 +30,14 @@ export class CapacitySettingsComponent {
 
   readonly hours = signal<number | null>(this.store.dailyLimitHours());
 
+  /**
+   * Límite más bajo que se puede guardar: el rango mínimo, lo planificado hoy y, si el backend ya
+   * rechazó un valor (409), el día más cargado que informó.
+   */
+  readonly minimumAllowed = computed(() =>
+    Math.min(this.max, Math.max(this.min, this.workload.plannedHours(), this.store.minimumLimit() ?? 0))
+  );
+
   readonly validationError = computed(() => {
     const hours = this.hours();
     if (hours === null || Number.isNaN(hours)) {
@@ -42,8 +50,31 @@ export class CapacitySettingsComponent {
     if (hours < plannedToday) {
       return `Hoy ya tienes ${plannedToday} h planificadas: reprograma o reduce gestiones antes de bajar el límite.`;
     }
+    const serverMinimum = this.store.minimumLimit();
+    if (serverMinimum !== null && hours < serverMinimum) {
+      return `Hay un día con ${serverMinimum} h planificadas: reprograma o reduce gestiones antes de bajar el límite.`;
+    }
     return '';
   });
+
+  /**
+   * Valor válido más cercano al escrito, ofrecido con un botón "Usar X h": no se escribe solo,
+   * para no cambiar el campo mientras el usuario teclea.
+   */
+  readonly suggestion = computed<number | null>(() => {
+    const hours = this.hours();
+    if (hours === null || Number.isNaN(hours) || !this.validationError()) {
+      return null;
+    }
+    return hours > this.max ? this.max : this.minimumAllowed();
+  });
+
+  useSuggestion(): void {
+    const suggestion = this.suggestion();
+    if (suggestion !== null) {
+      this.onHoursChange(suggestion);
+    }
+  }
 
   readonly changed = computed(() => this.hours() !== this.store.dailyLimitHours());
 

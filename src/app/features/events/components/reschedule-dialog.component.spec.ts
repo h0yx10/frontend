@@ -109,6 +109,31 @@ describe('RescheduleDialogComponent: aviso por fecha posterior al evento', () =>
     expect(toasts.show).toHaveBeenCalledWith(jasmine.stringMatching(/^Conflicto resuelto: «Buscar proveedor» pasó a otro día; .* quedan 2 h de 6 h\.$/));
   });
 
+  it('al abrir "Reducir horas" deja escrito el valor que resuelve el conflicto', () => {
+    fixture.componentRef.setInput('subtask',{...task,estimatedHours:3});
+    fixture.detectChanges();
+    conflicts.checkOverload.and.returnValue(of({exceeds:true,plannedHours:7.25,limitHours:6,exceedsBy:1.25}));
+    component.checkAndSave();
+
+    component.toggleReduceForm();
+
+    expect(component.showReduceForm()).toBeTrue();
+    expect(component.reducedHours()).toBe(1.5);
+    expect(component.reduceError).toBe('');
+  });
+
+  it('si reducir no alcanza, no abre el formulario', () => {
+    fixture.componentRef.setInput('subtask',{...task,estimatedHours:2});
+    fixture.detectChanges();
+    conflicts.checkOverload.and.returnValue(of({exceeds:true,plannedHours:9,limitHours:6,exceedsBy:3}));
+    component.checkAndSave();
+
+    component.toggleReduceForm();
+
+    expect(component.reduction.possible).toBeFalse();
+    expect(component.showReduceForm()).toBeFalse();
+  });
+
   it('no avisa cuando la fecha es el mismo día del evento', () => {
     fixture.componentRef.setInput('maxDate','2026-11-01');
     fixture.detectChanges();

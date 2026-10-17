@@ -6,7 +6,7 @@ import { finalize, forkJoin } from 'rxjs';
 import { addDaysIso, afterEventDayWarning, formatIsoDateHuman } from '../../../core/utils/date.util';
 import { ToastService } from '../../../core/feedback/toast.service';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
-import { OverloadCheckResult } from '../models/conflict.model';
+import { OverloadCheckResult, planReduction, ReductionPlan } from '../models/conflict.model';
 import { Subtask } from '../models/subtask.model';
 import { ConflictsService } from '../services/conflicts.service';
 import { SubtasksService } from '../services/subtasks.service';
@@ -175,25 +175,37 @@ export class RescheduleDialogComponent {
       });
   }
 
+  /** Al abrir la opción, el campo ya trae el valor que resuelve el conflicto; el usuario solo lo confirma o ajusta. */
   toggleReduceForm(): void {
-    this.showReduceForm.set(!this.showReduceForm());
+    const opening = !this.showReduceForm();
+    if (opening && this.reduction.possible) {
+      this.reducedHours.set(this.reduction.suggested);
+    }
+    this.showReduceForm.set(opening && this.reduction.possible);
   }
 
   /**
-   * Horas con las que la gestión deja de exceder el límite: sus horas originales menos el exceso.
-   * Se parte de la subtarea, no de `reducedHours()`, que es el valor que el usuario está escribiendo.
+   * Se parte de las horas de la subtarea, no de `reducedHours()`, que es el valor que el usuario está escribiendo.
    */
-  get maxReducibleHours(): number {
+  get reduction(): ReductionPlan {
     const conflict = this.conflict();
     const subtask = this.subtask();
     if (!conflict || !subtask) {
-      return 0;
+      return { max: 0, suggested: 0, possible: false };
     }
-    return Math.max(0.5, +(subtask.estimatedHours - conflict.exceedsBy).toFixed(2));
+    return planReduction(subtask.estimatedHours, conflict.exceedsBy);
+  }
+
+  /** Horas con las que la gestión deja de exceder el límite: sus horas originales menos el exceso. */
+  get maxReducibleHours(): number {
+    return this.reduction.max;
   }
 
   /** Vacío si las horas escritas resuelven el conflicto; si no, explica por qué no se puede confirmar. */
   get reduceError(): string {
+    if (!this.reduction.possible) {
+      return 'Reducir no alcanza: mueve la gestión a otro día.';
+    }
     const hours = Number(this.reducedHours());
     if (!Number.isFinite(hours) || hours <= 0) {
       return 'Indica horas mayores a 0.';

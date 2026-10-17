@@ -30,7 +30,7 @@ describe('ShellLayoutComponent', () => {
         provideRouter([]),
         provideHttpClient(withInterceptors([httpErrorInterceptor, authInterceptor])),
         provideHttpClientTesting(),
-        {provide:CapacityStore, useValue:{dailyLimitHours:signal(6), loading:() => false, saving:() => false, error:signal(''), ensureLoaded:() => {}}},
+        {provide:CapacityStore, useValue:{dailyLimitHours:signal(6), loading:() => false, saving:() => false, error:signal(''), minimumLimit:signal(null), ensureLoaded:() => {}}},
         {provide:WorkloadStore, useValue:{plannedHours:() => 1, attentionCount:() => 2, overdueCount:() => 0, loading:() => false, loaded:() => true, refresh:() => {}}}
       ]
     }).compileComponents();

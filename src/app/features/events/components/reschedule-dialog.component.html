@@ -81,19 +81,30 @@
       <div class="mt-4 space-y-3">
         <p class="text-xs font-medium text-muted">¿Cómo quieres resolverlo?</p>
 
-        <button
-          type="button"
-          class="w-full rounded-xl border border-border px-4 py-2.5 text-left text-sm font-medium text-ink transition hover:bg-surface"
-          (click)="toggleReduceForm()"
-        >
-          Reducir horas estimadas y mantener este día
-        </button>
+        @if (reduction.possible) {
+          <button
+            type="button"
+            class="w-full rounded-xl border border-border px-4 py-2.5 text-left text-sm font-medium text-ink transition hover:bg-surface"
+            [attr.aria-expanded]="showReduceForm()"
+            (click)="toggleReduceForm()"
+          >
+            Reducir horas estimadas y mantener este día
+          </button>
+        } @else {
+          <p class="rounded-xl border border-dashed border-border px-4 py-2.5 text-sm text-muted">
+            Reducir no alcanza: el exceso ({{ roundHours(conflict()!.exceedsBy) }} h) iguala o supera las
+            {{ subtask.estimatedHours }} h de esta gestión. Elige uno de los días sugeridos o pospónla.
+          </p>
+        }
 
         @if (showReduceForm()) {
           <div class="rounded-xl border border-border bg-canvas p-4">
             <label for="reduced-hours" class="mb-2 block text-sm font-medium text-ink">
               Nuevas horas estimadas (máx. {{ maxReducibleHours }} h)
             </label>
+            <p class="mb-2 text-xs text-muted">
+              Te sugerimos {{ reduction.suggested }} h: lo máximo que cabe ese día. Puedes ajustarlo.
+            </p>
             <input
               id="reduced-hours"
               type="number"

@@ -33,6 +33,20 @@ describe('OverloadResolutionDialogComponent: resolver una sobrecarga', () => {
     expect(reduce).toHaveBeenCalledWith(1);
   });
 
+  it('al elegir "Reducir horas" el campo ya trae el máximo que cabe', () => {
+    component.chooseReduce();
+    expect(component.action()).toBe('reduce-hours');
+    expect(component.hours).toBe(1);
+  });
+
+  it('si el exceso cubre toda la gestión, no ofrece reducir', () => {
+    fixture.componentRef.setInput('conflict',{exceeds:true,plannedHours:9,limitHours:6,exceedsBy:3});
+    fixture.detectChanges();
+    component.chooseReduce();
+    expect(component.reduction.possible).toBeFalse();
+    expect(component.action()).toBeNull();
+  });
+
   it('avisa, sin bloquear, si la nueva fecha cae después del evento', () => {
     const move = jasmine.createSpy('move');
     component.move.subscribe(move);

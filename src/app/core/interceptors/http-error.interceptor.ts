@@ -18,6 +18,8 @@ export interface AppHttpError extends Error {
   fieldErrors: Record<string, string>;
   /** Presente en el 409 de sobrecarga (ver README.md#sobre-de-respuesta-estandar). */
   overload?: OverloadErrorInfo;
+  /** 409 `capacity_below_planned`: horas del día más cargado, el límite mínimo que se puede guardar. */
+  capacityMinimum?: number;
 }
 
 export const httpErrorInterceptor: HttpInterceptorFn = (request, next) => {
@@ -68,6 +70,10 @@ function toAppError(error: HttpErrorResponse): AppHttpError {
     const { plannedHours, limitHours, exceedsBy } = error.error ?? {};
     if (plannedHours !== undefined && limitHours !== undefined && exceedsBy !== undefined) {
       appError.overload = { plannedHours, limitHours, exceedsBy };
+    }
+    const days = error.error?.overloadedDays as { plannedHours: number }[] | undefined;
+    if (error.error?.code === 'capacity_below_planned' && days?.length) {
+      appError.capacityMinimum = Math.max(...days.map((day) => Number(day.plannedHours)));
     }
   }
 

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { afterEventDayWarning } from '../../../core/utils/date.util';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
-import { OverloadCheckResult } from '../models/conflict.model';
+import { OverloadCheckResult, planReduction, ReductionPlan } from '../models/conflict.model';
 
 @Component({
   selector: 'app-overload-resolution-dialog',
@@ -45,9 +45,17 @@ export class OverloadResolutionDialogComponent {
     this.action.set('choose-date');
   }
 
+  /** El campo se abre con el valor que resuelve el conflicto: el usuario lo confirma o lo ajusta. */
   chooseReduce(): void {
-    this.hours = this.initialHours();
+    if (!this.reduction.possible) {
+      return;
+    }
+    this.hours = this.reduction.suggested;
     this.action.set('reduce-hours');
+  }
+
+  get reduction(): ReductionPlan {
+    return planReduction(this.initialHours(), this.conflict().exceedsBy);
   }
 
   get dateWarning(): string {
@@ -60,12 +68,15 @@ export class OverloadResolutionDialogComponent {
     }
   }
 
-  /** Horas con las que la gestión deja de exceder: las que tenía menos el exceso (mínimo 0,5). */
+  /** Horas con las que la gestión deja de exceder: las que tenía menos el exceso. */
   get maxHours(): number {
-    return Math.max(0.5, this.roundHours(this.initialHours() - this.conflict().exceedsBy));
+    return this.reduction.max;
   }
 
   get reduceError(): string {
+    if (!this.reduction.possible) {
+      return 'Reducir no alcanza: mueve la gestión a otro día.';
+    }
     const hours = Number(this.hours);
     if (!Number.isFinite(hours) || hours <= 0) {
       return 'Indica horas mayores a 0.';

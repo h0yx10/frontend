@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 
 import { runtimeConfig } from '../../../core/config/runtime-config';
+import { AppHttpError } from '../../../core/interceptors/http-error.interceptor';
 import { CapacityService } from '../services/capacity.service';
 
 /** Singleton: la capacidad diaria se muestra y se edita en la tarjeta "Carga de hoy" del sidebar. */
@@ -16,6 +17,8 @@ export class CapacityStore {
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly error = signal('');
+  /** Mínimo que aceptó informar el backend al rechazar un límite (409): el día más cargado. */
+  readonly minimumLimit = signal<number | null>(null);
 
   ensureLoaded(): void {
     if (this.loaded) {
@@ -46,9 +49,15 @@ export class CapacityStore {
       .subscribe({
         next: (capacity) => {
           this.dailyLimitHours.set(capacity.dailyLimitHours);
+          this.minimumLimit.set(null);
           onSuccess();
         },
-        error: (error: Error) => this.error.set(error.message)
+        error: (error: AppHttpError) => {
+          this.error.set(error.message);
+          if (error.capacityMinimum !== undefined) {
+            this.minimumLimit.set(error.capacityMinimum);
+          }
+        }
       });
   }
 }

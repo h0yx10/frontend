@@ -92,4 +92,10 @@ describe('httpErrorInterceptor', () => {
     client.get(`${url}/events`).subscribe({error:(error:AppHttpError) => expect(error.overload).toEqual(overload)});
     http.expectOne(`${url}/events`).flush({message:'Sobrecarga',...overload},{status:409,statusText:'Conflict'});
   });
+
+  it('del 409 de capacidad conserva el mínimo permitido: el día más cargado', () => {
+    client.put(`${url}/capacity`,{limiteHoras:4}).subscribe({error:(error:AppHttpError) => expect(error.capacityMinimum).toBe(6)});
+    http.expectOne(`${url}/capacity`).flush({message:'No puedes bajar el limite',code:'capacity_below_planned',limitHours:4,
+      overloadedDays:[{date:'2026-10-18',plannedHours:5},{date:'2026-10-19',plannedHours:6}]},{status:409,statusText:'Conflict'});
+  });
 });
