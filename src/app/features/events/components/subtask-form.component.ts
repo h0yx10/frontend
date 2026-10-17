@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, EventEmitter, inject, input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { afterEventDayWarning, eventDayIso } from '../../../core/utils/date.util';
+import { afterEventDayWarning, eventDayIso, formatIsoDateHuman } from '../../../core/utils/date.util';
 import { InfoDialogComponent } from '../../../shared/ui/molecules/info-dialog.component';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
 import { OverloadResolutionDialogComponent } from './overload-resolution-dialog.component';
@@ -80,6 +80,9 @@ export class SubtaskFormComponent {
   }
 
   submit(): void {
+    // Si este guardado viene de resolver una sobrecarga, la confirmación lo dice: el plan quedó viable.
+    const resolved = this.resolvingConflict;
+    this.resolvingConflict = false;
     if (!this.validate()) {
       return;
     }
@@ -91,35 +94,35 @@ export class SubtaskFormComponent {
       estimatedHours: Number(this.estimatedHours)
     };
 
+    const success =(heading: string, message: string) => () => {
+      this.closed.emit();
+      this.successInfo.set(resolved
+        ? { heading: 'Conflicto resuelto', message: `«${payload.name}» quedó dentro de tu capacidad diaria: ${payload.estimatedHours} h el ${formatIsoDateHuman(payload.targetDate)}.` }
+        : { heading, message });
+    };
+
     const editing = this.editing();
     if (editing) {
-      this.store.updateSubtask(editing.id, payload, () => {
-        this.closed.emit();
-        this.successInfo.set({
-          heading: 'Subtarea actualizada',
-          message: 'La subtarea fue actualizada correctamente.'
-        });
-      });
+      this.store.updateSubtask(editing.id, payload, success('Subtarea actualizada', 'La subtarea fue actualizada correctamente.'));
     } else {
-      this.store.addSubtask(payload, () => {
-        this.closed.emit();
-        this.successInfo.set({
-          heading: 'Subtarea creada',
-          message: 'La subtarea fue creada correctamente.'
-        });
-      });
+      this.store.addSubtask(payload, success('Subtarea creada', 'La subtarea fue creada correctamente.'));
     }
   }
+
+  /** El siguiente guardado resuelve un conflicto de sobrecarga (mover de día o reducir horas). */
+  private resolvingConflict = false;
 
   moveToDate(date: string): void {
     this.targetDate = date;
     this.store.clearOverload();
+    this.resolvingConflict = true;
     this.submit();
   }
 
   reduceEstimatedHours(hours: number): void {
     this.estimatedHours = hours;
     this.store.clearOverload();
+    this.resolvingConflict = true;
     this.submit();
   }
 

@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { BrandMarkComponent } from '../../atoms/brand-mark.component';
 import { SpinnerComponent } from '../../atoms/spinner.component';
+import { CapacitySettingsComponent } from '../../../../features/capacity/capacity-settings.component';
 import { WorkloadCardComponent } from '../../molecules/workload-card.component';
 
 export interface SidebarItem {
@@ -31,7 +32,7 @@ export interface SidebarWorkload {
   selector: 'app-sidebar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, MatIconModule, BrandMarkComponent, SpinnerComponent, WorkloadCardComponent],
+  imports: [RouterLink, RouterLinkActive, MatIconModule, BrandMarkComponent, SpinnerComponent, WorkloadCardComponent, CapacitySettingsComponent],
   templateUrl: './app-sidebar.component.html',
   styles: `:host { display: block; height: 100%; }`
 })

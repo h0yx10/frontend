@@ -6,6 +6,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, finalize } from 'rxjs';
 
 import { BrandMarkComponent } from '../../shared/ui/atoms/brand-mark.component';
+import { ToastOutletComponent } from '../../shared/ui/molecules/toast-outlet.component';
 import { AppSidebarComponent, SidebarItem } from '../../shared/ui/organisms/app-sidebar/app-sidebar.component';
 import { AuthStore } from '../auth/store/auth.store';
 import { NavigationProgressService } from './navigation-progress.service';
@@ -23,7 +24,7 @@ import { WorkloadStore } from '../../features/today/store/workload.store';
 @Component({
   selector: 'app-shell-layout',
   standalone: true,
-  imports: [RouterOutlet, MatIconModule, BrandMarkComponent, AppSidebarComponent],
+  imports: [RouterOutlet, MatIconModule, BrandMarkComponent, AppSidebarComponent, ToastOutletComponent],
   templateUrl: './shell-layout.component.html',
   styleUrl: './shell-layout.component.scss'
 })

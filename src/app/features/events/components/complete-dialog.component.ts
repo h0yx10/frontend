@@ -3,6 +3,7 @@ import { Component, effect, EventEmitter, inject, input, Output, signal } from '
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 
+import { ToastService } from '../../../core/feedback/toast.service';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
 import { NOTE_MAX_LENGTH, Subtask } from '../models/subtask.model';
 import { SubtasksService } from '../services/subtasks.service';
@@ -19,6 +20,7 @@ import { SubtasksService } from '../services/subtasks.service';
 })
 export class CompleteDialogComponent {
   private readonly subtasksService = inject(SubtasksService);
+  private readonly toasts = inject(ToastService);
 
   readonly subtask = input<Subtask | null>(null);
 
@@ -48,14 +50,16 @@ export class CompleteDialogComponent {
       return;
     }
 
+    const note = this.note.trim() || null;
     this.saving.set(true);
     this.error.set('');
     this.subtasksService
       // Sin nota se envía null: el backend conserva la anterior (p. ej. el motivo del aplazamiento).
-      .execute(subtask.id, { status: 'DONE', note: this.note.trim() || null })
+      .execute(subtask.id, { status: 'DONE', note })
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (updated) => {
+          this.toasts.show(`«${subtask.name}» marcada como hecha${note ? ' con tu nota' : ''}.`);
           this.changed.emit(updated);
           this.closed.emit();
         },

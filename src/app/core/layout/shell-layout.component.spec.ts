@@ -1,5 +1,6 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
@@ -29,7 +30,7 @@ describe('ShellLayoutComponent', () => {
         provideRouter([]),
         provideHttpClient(withInterceptors([httpErrorInterceptor, authInterceptor])),
         provideHttpClientTesting(),
-        {provide:CapacityStore, useValue:{dailyLimitHours:() => 6, loading:() => false, ensureLoaded:() => {}}},
+        {provide:CapacityStore, useValue:{dailyLimitHours:signal(6), loading:() => false, saving:() => false, error:signal(''), ensureLoaded:() => {}}},
         {provide:WorkloadStore, useValue:{plannedHours:() => 1, attentionCount:() => 2, overdueCount:() => 0, loading:() => false, loaded:() => true, refresh:() => {}}}
       ]
     }).compileComponents();

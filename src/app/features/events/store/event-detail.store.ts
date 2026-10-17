@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { finalize, forkJoin } from 'rxjs';
 
+import { ToastService } from '../../../core/feedback/toast.service';
 import { AppHttpError } from '../../../core/interceptors/http-error.interceptor';
 import { EventEntity, EventPayload } from '../models/event.model';
 import {
@@ -19,6 +20,7 @@ export class EventDetailStore {
   private readonly eventsService = inject(EventsService);
   private readonly subtasksService = inject(SubtasksService);
   private readonly conflictsService = inject(ConflictsService);
+  private readonly toasts = inject(ToastService);
   readonly event = signal<EventEntity | null>(null);
   readonly subtasks = signal<Subtask[]>([]);
   readonly loading = signal(false);
@@ -257,6 +259,11 @@ export class EventDetailStore {
         next: (subtask) => {
           this.replaceSubtask(subtask);
           this.reloadEvent();
+          if (subtask.status === 'DONE') {
+            const all = this.subtasks();
+            const done = all.filter((item) => item.status === 'DONE').length;
+            this.toasts.show(`«${subtask.name}» marcada como hecha · ${done} de ${all.length} completadas.`);
+          }
         },
         error: (error: AppHttpError) => {
           this.subtasks.set(previous);

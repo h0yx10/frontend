@@ -102,15 +102,20 @@
               step="0.5"
               [(ngModel)]="reducedHours"
               class="w-32 rounded-xl border border-border bg-surface px-3 py-2 text-ink"
+              [class.border-danger]="!!reduceError"
+              [attr.aria-invalid]="!!reduceError"
             />
             <button
               type="button"
-              class="ml-3 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark"
-              [disabled]="saving()"
+              class="ml-3 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
+              [disabled]="saving() || !!reduceError"
               (click)="confirmReduceHours()"
             >
               Confirmar reducción
             </button>
+            @if (reduceError) {
+              <p class="mt-2 text-xs text-danger" role="alert">{{ reduceError }}</p>
+            }
           </div>
         }
 

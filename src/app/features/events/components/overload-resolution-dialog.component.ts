@@ -60,10 +60,25 @@ export class OverloadResolutionDialogComponent {
     }
   }
 
-  confirmReduce(): void {
+  /** Horas con las que la gestión deja de exceder: las que tenía menos el exceso (mínimo 0,5). */
+  get maxHours(): number {
+    return Math.max(0.5, this.roundHours(this.initialHours() - this.conflict().exceedsBy));
+  }
+
+  get reduceError(): string {
     const hours = Number(this.hours);
-    if (Number.isFinite(hours) && hours > 0) {
-      this.reduce.emit(hours);
+    if (!Number.isFinite(hours) || hours <= 0) {
+      return 'Indica horas mayores a 0.';
+    }
+    if (hours > this.maxHours) {
+      return `Con ${hours} h aún superas el límite: máximo ${this.maxHours} h.`;
+    }
+    return '';
+  }
+
+  confirmReduce(): void {
+    if (!this.reduceError) {
+      this.reduce.emit(Number(this.hours));
     }
   }
 

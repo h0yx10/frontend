@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
+import { ToastService } from '../../../core/feedback/toast.service';
 import { OverloadCheckResult } from '../models/conflict.model';
 import { Subtask } from '../models/subtask.model';
 import { ConflictsService } from '../services/conflicts.service';
@@ -72,6 +73,40 @@ describe('RescheduleDialogComponent: aviso por fecha posterior al evento', () =>
 
     component.reducedHours.set(1);
     expect(component.maxReducibleHours).toBe(2);
+  });
+
+  it('no deja confirmar una reducción que sigue superando el límite y confirma la que lo resuelve', () => {
+    const toasts = TestBed.inject(ToastService);
+    spyOn(toasts, 'show');
+    fixture.componentRef.setInput('subtask',{...task,estimatedHours:5});
+    fixture.detectChanges();
+    conflicts.checkOverload.and.returnValue(of({exceeds:true,plannedHours:9,limitHours:6,exceedsBy:3}));
+    component.checkAndSave();
+
+    component.reducedHours.set(3);
+    expect(component.reduceError).toContain('máximo 2 h');
+    component.confirmReduceHours();
+    expect(subtasks.update).not.toHaveBeenCalled();
+
+    subtasks.update.and.returnValue(of({...task,estimatedHours:2}));
+    component.reducedHours.set(2);
+    component.confirmReduceHours();
+    expect(subtasks.update).toHaveBeenCalledWith('task',{estimatedHours:2,targetDate:'2026-11-01'});
+    expect(toasts.show).toHaveBeenCalledWith(jasmine.stringMatching(/^Conflicto resuelto: .*quedan 6 h de 6 h\.$/));
+  });
+
+  it('tras un conflicto, mover a un día con espacio confirma que se resolvió con cifras', () => {
+    const toasts = TestBed.inject(ToastService);
+    spyOn(toasts, 'show');
+    fixture.detectChanges();
+    conflicts.checkOverload.and.callFake((_id, payload) => of(payload.targetDate === '2026-11-01' ? overloaded : free));
+    subtasks.update.and.returnValue(of({...task,targetDate:'2026-11-02'}));
+
+    component.checkAndSave();
+    component.pickSuggestion('2026-11-02');
+    component.checkAndSave();
+
+    expect(toasts.show).toHaveBeenCalledWith(jasmine.stringMatching(/^Conflicto resuelto: «Buscar proveedor» pasó a otro día; .* quedan 2 h de 6 h\.$/));
   });
 
   it('no avisa cuando la fecha es el mismo día del evento', () => {

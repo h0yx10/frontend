@@ -75,16 +75,22 @@
     } @else {
       <div class="space-y-3">
         <label for="overload-new-hours" class="block text-sm font-medium text-ink">
-          Nuevas horas estimadas
+          Nuevas horas estimadas (máx. {{ maxHours }} h)
         </label>
         <input
           id="overload-new-hours"
           type="number"
           min="0.5"
+          [max]="maxHours"
           step="0.5"
           [(ngModel)]="hours"
           class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+          [class.border-danger]="!!reduceError"
+          [attr.aria-invalid]="!!reduceError"
         />
+        @if (reduceError) {
+          <p class="text-xs text-danger" role="alert">{{ reduceError }}</p>
+        }
         <div class="flex justify-end gap-2">
           <button type="button" class="rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink" (click)="closeAction()">
             Volver
@@ -92,7 +98,7 @@
           <button
             type="button"
             class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-            [disabled]="busy() || !hours || hours <= 0"
+            [disabled]="busy() || !!reduceError"
             (click)="confirmReduce()"
           >
             {{ busy() ? 'Guardando…' : 'Guardar horas' }}

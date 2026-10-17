@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 
+import { ToastService } from '../../../core/feedback/toast.service';
 import { AppHttpError } from '../../../core/interceptors/http-error.interceptor';
 import {
   SubtaskExecutionPayload
@@ -34,6 +35,7 @@ export class TodayStore {
   private readonly service = inject(TodayService);
   private readonly subtasksService = inject(SubtasksService);
   private readonly workload = inject(WorkloadStore);
+  private readonly toasts = inject(ToastService);
 
   readonly board = signal<TodayBoard>(EMPTY_BOARD);
   readonly loading = signal(false);
@@ -89,7 +91,12 @@ export class TodayStore {
 
   executeSubtask(id: string, payload: SubtaskExecutionPayload): void {
     this.subtasksService.execute(id, payload).subscribe({
-      next: () => this.load(),
+      next: (updated) => {
+        if (updated.status === 'DONE') {
+          this.toasts.show(`«${updated.name}» marcada como hecha; ya no suma a tu carga del día.`);
+        }
+        this.load();
+      },
       error: (error: AppHttpError) => this.error.set(error.message)
     });
   }

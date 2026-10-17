@@ -1,46 +1,38 @@
-<section class="surface-card flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between" aria-labelledby="capacity-title">
-  <div class="max-w-lg">
-    <h2 id="capacity-title" class="text-xl font-semibold text-ink">Capacidad diaria</h2>
-    <p class="mt-2 text-sm leading-relaxed text-muted">
-      Cuántas horas puedes dedicar a gestiones por día. La usamos para avisarte de sobrecarga al reprogramar en Hoy.
+<form class="mt-4 border-t border-border pt-4" (ngSubmit)="save()" novalidate>
+  <label for="capacity-limit" class="block text-sm font-semibold text-ink">Límite diario</label>
+  <div class="mt-2 flex items-center gap-2">
+    <input
+      id="capacity-limit"
+      name="limit"
+      type="number"
+      inputmode="decimal"
+      [min]="min"
+      [max]="max"
+      step="0.5"
+      [ngModel]="hours()"
+      (ngModelChange)="onHoursChange($event)"
+      class="min-w-0 flex-1 rounded-xl border border-border bg-canvas px-3 py-2 text-center text-lg font-bold text-ink tabular-nums"
+      [class.border-danger]="!!validationError() || !!store.error()"
+      [attr.aria-invalid]="!!validationError() || !!store.error()"
+      aria-describedby="capacity-help capacity-error"
+    />
+    <span class="shrink-0 text-sm text-muted">h/día</span>
+  </div>
+  <p id="capacity-help" class="mt-1.5 text-xs text-muted">Entre {{ min }} y {{ max }} horas.</p>
+
+  @if (validationError() || store.error(); as message) {
+    <p id="capacity-error" class="mt-2 flex items-start gap-1.5 text-xs text-danger" role="alert">
+      <mat-icon class="mt-px shrink-0 text-[15px]" aria-hidden="true">error_outline</mat-icon>
+      <span>{{ message }}</span>
     </p>
-    <p class="mt-2 text-xs text-muted">Entre {{ min }} y {{ max }} horas. Sin configurar se usan {{ defaultHours }} h.</p>
-  </div>
-
-  <div class="flex shrink-0 flex-wrap items-center gap-4">
-    <div class="flex items-center gap-3">
-      <button
-        type="button"
-        class="flex size-12 items-center justify-center rounded-xl bg-surface-raised text-ink transition hover:bg-border-strong disabled:opacity-40"
-        aria-label="Reducir media hora"
-        [disabled]="hours() <= min || store.saving()"
-        (click)="adjust(-1)"
-      >
-        <mat-icon aria-hidden="true">remove</mat-icon>
-      </button>
-      <p class="min-w-20 text-center" role="status" aria-live="polite">
-        <span class="block text-3xl font-bold leading-none text-ink tabular-nums">{{ hours() | number: '1.0-1' }} h</span>
-        <span class="mt-1 block text-sm text-muted">por día</span>
-      </p>
-      <button
-        type="button"
-        class="flex size-12 items-center justify-center rounded-xl bg-surface-raised text-ink transition hover:bg-border-strong disabled:opacity-40"
-        aria-label="Aumentar media hora"
-        [disabled]="hours() >= max || store.saving()"
-        (click)="adjust(1)"
-      >
-        <mat-icon aria-hidden="true">add</mat-icon>
-      </button>
-    </div>
-    <button type="button" class="btn-primary h-12 px-6" [disabled]="!changed() || store.saving()" (click)="save()">
-      {{ store.saving() ? 'Guardando…' : 'Guardar' }}
-    </button>
-  </div>
-
-  @if (store.error()) {
-    <p class="text-sm text-danger sm:basis-full" role="alert">{{ store.error() }}</p>
   }
-  @if (success()) {
-    <p class="text-sm text-success sm:basis-full" role="status">Capacidad actualizada.</p>
-  }
-</section>
+
+  <button
+    type="submit"
+    class="btn-primary mt-3 flex h-10 w-full items-center justify-center gap-1.5"
+    [disabled]="!changed() || !!validationError() || store.saving()"
+  >
+    <mat-icon class="text-[18px]" aria-hidden="true">save</mat-icon>
+    {{ store.saving() ? 'Guardando…' : 'Guardar' }}
+  </button>
+</form>

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
 
 import { addDaysIso, afterEventDayWarning, formatIsoDateHuman } from '../../../core/utils/date.util';
+import { ToastService } from '../../../core/feedback/toast.service';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
 import { OverloadCheckResult } from '../models/conflict.model';
 import { Subtask } from '../models/subtask.model';
@@ -29,6 +30,7 @@ interface DaySuggestion {
 export class RescheduleDialogComponent {
   private readonly conflicts = inject(ConflictsService);
   private readonly subtasksService = inject(SubtasksService);
+  private readonly toasts = inject(ToastService);
 
   readonly subtask = input<Subtask | null>(null);
   readonly initialConflict = input<OverloadCheckResult | null>(null);
@@ -45,6 +47,8 @@ export class RescheduleDialogComponent {
   readonly saving = signal(false);
   readonly conflict = signal<OverloadCheckResult | null>(null);
   readonly suggestions = signal<DaySuggestion[]>([]);
+  /** Hubo sobrecarga en este diálogo: al guardar, la confirmación dice que se resolvió. */
+  readonly hadConflict = signal(false);
   readonly reducedHours = signal(1);
   readonly showReduceForm = signal(false);
   readonly error = signal('');
@@ -59,6 +63,7 @@ export class RescheduleDialogComponent {
           this.reducedHours.set(subtask.estimatedHours);
           this.resetConflictState();
           const conflict = this.initialConflict();
+          this.hadConflict.set(!!conflict);
           if (conflict) {
             this.conflict.set(conflict);
             this.loadSuggestions(subtask);
@@ -111,9 +116,10 @@ export class RescheduleDialogComponent {
         next: (result) => {
           this.checking.set(false);
           if (!result.exceeds) {
-            this.applyReschedule(this.targetDate);
+            this.applyReschedule(this.targetDate, result);
             return;
           }
+          this.hadConflict.set(true);
           this.conflict.set(result);
           this.loadSuggestions(subtask);
         },
@@ -147,7 +153,7 @@ export class RescheduleDialogComponent {
     this.resetConflictState();
   }
 
-  private applyReschedule(date: string): void {
+  private applyReschedule(date: string, load: OverloadCheckResult): void {
     const subtask = this.subtask();
     if (!subtask) {
       return;
@@ -158,6 +164,10 @@ export class RescheduleDialogComponent {
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (updated) => {
+          const day = `el ${formatIsoDateHuman(date)} quedan ${this.roundHours(load.plannedHours)} h de ${this.roundHours(load.limitHours)} h`;
+          this.toasts.show(this.hadConflict()
+            ? `Conflicto resuelto: «${subtask.name}» pasó a otro día; ${day}.`
+            : `«${subtask.name}» reprogramada: ${day}.`);
           this.changed.emit(updated);
           this.closed.emit();
         },
@@ -182,17 +192,36 @@ export class RescheduleDialogComponent {
     return Math.max(0.5, +(subtask.estimatedHours - conflict.exceedsBy).toFixed(2));
   }
 
+  /** Vacío si las horas escritas resuelven el conflicto; si no, explica por qué no se puede confirmar. */
+  get reduceError(): string {
+    const hours = Number(this.reducedHours());
+    if (!Number.isFinite(hours) || hours <= 0) {
+      return 'Indica horas mayores a 0.';
+    }
+    if (hours > this.maxReducibleHours) {
+      return `Con ${hours} h aún superas el límite: máximo ${this.maxReducibleHours} h.`;
+    }
+    return '';
+  }
+
   confirmReduceHours(): void {
     const subtask = this.subtask();
-    if (!subtask) {
+    const conflict = this.conflict();
+    if (!subtask || !conflict || this.reduceError) {
       return;
     }
+    const hours = Number(this.reducedHours());
+    const plannedAfter = conflict.plannedHours - (subtask.estimatedHours - hours);
     this.saving.set(true);
     this.subtasksService
-      .update(subtask.id, { estimatedHours: this.reducedHours(), targetDate: this.targetDate })
+      .update(subtask.id, { estimatedHours: hours, targetDate: this.targetDate })
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (updated) => {
+          this.toasts.show(
+            `Conflicto resuelto: «${subtask.name}» queda en ${hours} h; el ${formatIsoDateHuman(this.targetDate)} quedan ` +
+              `${this.roundHours(plannedAfter)} h de ${this.roundHours(conflict.limitHours)} h.`
+          );
           this.changed.emit(updated);
           this.closed.emit();
         },
@@ -211,6 +240,7 @@ export class RescheduleDialogComponent {
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (updated) => {
+          this.toasts.show(`«${subtask.name}» quedó pospuesta en su fecha original.`, 'info');
           this.changed.emit(updated);
           this.closed.emit();
         },

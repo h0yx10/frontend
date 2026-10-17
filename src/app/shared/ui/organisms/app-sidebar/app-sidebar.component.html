@@ -48,7 +48,9 @@
 
   <div class="mt-auto flex flex-col gap-3">
     @if (workload(); as load) {
-      <app-workload-card [planned]="load.planned" [limit]="load.limit" [loading]="load.loading" [ready]="load.ready" />
+      <app-workload-card #card [planned]="load.planned" [limit]="load.limit" [loading]="load.loading" [ready]="load.ready">
+        <app-capacity-settings (saved)="card.expanded.set(false)" />
+      </app-workload-card>
     }
     <div class="flex items-center">
       <a

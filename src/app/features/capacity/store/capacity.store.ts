@@ -4,7 +4,7 @@ import { finalize } from 'rxjs';
 import { runtimeConfig } from '../../../core/config/runtime-config';
 import { CapacityService } from '../services/capacity.service';
 
-/** Singleton: la capacidad diaria se muestra en el sidebar y se edita en /progreso. */
+/** Singleton: la capacidad diaria se muestra y se edita en la tarjeta "Carga de hoy" del sidebar. */
 @Injectable({
   providedIn: 'root'
 })

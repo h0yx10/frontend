@@ -1,7 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import { CapacitySettingsComponent } from '../capacity/capacity-settings.component';
 import { ProgressRingComponent } from '../../shared/ui/atoms/progress-ring.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
 import { LoadingStateComponent } from '../../shared/ui/molecules/loading-state.component';
@@ -22,8 +21,7 @@ import { EventsStore } from './store/events.store';
     ErrorStateComponent,
     PageHeaderComponent,
     ProgressRingComponent,
-    SearchBoxComponent,
-    CapacitySettingsComponent
+    SearchBoxComponent
   ],
   providers: [EventsStore],
   templateUrl: './events-progress-page.component.html'

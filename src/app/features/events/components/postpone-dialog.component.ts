@@ -3,6 +3,7 @@ import { Component, effect, EventEmitter, inject, input, Output, signal } from '
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 
+import { ToastService } from '../../../core/feedback/toast.service';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
 import { NOTE_MAX_LENGTH, Subtask } from '../models/subtask.model';
 import { SubtasksService } from '../services/subtasks.service';
@@ -15,6 +16,7 @@ import { SubtasksService } from '../services/subtasks.service';
 })
 export class PostponeDialogComponent {
   private readonly subtasksService = inject(SubtasksService);
+  private readonly toasts = inject(ToastService);
 
   readonly subtask = input<Subtask | null>(null);
 
@@ -44,13 +46,15 @@ export class PostponeDialogComponent {
       return;
     }
 
+    const note = this.note.trim() || null;
     this.saving.set(true);
     this.error.set('');
     this.subtasksService
-      .execute(subtask.id, { status: 'POSTPONED', note: this.note.trim() || null })
+      .execute(subtask.id, { status: 'POSTPONED', note })
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (updated) => {
+          this.toasts.show(`«${subtask.name}» quedó pospuesta${note ? ' con su motivo anotado' : ''}.`, 'info');
           this.changed.emit(updated);
           this.closed.emit();
         },

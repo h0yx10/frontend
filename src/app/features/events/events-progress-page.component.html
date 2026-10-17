@@ -1,5 +1,5 @@
 <div class="mx-auto max-w-6xl">
-  <app-page-header title="Progreso" subtitle="Avance de preparación de tus eventos y tu capacidad diaria." />
+  <app-page-header title="Progreso" subtitle="Avance de preparación de tus eventos." />
 
   @if (store.loading() && store.count() === 0) {
     <app-loading-state message="Cargando eventos…" />
@@ -63,6 +63,5 @@
       }
     </section>
 
-    <app-capacity-settings class="mt-8 block" />
   }
 </div>
