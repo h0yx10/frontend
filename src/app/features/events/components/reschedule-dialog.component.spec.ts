@@ -8,8 +8,8 @@ import { SubtasksService } from '../services/subtasks.service';
 import { RescheduleDialogComponent } from './reschedule-dialog.component';
 
 const task: Subtask = {
-  id:'task',eventId:'event',eventName:'Evento',name:'Buscar proveedor',
-  targetDate:'2026-11-01',estimatedHours:2,status:'PENDING',postponeNote:null,doneAt:null,createdAt:'2026-10-06'
+  id:'task',eventId:'event',eventName:'Evento',name:'Buscar proveedor',description:null,
+  targetDate:'2026-11-01',estimatedHours:2,status:'PENDING',note:null,doneAt:null,createdAt:'2026-10-06'
 };
 const overloaded: OverloadCheckResult = {exceeds:true,plannedHours:8,limitHours:6,exceedsBy:2};
 const free: OverloadCheckResult = {exceeds:false,plannedHours:2,limitHours:6,exceedsBy:0};
@@ -58,6 +58,20 @@ describe('RescheduleDialogComponent: aviso por fecha posterior al evento', () =>
 
     expect(component.dateWarning).toContain('posterior al evento');
     expect(subtasks.update).toHaveBeenCalledWith('task',{targetDate:'2026-10-18'});
+  });
+
+  it('el máximo al reducir horas sale de las horas de la gestión, no de lo que se escribe', () => {
+    fixture.detectChanges();
+    conflicts.checkOverload.and.returnValue(of({exceeds:true,plannedHours:9,limitHours:6,exceedsBy:3}));
+    const gestion = {...task,estimatedHours:5};
+    fixture.componentRef.setInput('subtask',gestion);
+    fixture.detectChanges();
+
+    component.checkAndSave();
+    expect(component.maxReducibleHours).toBe(2);
+
+    component.reducedHours.set(1);
+    expect(component.maxReducibleHours).toBe(2);
   });
 
   it('no avisa cuando la fecha es el mismo día del evento', () => {

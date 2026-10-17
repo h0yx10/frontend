@@ -1,0 +1,83 @@
+<div class="auth-page flex min-h-screen flex-col">
+  <app-starfield />
+  <header class="auth-header flex items-center justify-between gap-4">
+    <app-brand-logo />
+    <span class="header-caption hidden text-sm sm:block">Tu espacio de organización</span>
+  </header>
+
+  <main class="auth-main grid flex-1 items-center">
+    <section class="orbit-hero rise flex min-w-0 flex-col" aria-label="Cómo organiza Eventia un evento">
+      <span class="eyebrow text-xs font-semibold uppercase tracking-wider">Logística de eventos</span>
+      <h1 class="hero-title font-bold">Todo gira alrededor de tu evento.</h1>
+      <p class="hero-lead text-[15px] leading-relaxed">Cada gestión tiene su órbita: planifica, coordina y sigue el avance hasta que todo esté en su lugar.</p>
+      <app-orbit-scene [phases]="orbitPhases" centerLabel="Tu evento" />
+    </section>
+
+    <section class="auth-form rise w-full" aria-labelledby="auth-heading">
+      <h2 id="auth-heading" class="form-title font-bold">{{ mode() === 'login' ? 'Iniciar sesión' : 'Crear una cuenta' }}</h2>
+      <p class="form-subtitle mt-3 text-[15px] leading-relaxed">{{ mode() === 'login' ? 'Bienvenido de nuevo. Accede a tu espacio de trabajo.' : 'Empieza a organizar tus eventos en un solo lugar.' }}</p>
+
+      @if (sessionExpired()) {
+        <p class="session-notice mt-5 rounded-xl border px-4 py-3 text-sm" role="status">Tu sesión expiró. Inicia sesión nuevamente.</p>
+      }
+
+      <form #authForm class="mt-6 flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        @if (mode() === 'register') {
+          <app-form-field inputId="name" label="Nombre" [error]="fieldError('name')">
+            <input id="name" type="text" autocomplete="name" placeholder="Tu nombre" formControlName="name" class="field-input w-full"
+              [class.invalid]="fieldError('name')" [attr.aria-invalid]="fieldError('name') ? 'true' : null"
+              [attr.aria-describedby]="fieldError('name') ? 'name-error' : null" />
+          </app-form-field>
+        }
+        <app-form-field inputId="email" label="Correo electrónico" [error]="fieldError('email')">
+          <input id="email" type="email" autocomplete="email" placeholder="tu@correo.com" formControlName="email" class="field-input w-full"
+            [class.invalid]="fieldError('email')" [attr.aria-invalid]="fieldError('email') ? 'true' : null"
+            [attr.aria-describedby]="fieldError('email') ? 'email-error' : null" />
+        </app-form-field>
+
+        <app-form-field inputId="password" label="Contraseña" [error]="fieldError('password')"
+          [hint]="mode() === 'register' ? 'Mínimo ' + passwordMinLength + ' caracteres.' : ''">
+          <button field-action type="button" class="text-link inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 text-[13px] font-semibold"
+            [attr.aria-label]="passwordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            [attr.aria-pressed]="passwordVisible()" aria-controls="password" (click)="togglePasswordVisibility()">
+            <mat-icon class="text-[16px]" aria-hidden="true">{{ passwordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            {{ passwordVisible() ? 'Ocultar' : 'Mostrar' }}
+          </button>
+          <input id="password" [type]="passwordVisible() ? 'text' : 'password'"
+            [attr.autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'"
+            placeholder="Introduce tu contraseña" formControlName="password" class="field-input w-full"
+            [class.invalid]="fieldError('password')" [attr.aria-invalid]="fieldError('password') ? 'true' : null"
+            [attr.aria-describedby]="fieldError('password') ? 'password-error' : mode() === 'register' ? 'password-hint' : null" />
+        </app-form-field>
+
+        @if (mode() === 'login') {
+          <button type="button" class="text-link self-end text-sm font-medium" (click)="showRecoveryInfo()">¿Olvidaste tu contraseña?</button>
+        }
+        @if (error()) { <p class="server-error text-sm" role="alert">{{ error() }}</p> }
+
+        <app-button appearance="orbit" type="submit" [loading]="loading()" [disabled]="loading()">
+          {{ loading() ? 'Procesando…' : mode() === 'login' ? 'Iniciar sesión' : 'Crear una cuenta' }}
+        </app-button>
+
+        <p class="signup text-center text-sm">
+          {{ mode() === 'login' ? '¿No tienes una cuenta?' : '¿Ya tienes una cuenta?' }}
+          <button type="button" class="text-link font-semibold" [disabled]="loading()" (click)="toggleMode()">
+            {{ mode() === 'login' ? 'Crear una cuenta' : 'Iniciar sesión' }}
+          </button>
+        </p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="auth-footer flex flex-wrap items-center justify-between gap-4 text-xs">
+    <span>Eventia · Logística de eventos</span>
+    <div class="flex items-center gap-6">
+      <button type="button" class="footer-help rounded-sm" (click)="showHelp()">¿Necesitas ayuda?</button>
+      <span lang="es" aria-label="Idioma actual: español">Español</span>
+    </div>
+  </footer>
+</div>
+
+@if (info(); as dialog) {
+  <app-info-dialog [heading]="dialog.heading" [message]="dialog.message" (accepted)="info.set(null)" />
+}

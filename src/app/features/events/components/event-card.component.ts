@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -9,7 +8,7 @@ import { EventEntity } from '../models/event.model';
 @Component({
   selector: 'app-event-card',
   standalone: true,
-  imports: [CommonModule, RouterLink, ProgressBarComponent],
+  imports: [RouterLink, ProgressBarComponent],
   templateUrl: './event-card.component.html'
 })
 export class EventCardComponent {
@@ -24,7 +23,7 @@ export class EventCardComponent {
       return 'text-success';
     }
     if (percentage < 40) {
-      return 'text-danger';
+      return 'text-warning';
     }
     return 'text-accent';
   });

@@ -23,7 +23,7 @@ export class TodayGroupComponent {
   readonly dotClass = computed(() => {
     switch (this.bucket()) {
       case 'OVERDUE':
-        return 'bg-danger';
+        return 'bg-danger-warm';
       case 'TODAY':
         return 'bg-primary';
       default:
@@ -31,7 +31,7 @@ export class TodayGroupComponent {
     }
   });
 
-  readonly headingClass = computed(() => (this.bucket() === 'OVERDUE' ? 'text-danger' : 'text-ink'));
+  readonly headingClass = computed(() => (this.bucket() === 'OVERDUE' ? 'text-danger-warm' : 'text-ink'));
 
   readonly countLabel = computed(() => `${this.items().length}`.padStart(2, '0'));
 }

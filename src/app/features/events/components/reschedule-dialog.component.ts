@@ -3,7 +3,7 @@ import { Component, effect, EventEmitter, inject, input, Output, signal } from '
 import { FormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
 
-import { addDaysIso, formatIsoDateHuman } from '../../../core/utils/date.util';
+import { addDaysIso, afterEventDayWarning, formatIsoDateHuman } from '../../../core/utils/date.util';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
 import { OverloadCheckResult } from '../models/conflict.model';
 import { Subtask } from '../models/subtask.model';
@@ -31,6 +31,7 @@ export class RescheduleDialogComponent {
   private readonly subtasksService = inject(SubtasksService);
 
   readonly subtask = input<Subtask | null>(null);
+  readonly initialConflict = input<OverloadCheckResult | null>(null);
   /** Día del evento (YYYY-MM-DD): una fecha posterior se permite, pero se advierte. */
   readonly maxDate = input<string | null>(null);
 
@@ -47,6 +48,7 @@ export class RescheduleDialogComponent {
   readonly reducedHours = signal(1);
   readonly showReduceForm = signal(false);
   readonly error = signal('');
+  readonly roundHours = (value: number): number => Math.round((value + Number.EPSILON) * 100) / 100;
 
   constructor() {
     effect(
@@ -56,6 +58,11 @@ export class RescheduleDialogComponent {
           this.targetDate = subtask.targetDate;
           this.reducedHours.set(subtask.estimatedHours);
           this.resetConflictState();
+          const conflict = this.initialConflict();
+          if (conflict) {
+            this.conflict.set(conflict);
+            this.loadSuggestions(subtask);
+          }
         }
       },
       { allowSignalWrites: true }
@@ -70,17 +77,12 @@ export class RescheduleDialogComponent {
   }
 
   isAfterEvent(date: string): boolean {
-    const maxDate = this.maxDate();
-    return !!maxDate && !!date && date > maxDate;
+    return !!afterEventDayWarning(date, this.maxDate());
   }
 
   /** Aviso, no bloqueo: si el evento se aplazó, la gestión puede necesitar esa fecha. */
   get dateWarning(): string {
-    const maxDate = this.maxDate();
-    if (maxDate && this.isAfterEvent(this.targetDate)) {
-      return `Esta fecha es posterior al evento (${formatIsoDateHuman(maxDate)}). Si el evento se aplazó, actualiza también su fecha.`;
-    }
-    return '';
+    return afterEventDayWarning(this.targetDate, this.maxDate());
   }
 
   onDateChange(): void {
@@ -167,12 +169,17 @@ export class RescheduleDialogComponent {
     this.showReduceForm.set(!this.showReduceForm());
   }
 
+  /**
+   * Horas con las que la gestión deja de exceder el límite: sus horas originales menos el exceso.
+   * Se parte de la subtarea, no de `reducedHours()`, que es el valor que el usuario está escribiendo.
+   */
   get maxReducibleHours(): number {
     const conflict = this.conflict();
-    if (!conflict) {
+    const subtask = this.subtask();
+    if (!conflict || !subtask) {
       return 0;
     }
-    return Math.max(0.5, +(conflict.limitHours - conflict.plannedHours).toFixed(2));
+    return Math.max(0.5, +(subtask.estimatedHours - conflict.exceedsBy).toFixed(2));
   }
 
   confirmReduceHours(): void {

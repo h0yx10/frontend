@@ -6,8 +6,8 @@ import { SubtasksService } from '../services/subtasks.service';
 import { CompleteDialogComponent } from './complete-dialog.component';
 
 const task: Subtask = {
-  id:'task',eventId:'event',eventName:'Evento',name:'Buscar proveedor',
-  targetDate:'2026-11-01',estimatedHours:2,status:'POSTPONED',postponeNote:'Esperando proveedor',doneAt:null,createdAt:'2026-10-06'
+  id:'task',eventId:'event',eventName:'Evento',name:'Buscar proveedor',description:null,
+  targetDate:'2026-11-01',estimatedHours:2,status:'POSTPONED',note:'Esperando proveedor',doneAt:null,createdAt:'2026-10-06'
 };
 
 describe('CompleteDialogComponent: registrar ejecución con nota', () => {
@@ -27,7 +27,7 @@ describe('CompleteDialogComponent: registrar ejecución con nota', () => {
   });
 
   it('marca la gestión como hecha con la nota escrita', () => {
-    const done = {...task,status:'DONE' as const,postponeNote:'Proveedor confirmó'};
+    const done = {...task,status:'DONE' as const,note:'Proveedor confirmó'};
     subtasks.execute.and.returnValue(of(done));
     const changed = jasmine.createSpy('changed');
     const closed = jasmine.createSpy('closed');

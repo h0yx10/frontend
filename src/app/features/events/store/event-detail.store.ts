@@ -11,12 +11,14 @@ import {
 } from '../models/subtask.model';
 import { EventsService } from '../services/events.service';
 import { SubtasksService } from '../services/subtasks.service';
+import { ConflictsService } from '../services/conflicts.service';
+import { OverloadCheckResult } from '../models/conflict.model';
 
 @Injectable()
 export class EventDetailStore {
   private readonly eventsService = inject(EventsService);
   private readonly subtasksService = inject(SubtasksService);
-
+  private readonly conflictsService = inject(ConflictsService);
   readonly event = signal<EventEntity | null>(null);
   readonly subtasks = signal<Subtask[]>([]);
   readonly loading = signal(false);
@@ -25,6 +27,9 @@ export class EventDetailStore {
   readonly saving = signal(false);
   readonly eventFieldErrors = signal<Record<string, string>>({});
   readonly subtaskFieldErrors = signal<Record<string, string>>({});
+  readonly overload = signal<OverloadCheckResult | null>(null);
+  readonly overloadTarget = signal<Subtask | null>(null);
+  readonly successMessage = signal('');
 
   load(eventId: string): void {
     this.loading.set(true);
@@ -102,13 +107,14 @@ export class EventDetailStore {
 
   addSubtask(payload: SubtaskPayload, onSuccess: () => void): void {
     const current = this.event();
-    if (!current) {
+    if (!current || this.saving()) {
       return;
     }
 
     this.saving.set(true);
     this.subtaskFieldErrors.set({});
     this.error.set('');
+    this.successMessage.set('');
 
     this.subtasksService
       .create(current.id, payload)
@@ -121,16 +127,55 @@ export class EventDetailStore {
         },
         error: (error: AppHttpError) => {
           this.subtaskFieldErrors.set(error.fieldErrors ?? {});
-          this.error.set(error.message);
+          if (error.status === 409 && error.overload) {
+            this.overload.set({ ...error.overload, exceeds: true });
+            this.error.set(
+              `La subtarea no se creó porque supera tu capacidad por ${this.roundHours(error.overload.exceedsBy)} h. Ajusta las horas o el plazo e inténtalo de nuevo.`
+            );
+          } else {
+            this.error.set(error.message);
+          }
         }
       });
   }
 
   updateSubtask(id: string, payload: SubtaskUpdatePayload, onSuccess: () => void): void {
+    if (this.saving()) {
+      return;
+    }
     this.saving.set(true);
     this.subtaskFieldErrors.set({});
     this.error.set('');
+    this.successMessage.set('');
 
+    const current = this.subtasks().find((subtask) => subtask.id === id);
+    const date = payload.targetDate ?? current?.targetDate;
+    const hours = payload.estimatedHours ?? current?.estimatedHours;
+
+    if (date && hours !== undefined && current) {
+      this.conflictsService.checkOverload(id, { targetDate: date, estimatedHours: hours }).subscribe({
+        next: (result) => {
+          if (result.exceeds) {
+            this.overload.set(result);
+            this.overloadTarget.set({ ...current, ...payload });
+            this.saving.set(false);
+            return;
+          }
+          this.persistSubtaskUpdate(id, payload, onSuccess);
+        },
+        error: (error: AppHttpError) => {
+          this.saving.set(false);
+          this.subtaskFieldErrors.set(error.fieldErrors ?? {});
+          this.error.set(error.message);
+        }
+      });
+      return;
+    }
+
+    this.persistSubtaskUpdate(id, payload, onSuccess);
+  }
+
+  private persistSubtaskUpdate(id: string, payload: SubtaskUpdatePayload, onSuccess: () => void): void {
     this.subtasksService
       .update(id, payload)
       .pipe(finalize(() => this.saving.set(false)))
@@ -141,9 +186,32 @@ export class EventDetailStore {
         },
         error: (error: AppHttpError) => {
           this.subtaskFieldErrors.set(error.fieldErrors ?? {});
-          this.error.set(error.message);
+          if (error.status === 409 && error.overload) {
+            const current = this.subtasks().find((subtask) => subtask.id === id);
+            if (current) {
+              this.overload.set({ ...error.overload, exceeds: true });
+              this.overloadTarget.set({ ...current, ...payload });
+            }
+            this.error.set('');
+          } else {
+            this.error.set(error.message);
+          }
         }
       });
+  }
+
+  clearOverload(): void {
+    this.overload.set(null);
+    this.overloadTarget.set(null);
+  }
+
+  markResolutionComplete(): void {
+    this.clearOverload();
+    this.successMessage.set('Listo, ya estás dentro de tu capacidad diaria.');
+  }
+
+  private roundHours(value: number): number {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
   }
 
   rescheduleSubtask(id: string, targetDate: string, onSuccess: () => void): void {
@@ -162,7 +230,7 @@ export class EventDetailStore {
       });
   }
 
-  deleteSubtask(id: string): void {
+  deleteSubtask(id: string, onSuccess?: () => void): void {
     this.saving.set(true);
     this.subtasksService
       .delete(id)
@@ -171,6 +239,7 @@ export class EventDetailStore {
         next: () => {
           this.subtasks.update((subtasks) => subtasks.filter((subtask) => subtask.id !== id));
           this.reloadEvent();
+          onSuccess?.();
         },
         error: (error: AppHttpError) => this.error.set(error.message)
       });

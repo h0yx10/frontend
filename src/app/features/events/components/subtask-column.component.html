@@ -11,6 +11,7 @@
         <app-subtask-item
           [subtask]="item"
           (markDone)="markDone.emit($event)"
+          (completeWithNote)="completeWithNote.emit($event)"
           (postpone)="postpone.emit($event)"
           (reschedule)="reschedule.emit($event)"
           (edit)="edit.emit($event)"
@@ -19,7 +20,7 @@
       }
     </div>
   } @else {
-    <p class="rounded-xl border border-dashed border-border bg-surface/50 px-4 py-6 text-center text-xs text-muted">
+    <p class="rounded-xl border border-dashed border-border-strong px-4 py-6 text-center text-xs text-muted">
       {{ emptyMessage() }}
     </p>
   }

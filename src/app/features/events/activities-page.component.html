@@ -1,0 +1,94 @@
+<div class="mx-auto max-w-6xl">
+  <app-page-header
+    title="Actividades"
+    [subtitle]="store.count() + (store.count() === 1 ? ' evento' : ' eventos') + ' · actualizadas en tiempo real'"
+  >
+    <a routerLink="/crear" class="btn-primary">
+      <mat-icon class="text-[20px]" aria-hidden="true">add</mat-icon>
+      Nuevo evento
+    </a>
+  </app-page-header>
+
+  @if (store.loading() && store.count() === 0) {
+    <app-loading-state message="Cargando actividades…" />
+  } @else if (store.error()) {
+    <app-error-state [message]="store.error()" (retry)="store.load()" />
+  } @else if (store.count() === 0) {
+    <app-empty-state icon="event_note" title="Todavía no hay actividades" message="Crea un evento para verlo listado aquí.">
+      <a routerLink="/crear" class="btn-primary">Crear evento</a>
+    </app-empty-state>
+  } @else {
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div class="min-w-0 flex-1">
+        <app-search-box
+          placeholder="Buscar por nombre o lugar"
+          ariaLabel="Buscar actividades por nombre o lugar"
+          [value]="query()"
+          (search)="query.set($event)"
+        />
+      </div>
+      <app-segmented-control
+        ariaLabel="Filtrar por fecha"
+        [options]="timeOptions"
+        [value]="timeFilter()"
+        (valueChange)="setTimeFilter($event)"
+      />
+    </div>
+
+    <div class="surface-card mt-5 overflow-x-auto">
+      <table class="w-full min-w-[720px] border-collapse text-sm">
+        <caption class="sr-only">Actividades registradas</caption>
+        <thead>
+          <tr class="border-b border-border text-muted">
+            <th scope="col" class="px-6 py-4 text-left font-medium">Evento</th>
+            <th scope="col" class="px-3 py-4 text-left font-medium">Tipo</th>
+            <th scope="col" class="px-3 py-4 text-left font-medium">Fecha</th>
+            <th scope="col" class="px-3 py-4 text-left font-medium">Progreso</th>
+            <th scope="col" class="px-3 py-4 text-left font-medium">Estado</th>
+            <th scope="col" class="w-12 px-3 py-4"><span class="sr-only">Abrir</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (event of visibleEvents(); track event.id) {
+            <tr class="group relative border-b border-border transition last:border-b-0 hover:bg-surface-raised">
+              <td class="max-w-64 px-6 py-4">
+                <a
+                  [routerLink]="['/evento', event.id]"
+                  class="block truncate font-semibold text-ink after:absolute after:inset-0 after:content-['']"
+                >{{ event.name }}</a>
+                <span class="mt-0.5 block truncate text-xs text-muted">{{ event.place || 'Sin lugar' }}</span>
+              </td>
+              <td class="px-3 py-4 text-ink">{{ event.type }}</td>
+              <td class="px-3 py-4">
+                <span class="block text-ink">{{ dateOf(event) }}</span>
+                <span class="mt-0.5 block text-xs text-muted">{{ timeOf(event) }}</span>
+              </td>
+              <td class="px-3 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-32">
+                    <app-progress-bar
+                      size="sm"
+                      [percentage]="event.progress.percentage"
+                      [tone]="event.progress.percentage >= 100 ? 'success' : 'primary'"
+                    />
+                  </div>
+                  <span class="shrink-0 text-xs text-muted tabular-nums">{{ event.progress.done }}/{{ event.progress.total }}</span>
+                </div>
+              </td>
+              <td class="px-3 py-4">
+                <app-status-badge [label]="statusOf(event).label" [tone]="statusOf(event).tone" />
+              </td>
+              <td class="px-3 py-4 text-right text-muted group-hover:text-ink">
+                <mat-icon class="text-[20px]" aria-hidden="true">chevron_right</mat-icon>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="px-6 py-12 text-center text-muted">Ninguna actividad coincide con los filtros.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

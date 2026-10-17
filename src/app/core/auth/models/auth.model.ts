@@ -2,6 +2,7 @@ export type Role = 'ORGANIZADOR' | 'ADMIN';
 
 export interface User {
   id: string;
+  organizerId: string | null;
   name: string;
   email: string;
   roles: Role[];
@@ -30,7 +31,7 @@ export interface AuthSession {
 export const NAME_MAX_LENGTH = 120;
 export const EMAIL_MAX_LENGTH = 180;
 export const PASSWORD_MIN_LENGTH = 8;
-export const PASSWORD_MAX_LENGTH = 72;
+export const PASSWORD_MAX_BYTES = 72;
 
 // --- Contrato real del backend (events-api) — ver contratos de autenticación ---
 
@@ -47,6 +48,7 @@ export interface RegisterRequestDto {
 
 export interface UsuarioResponseDto {
   id: string;
+  organizadorId: string | null;
   nombre: string;
   correo: string;
   roles: Role[];
@@ -60,4 +62,20 @@ export interface AuthResponseDto {
   /** Segundos. */
   expiresIn: number;
   usuario: UsuarioResponseDto;
+}
+
+export interface UpdateProfileRequestDto {
+  nombre?: string | null;
+  correo?: string | null;
+  password?: string | null;
+  passwordActual?: string | null;
+}
+
+export interface CreateUserRequestDto extends RegisterRequestDto {
+  roles?: Role[];
+}
+
+export interface UpdateUserRequestDto extends UpdateProfileRequestDto {
+  roles?: Role[];
+  activo?: boolean | null;
 }

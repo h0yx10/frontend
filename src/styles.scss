@@ -61,6 +61,38 @@ $app-theme: mat.define-dark-theme(
   }
 }
 
+// Primitivas visuales compartidas por las pantallas autenticadas (Hoy, Actividades, Progreso, Nuevo evento).
+// Sólo componen tokens del tema; las pantallas no repiten estas utilidades a mano.
+@layer components {
+  .surface-card {
+    @apply rounded-2xl border border-border bg-surface;
+  }
+
+  .input-control {
+    @apply h-11 w-full rounded-xl border border-border bg-surface-raised px-3.5 text-sm text-ink placeholder:text-muted;
+    transition:
+      border-color var(--duration-micro) var(--ease-out),
+      box-shadow var(--duration-panel) var(--ease-out);
+  }
+
+  .input-control:focus {
+    @apply border-accent outline-none;
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
+
+  .input-control[aria-invalid='true'] {
+    @apply border-danger;
+  }
+
+  .btn-primary {
+    @apply inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60;
+  }
+
+  .btn-ghost {
+    @apply inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 text-sm font-semibold text-ink transition hover:bg-surface-raised;
+  }
+}
+
 // Compatibilidad entre Angular Material MDC y Tailwind Preflight.
 // Estas reglas deben permanecer fuera de @layer para que Tailwind no las purgue.
 .mat-mdc-form-field .mdc-notched-outline__notch {
@@ -113,4 +145,127 @@ $app-theme: mat.define-dark-theme(
   height: 1em !important;
   line-height: 1 !important;
   vertical-align: middle;
+}
+
+// --- Scrollbar unificado (página, modales, listas, paneles) -------------------
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: var(--scrollbar-thumb);
+  background-clip: content-box;
+  border: 2px solid transparent;
+}
+
+@media (hover: hover) {
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+    background-clip: content-box;
+  }
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+// --- Retroalimentación al presionar y movimiento reducido ---------------------
+button:not(:disabled),
+a[class*='rounded'] {
+  transition-timing-function: var(--ease-out);
+  transition-duration: var(--duration-micro);
+}
+
+button:not(:disabled):active,
+a[class*='rounded-full']:active,
+a[class*='bg-primary']:active {
+  transform: scale(0.97);
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes app-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  button:not(:disabled):active {
+    transform: none;
+  }
+}
+
+// --- Tarjeta con borde de resplandor cálido (sutil, sin ruido visual) ---------
+.card-glow {
+  border: 1px solid rgb(var(--color-glow) / 28%);
+  background-color: var(--color-surface-warm);
+  box-shadow:
+    0 0 0 1px rgb(var(--color-glow) / 6%),
+    0 0 18px rgb(var(--color-glow) / 12%),
+    inset 0 0 20px rgb(var(--color-glow) / 6%);
+  transition:
+    border-color var(--duration-panel) var(--ease-out),
+    box-shadow var(--duration-panel) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .card-glow:hover {
+    border-color: rgb(var(--color-glow) / 42%);
+    box-shadow:
+      0 0 0 1px rgb(var(--color-glow) / 8%),
+      0 0 24px rgb(var(--color-glow) / 16%),
+      inset 0 0 22px rgb(var(--color-glow) / 8%);
+  }
+}
+
+// El item de Hoy ocupa todo el ancho de su tarjeta de evento.
+app-today-item {
+  display: block;
+  min-width: 0;
+}
+
+// --- Entrada de contenido real tras un esqueleto de carga --------------------
+// Escalonar con `[style.animation-delay.ms]`. Es un fundido breve de 6 px: se mantiene con
+// movimiento reducido (la regla global lo anularía y el contenido aparecería de golpe).
+.real {
+  animation: real 420ms var(--ease-out) both;
+}
+
+@keyframes real {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .real {
+    animation-duration: 420ms !important;
+  }
 }

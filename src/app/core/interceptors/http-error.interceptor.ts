@@ -1,9 +1,11 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError } from 'rxjs';
+import { catchError, switchMap, throwError } from 'rxjs';
 
-import { AuthService } from '../auth/auth.service';
+import { runtimeConfig } from '../config/runtime-config';
+
+import { AuthStore } from '../auth/store/auth.store';
 
 export interface OverloadErrorInfo {
   plannedHours: number;
@@ -19,14 +21,29 @@ export interface AppHttpError extends Error {
 }
 
 export const httpErrorInterceptor: HttpInterceptorFn = (request, next) => {
-  const auth = inject(AuthService);
+  const auth = inject(AuthStore);
   const router = inject(Router);
 
   return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
-      // 401 en login/registro = credenciales inválidas: se muestra el mensaje, no se cierra sesión.
-      if (error.status === 401 && !auth.isPublicUrl(request.url) && auth.isAuthenticated()) {
-        auth.logout();
+      if (error.status === 401 && request.url.startsWith(`${runtimeConfig.apiUrl}/`)
+          && !auth.isPublicUrl(request.url) && auth.isAuthenticated()) {
+        const path = request.url.split(/[?#]/)[0];
+        // El store maneja el 401 de logout como sesión ya cerrada.
+        if (request.method === 'POST' && path === `${runtimeConfig.apiUrl}/auth/logout`) {
+          return throwError(() => toAppError(error));
+        }
+        const ownPasswordUpdate = request.method === 'PATCH' &&
+          (path === `${runtimeConfig.apiUrl}/auth/me` ||
+           path === `${runtimeConfig.apiUrl}/admin/users/${auth.user()?.id}`);
+        if (ownPasswordUpdate) {
+          // Un 401 por passwordActual no invalida el token: consultar /me primero.
+          return auth.me().pipe(
+            catchError(() => throwError(() => toAppError(error))),
+            switchMap(() => throwError(() => toAppError(error)))
+          );
+        }
+        auth.clearSession();
         router.navigate(['/login'], { queryParams: { expired: 1 } });
       }
 
@@ -62,8 +79,12 @@ function getErrorMessage(error: HttpErrorResponse): string {
     return 'No fue posible conectar con el servidor.';
   }
 
+  if (typeof error.error?.message === 'string' && error.error.message) {
+    return error.error.message;
+  }
+
   if (error.status === 403) {
-    return 'No tienes permisos para realizar esta acción.';
+    return 'No tienes permisos para acceder a este recurso.';
   }
 
   if (error.status === 404) {
@@ -71,7 +92,7 @@ function getErrorMessage(error: HttpErrorResponse): string {
   }
 
   if (error.status >= 500) {
-    return 'El servidor presentó un error. Intenta nuevamente.';
+    return 'Ocurrio un inconveniente. Intentalo nuevamente mas tarde.';
   }
 
   return error.error?.message ?? 'La solicitud no pudo completarse.';

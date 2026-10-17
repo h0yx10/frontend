@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, input, OnInit, Output } from '@angular/core';
+import { Component, computed, EventEmitter, input, OnInit, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { EVENT_TYPE_SUGGESTIONS, EventPayload } from '../models/event.model';
@@ -21,6 +21,8 @@ export class EventFormComponent implements OnInit {
   @Output() readonly cancel = new EventEmitter<void>();
 
   readonly typeSuggestions = EVENT_TYPE_SUGGESTIONS;
+  private readonly localErrors = signal<Record<string, string>>({});
+  readonly errors = computed(() => ({ ...this.localErrors(), ...this.fieldErrors() }));
 
   name = '';
   type = '';
@@ -40,6 +42,23 @@ export class EventFormComponent implements OnInit {
   }
 
   submit(): void {
+    const errors: Record<string, string> = {};
+
+    if (!this.name.trim()) {
+      errors['nombre'] = 'No ingresaste el nombre del evento.';
+    }
+    if (!this.type.trim()) {
+      errors['tipo'] = 'No ingresaste el tipo de evento.';
+    }
+    if (!this.datetime) {
+      errors['fechaHora'] = 'No ingresaste la fecha y hora del evento.';
+    }
+
+    this.localErrors.set(errors);
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+
     this.save.emit({
       name: this.name.trim(),
       type: this.type.trim(),

@@ -8,7 +8,7 @@
   </div>
 
   @if (items().length) {
-    <div class="space-y-3">
+    <div class="flex flex-col gap-3">
       @for (item of items(); track item.id) {
         <app-today-item
           [subtask]="item"

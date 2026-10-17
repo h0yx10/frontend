@@ -1,16 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, EventEmitter, inject, input, Output } from '@angular/core';
+import { Component, effect, EventEmitter, inject, input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { formatIsoDateHuman } from '../../../core/utils/date.util';
+import { afterEventDayWarning, eventDayIso } from '../../../core/utils/date.util';
+import { InfoDialogComponent } from '../../../shared/ui/molecules/info-dialog.component';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
+import { OverloadResolutionDialogComponent } from './overload-resolution-dialog.component';
 import { Subtask } from '../models/subtask.model';
 import { EventDetailStore } from '../store/event-detail.store';
 
 @Component({
   selector: 'app-subtask-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, InfoDialogComponent, OverloadResolutionDialogComponent],
   templateUrl: './subtask-form.component.html'
 })
 export class SubtaskFormComponent {
@@ -19,9 +21,12 @@ export class SubtaskFormComponent {
   readonly open = input(false);
   readonly editing = input<Subtask | null>(null);
 
+  readonly successInfo = signal<{ heading: string; message: string } | null>(null);
+
   @Output() readonly closed = new EventEmitter<void>();
 
   name = '';
+  description = '';
   targetDate = '';
   estimatedHours: number | null = null;
 
@@ -31,6 +36,7 @@ export class SubtaskFormComponent {
         if (this.open()) {
           const editing = this.editing();
           this.name = editing?.name ?? '';
+          this.description = editing?.description ?? '';
           this.targetDate = editing?.targetDate ?? '';
           this.estimatedHours = editing?.estimatedHours ?? null;
           this.store.subtaskFieldErrors.set({});
@@ -44,27 +50,84 @@ export class SubtaskFormComponent {
     return this.editing() ? 'Editar subtarea' : 'Agregar subtarea logística';
   }
 
-  /** Aviso, no bloqueo: el plazo después del evento suele ser un error, pero se permite guardarlo. */
+  /** Día del evento: el formulario avisa (sin bloquear) si el plazo cae después. */
+  get eventDay(): string | null {
+    return eventDayIso(this.store.event()?.datetime);
+  }
+
   get dateWarning(): string {
-    const eventDay = this.store.event()?.datetime?.slice(0, 10);
-    if (eventDay && this.targetDate && this.targetDate > eventDay) {
-      return `Este plazo es posterior al evento (${formatIsoDateHuman(eventDay)}). Si el evento se aplazó, actualiza también su fecha.`;
+    return afterEventDayWarning(this.targetDate, this.eventDay);
+  }
+
+  private validate(): boolean {
+    const errors: Record<string, string> = {};
+
+    if (!this.name.trim()) {
+      errors['name'] = 'No ingresaste el título de la subtarea.';
     }
-    return '';
+    if (this.description.length > 255) {
+      errors['description'] = 'La descripcion puede tener maximo 255 caracteres.';
+    }
+    if (!this.targetDate) {
+      errors['targetDate'] = 'No seleccionaste la fecha objetivo.';
+    }
+    if (!this.estimatedHours || this.estimatedHours <= 0) {
+      errors['estimatedHours'] = 'No ingresaste las horas estimadas.';
+    }
+
+    this.store.subtaskFieldErrors.set(errors);
+    return Object.keys(errors).length === 0;
   }
 
   submit(): void {
+    if (!this.validate()) {
+      return;
+    }
+
     const payload = {
       name: this.name.trim(),
+      description: this.description.trim(),
       targetDate: this.targetDate,
       estimatedHours: Number(this.estimatedHours)
     };
 
     const editing = this.editing();
     if (editing) {
-      this.store.updateSubtask(editing.id, payload, () => this.closed.emit());
+      this.store.updateSubtask(editing.id, payload, () => {
+        this.closed.emit();
+        this.successInfo.set({
+          heading: 'Subtarea actualizada',
+          message: 'La subtarea fue actualizada correctamente.'
+        });
+      });
     } else {
-      this.store.addSubtask(payload, () => this.closed.emit());
+      this.store.addSubtask(payload, () => {
+        this.closed.emit();
+        this.successInfo.set({
+          heading: 'Subtarea creada',
+          message: 'La subtarea fue creada correctamente.'
+        });
+      });
     }
+  }
+
+  moveToDate(date: string): void {
+    this.targetDate = date;
+    this.store.clearOverload();
+    this.submit();
+  }
+
+  reduceEstimatedHours(hours: number): void {
+    this.estimatedHours = hours;
+    this.store.clearOverload();
+    this.submit();
+  }
+
+  cancelOverload(): void {
+    this.store.clearOverload();
+  }
+
+  dismissSuccess(): void {
+    this.successInfo.set(null);
   }
 }

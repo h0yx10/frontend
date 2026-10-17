@@ -1,66 +1,24 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
-import { AuthService } from './core/auth/auth.service';
-import { CapacityStore } from './features/capacity/store/capacity.store';
+import { NavigationProgressService } from './core/layout/navigation-progress.service';
+import { SpinnerComponent } from './shared/ui/atoms/spinner.component';
 
+/** Raíz: el login es una ruta de pantalla completa y las rutas privadas viven dentro de `ShellLayoutComponent`. */
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, FormsModule],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  imports: [RouterOutlet, SpinnerComponent],
+  template: `
+    <router-outlet />
+    @if (!navigation.ready()) {
+      <!-- Primera carga: los guards consultan la sesión antes de pintar nada. -->
+      <div class="fixed inset-0 z-50 flex items-center justify-center bg-canvas">
+        <app-spinner class="text-ink" [size]="36" label="Cargando Eventia" />
+      </div>
+    }
+  `
 })
 export class AppComponent {
-  private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
-  private readonly capacity = inject(CapacityStore);
-
-  readonly isAuthenticated = computed(() => this.auth.isAuthenticated());
-  readonly user = computed(() => this.auth.user());
-  readonly roleLabel = computed(() => (this.auth.hasRole('ADMIN') ? 'Administrador' : 'Organizador'));
-  readonly dailyLimitHours = computed(() => this.capacity.dailyLimitHours());
-  readonly navOpen = signal(false);
-  searchTerm = '';
-
-  readonly navItems = [
-    { path: '/hoy', label: 'Hoy', icon: 'calendar_today' },
-    { path: '/crear', label: 'Crear evento', icon: 'add_circle' },
-    { path: '/progreso', label: 'Progreso', icon: 'bar_chart' }
-  ];
-
-  constructor() {
-    effect(
-      () => {
-        if (this.isAuthenticated()) {
-          this.capacity.ensureLoaded();
-        }
-      },
-      { allowSignalWrites: true }
-    );
-  }
-
-  get initials(): string {
-    const name = this.user()?.name ?? '';
-    return name
-      .split(' ')
-      .map((part) => part.charAt(0))
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
-
-  logout(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
-  }
-
-  runSearch(): void {
-    const term = this.searchTerm.trim();
-    if (term) {
-      this.router.navigate(['/progreso'], { queryParams: { q: term } });
-    }
-  }
+  readonly navigation = inject(NavigationProgressService);
 }

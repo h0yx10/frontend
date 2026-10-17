@@ -20,9 +20,9 @@ export class StatusBadgeComponent {
       case 'warning':
         return 'bg-warning-soft text-warning';
       case 'accent':
-        return 'bg-primary/15 text-accent';
+        return 'bg-primary-soft text-accent';
       default:
-        return 'bg-surface text-muted';
+        return 'bg-surface-raised text-muted';
     }
   });
 }

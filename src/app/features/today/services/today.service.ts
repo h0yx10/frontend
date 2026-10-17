@@ -4,7 +4,7 @@ import { forkJoin, map, Observable } from 'rxjs';
 
 import { runtimeConfig } from '../../../core/config/runtime-config';
 import { ApiResponse } from '../../../core/http/api-response.model';
-import { addDaysIso, compareIsoDates, todayIsoDate } from '../../../core/utils/date.util';
+import { addDaysIso, compareIsoDates, eventDayIso, todayIsoDate } from '../../../core/utils/date.util';
 import { CapacidadResponseDto } from '../../capacity/models/capacity.model';
 import { EventoResponseDto } from '../../events/models/event.model';
 import { SubtareaResponseDto, Subtask } from '../../events/models/subtask.model';
@@ -58,6 +58,20 @@ export class TodayService {
     );
   }
 
+  /** Resumen ligero para el shell: sólo `/events`, sin los filtros ni las estadísticas del tablero. */
+  loadWorkload(): Observable<{ plannedHours: number; overdueCount: number; todayCount: number }> {
+    return this.http.get<ApiResponse<EventoResponseDto[]>>(this.eventsUrl).pipe(
+      map((response) => {
+        const { vencidas, paraHoy } = deriveTodayResponse(response.data, { eventId: '', status: '' }, '');
+        return {
+          plannedHours: paraHoy.reduce((total, subtask) => total + subtask.estimatedHours, 0),
+          overdueCount: vencidas.length,
+          todayCount: paraHoy.length
+        };
+      })
+    );
+  }
+
   private fetchToday(filters: TodayFilters): Observable<TodayResponseDto> {
     return this.http
       .get<ApiResponse<TodayResponseDto>>(this.todayUrl, {
@@ -75,14 +89,14 @@ function deriveTodayResponse(
   const referenceDate = todayIsoDate();
   const subtasks = events
     .flatMap((event) => event.subtareas)
-    .filter((subtask) => subtask.estado !== 'DONE')
-    .filter((subtask) => !filters.eventId || subtask.eventoId === filters.eventId)
-    .filter((subtask) => !filters.status || subtask.estado === filters.status);
+    .filter((subtask) => subtask.status !== 'DONE')
+    .filter((subtask) => !filters.eventId || subtask.eventId === filters.eventId)
+    .filter((subtask) => !filters.status || subtask.status === filters.status);
 
   return {
-    vencidas: subtasks.filter((subtask) => subtask.fechaObjetivo.slice(0, 10) < referenceDate),
-    paraHoy: subtasks.filter((subtask) => subtask.fechaObjetivo.slice(0, 10) === referenceDate),
-    proximas: subtasks.filter((subtask) => subtask.fechaObjetivo.slice(0, 10) > referenceDate),
+    vencidas: subtasks.filter((subtask) => subtask.targetDate.slice(0, 10) < referenceDate),
+    paraHoy: subtasks.filter((subtask) => subtask.targetDate.slice(0, 10) === referenceDate),
+    proximas: subtasks.filter((subtask) => subtask.targetDate.slice(0, 10) > referenceDate),
     regla: rule
   };
 }
@@ -95,7 +109,7 @@ function buildBoard(
 ): TodayBoard {
   const eventNameById = new Map(events.map((event) => [event.id, event.nombre]));
   const toSubtasks = (dtos: SubtareaResponseDto[]) =>
-    dtos.map((dto) => mapSubtaskFromDto(dto, eventNameById.get(dto.eventoId) ?? ''));
+    dtos.map((dto) => mapSubtaskFromDto(dto, eventNameById.get(dto.eventId) ?? ''));
 
   const overdue = toSubtasks(filtered.vencidas);
   const today = toSubtasks(filtered.paraHoy);
@@ -121,7 +135,12 @@ function buildBoard(
     stats: buildStats(events, allOverdue, allToday, allUpcoming),
     keyTasks: [...allOverdue, ...allToday].slice(0, 3),
     eventsToday: buildEventsToday(events, [...allOverdue, ...allToday]),
-    conflictAlert: findConflictAlert([...allOverdue, ...allToday], allActive, limitHours),
+    conflictAlert: findConflictAlert(
+      [...allOverdue, ...allToday],
+      allActive,
+      limitHours,
+      new Map(events.map((event) => [event.id, eventDayIso(event.fechaHora)]))
+    ),
     rule: filtered.regla
   };
 }
@@ -173,7 +192,7 @@ function buildEventsToday(events: EventoResponseDto[], items: Subtask[]): EventT
         return null;
       }
       const total = event.subtareas.length;
-      const done = event.subtareas.filter((subtarea) => subtarea.estado === 'DONE').length;
+      const done = event.subtareas.filter((subtarea) => subtarea.status === 'DONE').length;
       return {
         eventId,
         eventName: event.nombre,
@@ -191,11 +210,17 @@ function buildEventsToday(events: EventoResponseDto[], items: Subtask[]): EventT
 function findConflictAlert(
   candidates: Subtask[],
   allActive: Subtask[],
-  limitHours: number
+  limitHours: number,
+  eventDayById: Map<string, string | null>
 ): ConflictAlert | null {
   const candidateDate = addDaysIso(todayIsoDate(), 1);
 
   for (const subtask of candidates) {
+    // Si el evento es hoy (o ya pasó), mañana no es una opción: el backend rechaza esa fecha.
+    const eventDay = eventDayById.get(subtask.eventId);
+    if (eventDay && candidateDate > eventDay) {
+      continue;
+    }
     const plannedHours =
       allActive
         .filter((s) => s.targetDate === candidateDate && s.id !== subtask.id)

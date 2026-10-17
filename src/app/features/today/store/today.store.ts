@@ -6,8 +6,9 @@ import {
   SubtaskExecutionPayload
 } from '../../events/models/subtask.model';
 import { SubtasksService } from '../../events/services/subtasks.service';
-import { TodayBoard, TodayFilters } from '../models/today.model';
+import { TodayBoard, TodayFilters, TodaySearch } from '../models/today.model';
 import { TodayService } from '../services/today.service';
+import { WorkloadStore } from './workload.store';
 
 const EMPTY_BOARD: TodayBoard = {
   overdue: [],
@@ -32,11 +33,16 @@ const EMPTY_BOARD: TodayBoard = {
 export class TodayStore {
   private readonly service = inject(TodayService);
   private readonly subtasksService = inject(SubtasksService);
+  private readonly workload = inject(WorkloadStore);
 
   readonly board = signal<TodayBoard>(EMPTY_BOARD);
   readonly loading = signal(false);
+  /** Verdadero tras la primera respuesta: las recargas posteriores no vacían el tablero. */
+  readonly loaded = signal(false);
   readonly error = signal('');
   readonly filters = signal<TodayFilters>({ eventId: '', status: '' });
+
+  readonly search = signal<TodaySearch>({ query: '', eventId: '' });
 
   load(): void {
     this.loading.set(true);
@@ -44,9 +50,21 @@ export class TodayStore {
 
     this.service
       .load(this.filters())
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(
+        finalize(() => {
+          this.loading.set(false);
+          this.loaded.set(true);
+        })
+      )
       .subscribe({
-        next: (board) => this.board.set(board),
+        next: (board) => {
+          this.board.set(board);
+          this.workload.apply({
+            plannedHours: board.capacity.plannedHours,
+            overdueCount: board.stats.overdueCount,
+            todayCount: board.stats.todayCount
+          });
+        },
         error: (error: Error) => this.error.set(error.message)
       });
   }
@@ -59,6 +77,14 @@ export class TodayStore {
   clearFilters(): void {
     this.filters.set({ eventId: '', status: '' });
     this.load();
+  }
+
+  setSearch(search: Partial<TodaySearch>): void {
+    this.search.update((current) => ({ ...current, ...search }));
+  }
+
+  clearSearch(): void {
+    this.search.set({ query: '', eventId: '' });
   }
 
   executeSubtask(id: string, payload: SubtaskExecutionPayload): void {

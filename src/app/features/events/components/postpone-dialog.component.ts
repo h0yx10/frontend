@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
-import { Subtask } from '../models/subtask.model';
+import { NOTE_MAX_LENGTH, Subtask } from '../models/subtask.model';
 import { SubtasksService } from '../services/subtasks.service';
 
 @Component({
@@ -21,15 +21,21 @@ export class PostponeDialogComponent {
   @Output() readonly closed = new EventEmitter<void>();
   @Output() readonly changed = new EventEmitter<Subtask>();
 
+  readonly noteMaxLength = NOTE_MAX_LENGTH;
   readonly saving = signal(false);
+  readonly error = signal('');
   note = '';
 
   constructor() {
-    effect(() => {
-      if (this.subtask()) {
-        this.note = '';
-      }
-    });
+    effect(
+      () => {
+        if (this.subtask()) {
+          this.note = '';
+          this.error.set('');
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   confirm(): void {
@@ -39,12 +45,16 @@ export class PostponeDialogComponent {
     }
 
     this.saving.set(true);
+    this.error.set('');
     this.subtasksService
       .execute(subtask.id, { status: 'POSTPONED', note: this.note.trim() || null })
       .pipe(finalize(() => this.saving.set(false)))
-      .subscribe((updated) => {
-        this.changed.emit(updated);
-        this.closed.emit();
+      .subscribe({
+        next: (updated) => {
+          this.changed.emit(updated);
+          this.closed.emit();
+        },
+        error: (error: Error) => this.error.set(error.message)
       });
   }
 }

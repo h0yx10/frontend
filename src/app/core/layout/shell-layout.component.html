@@ -1,0 +1,63 @@
+<div class="flex min-h-screen bg-canvas text-ink">
+  <!-- Barra lateral (escritorio) -->
+  <aside class="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-canvas lg:block">
+    <app-sidebar
+      [items]="navItems()"
+      [userName]="user()?.name ?? ''"
+      [userRole]="roleLabel()"
+      [workload]="sidebarWorkload()"
+      [alerts]="hasAlerts()"
+      [loggingOut]="loggingOut()"
+      (logout)="logout()"
+    />
+  </aside>
+
+  <div class="flex min-w-0 flex-1 flex-col">
+    <!-- Cabecera compacta (móvil y tablet) -->
+    <header class="flex items-center gap-3 border-b border-border bg-canvas px-4 py-3 lg:hidden">
+      <button
+        type="button"
+        class="flex size-10 items-center justify-center rounded-xl border border-border text-ink"
+        aria-label="Abrir menú"
+        aria-controls="mobile-nav"
+        [attr.aria-expanded]="navOpen()"
+        (click)="navOpen.set(true)"
+      >
+        <mat-icon aria-hidden="true">menu</mat-icon>
+      </button>
+      <app-brand-mark class="size-8" />
+      <span class="text-base font-bold">Eventia</span>
+    </header>
+
+    <main class="flex-1 px-4 py-6 sm:px-8 lg:px-10 lg:py-8">
+      @if (logoutError()) {
+        <div class="mx-auto mb-4 max-w-6xl rounded-xl border border-danger bg-danger-soft p-4 text-sm text-danger" role="alert">
+          <p>{{ logoutError() }}</p>
+          <button type="button" class="mt-2 font-semibold underline" [disabled]="loggingOut()" (click)="logout()">
+            Reintentar cerrar sesión
+          </button>
+        </div>
+      }
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+<!-- Drawer (móvil y tablet) -->
+@if (navOpen()) {
+  <div class="fixed inset-0 z-40 lg:hidden" id="mobile-nav">
+    <button type="button" class="absolute inset-0 bg-canvas opacity-80" aria-label="Cerrar menú" (click)="navOpen.set(false)"></button>
+    <aside class="relative h-full w-72 max-w-[85vw] border-r border-border bg-canvas shadow-modal">
+      <app-sidebar
+        [items]="navItems()"
+        [userName]="user()?.name ?? ''"
+        [userRole]="roleLabel()"
+        [workload]="sidebarWorkload()"
+        [alerts]="hasAlerts()"
+        [loggingOut]="loggingOut()"
+        (logout)="logout()"
+        (navigated)="navOpen.set(false)"
+      />
+    </aside>
+  </div>
+}

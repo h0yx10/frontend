@@ -83,13 +83,16 @@ function toEventDto(payload: Partial<EventPayload>): UpdateEventoRequestDto {
   if (payload.place !== undefined) {
     dto.lugar = payload.place;
   }
+  if (payload.deadline) {
+    dto.plazoLimite = withSeconds(`${payload.deadline}T23:59`);
+  }
   return dto;
 }
 
 export function mapEventFromDto(dto: EventoResponseDto): EventEntity {
   const subtareas = dto.subtareas ?? [];
   const total = subtareas.length;
-  const done = subtareas.filter((subtarea) => subtarea.estado === 'DONE').length;
+  const done = subtareas.filter((subtarea) => subtarea.status === 'DONE').length;
 
   return {
     id: dto.id,

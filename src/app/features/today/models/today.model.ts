@@ -1,4 +1,13 @@
+import { EventEntity } from '../../events/models/event.model';
 import { Subtask, SubtareaResponseDto } from '../../events/models/subtask.model';
+
+/** Gestiones de un mismo evento dentro de una columna del tablero. */
+export interface TodayEventGroup {
+  eventId: string;
+  eventName: string;
+  event: EventEntity | undefined;
+  subtasks: Subtask[];
+}
 
 export interface TodayCapacity {
   plannedHours: number;
@@ -43,6 +52,12 @@ export interface TodayBoard {
 export interface TodayFilters {
   eventId: string;
   status: string;
+}
+
+/** Filtros de búsqueda aplicados en cliente sobre los eventos mostrados en Hoy. */
+export interface TodaySearch {
+  query: string;
+  eventId: string;
 }
 
 // --- Contrato real del backend (events-api) — ver hoy.md ---------------------

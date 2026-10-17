@@ -17,6 +17,7 @@ export class SubtaskColumnComponent {
   readonly emptyMessage = input('Sin gestiones en este grupo.');
 
   @Output() readonly markDone = new EventEmitter<Subtask>();
+  @Output() readonly completeWithNote = new EventEmitter<Subtask>();
   @Output() readonly postpone = new EventEmitter<Subtask>();
   @Output() readonly reschedule = new EventEmitter<Subtask>();
   @Output() readonly edit = new EventEmitter<Subtask>();
