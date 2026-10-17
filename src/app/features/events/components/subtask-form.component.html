@@ -36,6 +36,8 @@
           />
           @if (store.subtaskFieldErrors()['targetDate']) {
             <p class="mt-1 text-xs text-danger">{{ store.subtaskFieldErrors()['targetDate'] }}</p>
+          } @else if (dateWarning) {
+            <p class="mt-1 text-xs text-warning" role="status">{{ dateWarning }}</p>
           }
         </div>
 

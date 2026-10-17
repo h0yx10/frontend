@@ -31,6 +31,9 @@ export interface SubtaskExecutionPayload {
   note?: string | null;
 }
 
+/** Límite que valida el backend para la nota de ejecución o aplazamiento. */
+export const NOTE_MAX_LENGTH = 1000;
+
 export const DEFAULT_LOGISTIC_SUBTASKS: Array<Pick<SubtaskPayload, 'name' | 'estimatedHours'>> = [
   { name: 'Reservar salón', estimatedHours: 2 },
   { name: 'Enviar invitaciones', estimatedHours: 1.5 },

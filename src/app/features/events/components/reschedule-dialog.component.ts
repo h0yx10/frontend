@@ -31,6 +31,8 @@ export class RescheduleDialogComponent {
   private readonly subtasksService = inject(SubtasksService);
 
   readonly subtask = input<Subtask | null>(null);
+  /** Día del evento (YYYY-MM-DD): una fecha posterior se permite, pero se advierte. */
+  readonly maxDate = input<string | null>(null);
 
   @Output() readonly closed = new EventEmitter<void>();
   @Output() readonly changed = new EventEmitter<Subtask>();
@@ -65,6 +67,20 @@ export class RescheduleDialogComponent {
     this.suggestions.set([]);
     this.showReduceForm.set(false);
     this.error.set('');
+  }
+
+  isAfterEvent(date: string): boolean {
+    const maxDate = this.maxDate();
+    return !!maxDate && !!date && date > maxDate;
+  }
+
+  /** Aviso, no bloqueo: si el evento se aplazó, la gestión puede necesitar esa fecha. */
+  get dateWarning(): string {
+    const maxDate = this.maxDate();
+    if (maxDate && this.isAfterEvent(this.targetDate)) {
+      return `Esta fecha es posterior al evento (${formatIsoDateHuman(maxDate)}). Si el evento se aplazó, actualiza también su fecha.`;
+    }
+    return '';
   }
 
   onDateChange(): void {
@@ -116,10 +132,11 @@ export class RescheduleDialogComponent {
           estimatedHours: subtask.estimatedHours
         })
       )
-    ).subscribe((results) => {
-      this.suggestions.set(
-        candidateDates.map((date, index) => ({ date, result: results[index] }))
-      );
+    ).subscribe({
+      next: (results) =>
+        this.suggestions.set(candidateDates.map((date, index) => ({ date, result: results[index] }))),
+      // Las sugerencias son una ayuda: si fallan, el resto de opciones del diálogo sigue disponible.
+      error: () => this.suggestions.set([])
     });
   }
 

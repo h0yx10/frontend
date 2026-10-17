@@ -56,6 +56,11 @@ export class TodayPageComponent {
     ...this.eventsWithoutPendingSubtasks()
   ]);
   readonly upcomingEvents = computed(() => this.groupByEvent(this.store.board().upcoming));
+  readonly rescheduleMaxDate = computed(() => {
+    const eventId = this.rescheduleTarget()?.eventId;
+    const event = this.eventOptions().find((option) => option.id === eventId);
+    return event?.datetime.slice(0, 10) ?? null;
+  });
 
   constructor() {
     this.store.load();

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, EventEmitter, inject, input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { formatIsoDateHuman } from '../../../core/utils/date.util';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
 import { Subtask } from '../models/subtask.model';
 import { EventDetailStore } from '../store/event-detail.store';
@@ -41,6 +42,15 @@ export class SubtaskFormComponent {
 
   get heading(): string {
     return this.editing() ? 'Editar subtarea' : 'Agregar subtarea logística';
+  }
+
+  /** Aviso, no bloqueo: el plazo después del evento suele ser un error, pero se permite guardarlo. */
+  get dateWarning(): string {
+    const eventDay = this.store.event()?.datetime?.slice(0, 10);
+    if (eventDay && this.targetDate && this.targetDate > eventDay) {
+      return `Este plazo es posterior al evento (${formatIsoDateHuman(eventDay)}). Si el evento se aplazó, actualiza también su fecha.`;
+    }
+    return '';
   }
 
   submit(): void {

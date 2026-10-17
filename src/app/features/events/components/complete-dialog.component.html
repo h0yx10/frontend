@@ -1,0 +1,48 @@
+@if (subtask(); as subtask) {
+  <app-modal titleId="complete-dialog-title" heading="Registrar gestión hecha" size="sm" (closed)="closed.emit()">
+    <p class="text-sm text-muted">
+      «{{ subtask.name }}» quedará marcada como hecha. Puedes anotar cómo se resolvió.
+    </p>
+
+    @if (subtask.status === 'POSTPONED' && subtask.postponeNote) {
+      <p class="mt-3 break-words text-xs italic text-warning">Motivo del aplazamiento: {{ subtask.postponeNote }}</p>
+    }
+
+    <div class="mt-4">
+      <label for="complete-note" class="mb-2 block text-sm font-medium text-ink">
+        Nota (opcional)
+      </label>
+      <textarea
+        id="complete-note"
+        rows="3"
+        placeholder="Ej. Proveedor confirmó por correo"
+        [maxlength]="noteMaxLength"
+        [(ngModel)]="note"
+        class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+      ></textarea>
+      <p class="mt-1 text-right text-xs text-muted tabular-nums">{{ note.length }}/{{ noteMaxLength }}</p>
+    </div>
+
+    @if (error()) {
+      <p class="mt-3 text-sm text-danger" role="alert">{{ error() }}</p>
+    }
+
+    <div class="mt-6 flex justify-end gap-3">
+      <button
+        type="button"
+        class="rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface"
+        (click)="closed.emit()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="rounded-full bg-success px-4 py-2 text-sm font-semibold text-canvas transition hover:opacity-90 disabled:opacity-60"
+        [disabled]="saving()"
+        (click)="confirm()"
+      >
+        {{ saving() ? 'Guardando…' : 'Marcar hecha' }}
+      </button>
+    </div>
+  </app-modal>
+}

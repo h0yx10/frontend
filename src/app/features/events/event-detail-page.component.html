@@ -195,6 +195,7 @@
 
 <app-reschedule-dialog
   [subtask]="rescheduleTarget()"
+  [maxDate]="store.event()?.datetime?.slice(0, 10) ?? null"
   (closed)="rescheduleTarget.set(null)"
   (changed)="store.applySubtaskUpdate($event)"
 />

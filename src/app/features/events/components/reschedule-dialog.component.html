@@ -14,7 +14,11 @@
         [(ngModel)]="targetDate"
         (ngModelChange)="onDateChange()"
         class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
+        [class.border-warning]="!!dateWarning"
       />
+      @if (dateWarning) {
+        <p class="mt-1.5 text-sm text-warning" role="status">{{ dateWarning }}</p>
+      }
     </div>
 
     @if (error()) {
@@ -63,6 +67,9 @@
                 >
                   {{ formatIsoDateHuman(suggestion.date) }}
                   ({{ suggestion.result.plannedHours }}h)
+                  @if (isAfterEvent(suggestion.date)) {
+                    · después del evento
+                  }
                 </button>
               }
             </div>
