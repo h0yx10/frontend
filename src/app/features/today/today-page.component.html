@@ -120,6 +120,7 @@
               [group]="group"
               bucket="OVERDUE"
               (markDone)="markDone($event)"
+              (postpone)="postponeTarget.set($event)"
               (reschedule)="rescheduleTarget.set($event)"
             />
           }
@@ -167,6 +168,7 @@
               [group]="group"
               bucket="UPCOMING"
               (markDone)="markDone($event)"
+              (postpone)="postponeTarget.set($event)"
               (reschedule)="rescheduleTarget.set($event)"
             />
           }
