@@ -84,12 +84,31 @@
       </div>
     </form>
 
-    @if (store.board().rule) {
-      <p class="real mt-3 flex items-center gap-2 text-sm text-muted" style="animation-delay: 280ms">
-        <mat-icon class="text-[16px]" aria-hidden="true">info_outline</mat-icon>
-        {{ store.board().rule }}
-      </p>
-    }
+    <div class="real mt-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-8" style="animation-delay: 280ms">
+      <!-- Horas con plazo hoy frente al límite diario: así se entiende cuánto margen queda antes de planear más. -->
+      <section class="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5 text-sm sm:flex-nowrap sm:whitespace-nowrap" aria-labelledby="day-load-title">
+        <h2 id="day-load-title" class="flex items-center gap-1.5 text-muted">
+          <mat-icon class="text-[16px]" aria-hidden="true">schedule</mat-icon>
+          Planificado para hoy
+        </h2>
+        <div class="w-32">
+          <app-progress-bar
+            size="sm"
+            [percentage]="store.board().capacity.percentage"
+            [tone]="dayLoad().overloaded ? 'danger' : 'success'"
+            [ariaValueText]="dayLoad().text"
+          />
+        </div>
+        <p class="tabular-nums" [class]="dayLoad().overloaded ? 'text-danger' : 'text-ink'">{{ dayLoad().text }}</p>
+      </section>
+
+      @if (store.board().rule) {
+        <p class="flex min-w-0 items-center gap-2 text-sm text-muted">
+          <mat-icon class="text-[16px]" aria-hidden="true">info_outline</mat-icon>
+          {{ store.board().rule }}
+        </p>
+      }
+    </div>
 
     @if (hasSearch() && isEmpty) {
       <app-empty-state
@@ -211,22 +230,6 @@
                 }
               </ul>
             }
-          </section>
-
-          <section class="surface-card p-4" aria-labelledby="day-load-title">
-            <div class="flex items-center justify-between gap-2">
-              <h2 id="day-load-title" class="text-[15px] font-semibold text-ink">Carga del día</h2>
-              <p class="text-sm text-muted tabular-nums">
-                {{ store.board().capacity.plannedHours | number: '1.0-1' }} h de {{ store.board().capacity.limitHours | number: '1.0-1' }} h
-              </p>
-            </div>
-            <div class="mt-3">
-              <app-progress-bar
-                [percentage]="store.board().capacity.percentage"
-                size="sm"
-                [tone]="store.board().capacity.percentage > 100 ? 'danger' : 'success'"
-              />
-            </div>
           </section>
         </div>
       </div>

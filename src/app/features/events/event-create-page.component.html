@@ -61,7 +61,7 @@
         </div>
         <div class="w-40">
           <label for="draft-date" class="mb-1.5 block text-[13px] font-semibold">Plazo</label>
-          <input id="draft-date" type="date" formControlName="targetDate" class="input-control" (keydown.enter)="$event.preventDefault(); addRow()" />
+          <input id="draft-date" type="date" formControlName="targetDate" [min]="subtaskBounds().min" [max]="subtaskBounds().max || null" class="input-control" (keydown.enter)="$event.preventDefault(); addRow()" />
         </div>
         <div class="w-24">
           <label for="draft-hours" class="mb-1.5 block text-[13px] font-semibold">Horas</label>

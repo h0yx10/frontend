@@ -5,7 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { InfoDialogComponent } from '../../../shared/ui/molecules/info-dialog.component';
 import { ModalComponent } from '../../../shared/ui/molecules/modal.component';
 import { Subtask } from '../models/subtask.model';
+import { todayIsoDate } from '../../../core/utils/date.util';
 import { EventDetailStore } from '../store/event-detail.store';
+import { subtaskDateBounds, validateSubtaskDate } from '../utils/subtask-date';
 
 @Component({
   selector: 'app-subtask-form',
@@ -47,6 +49,19 @@ export class SubtaskFormComponent {
     );
   }
 
+  /** Plazo permitido: desde hoy y la fecha de inicio del evento hasta su fecha límite. */
+  bounds() {
+    const event = this.store.event();
+    return subtaskDateBounds(todayIsoDate(), event?.datetime, event?.deadline);
+  }
+
+  /** Mínimo del selector: al editar se puede conservar el plazo que ya tenía aunque haya quedado atrás. */
+  minDate(): string {
+    const original = this.editing()?.targetDate ?? '';
+    const min = this.bounds().min;
+    return original && original < min ? original : min;
+  }
+
   get heading(): string {
     return this.editing() ? 'Editar subtarea' : 'Agregar subtarea logística';
   }
@@ -62,6 +77,11 @@ export class SubtaskFormComponent {
     }
     if (!this.targetDate) {
       errors['targetDate'] = 'No seleccionaste la fecha objetivo.';
+    } else if (this.targetDate !== this.editing()?.targetDate) {
+      const dateError = validateSubtaskDate(this.targetDate, this.bounds());
+      if (dateError) {
+        errors['targetDate'] = dateError;
+      }
     }
     if (!this.estimatedHours || this.estimatedHours <= 0) {
       errors['estimatedHours'] = 'No ingresaste las horas estimadas.';

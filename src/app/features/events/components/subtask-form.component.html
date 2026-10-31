@@ -51,6 +51,8 @@
             name="targetDate"
             type="date"
             required
+            [min]="minDate()"
+            [max]="bounds().max || null"
             [(ngModel)]="targetDate"
             class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
             [class.border-danger]="store.subtaskFieldErrors()['targetDate']"
