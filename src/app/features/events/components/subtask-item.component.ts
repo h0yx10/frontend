@@ -4,12 +4,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { classifyByDate, formatDateOnlyShort, formatIsoDateShort } from '../../../core/utils/date.util';
 import { CheckButtonComponent } from '../../../shared/ui/atoms/check-button.component';
 import { BadgeTone, StatusBadgeComponent } from '../../../shared/ui/atoms/status-badge.component';
+import { TooltipDirective } from '../../../shared/ui/atoms/tooltip.directive';
 import { Subtask } from '../models/subtask.model';
 
 @Component({
   selector: 'app-subtask-item',
   standalone: true,
-  imports: [MatIconModule, CheckButtonComponent, StatusBadgeComponent],
+  imports: [MatIconModule, CheckButtonComponent, StatusBadgeComponent, TooltipDirective],
   templateUrl: './subtask-item.component.html',
   styles: `:host { display: block; min-width: 0; }`
 })
@@ -17,12 +18,20 @@ export class SubtaskItemComponent {
   readonly subtask = input.required<Subtask>();
 
   @Output() readonly markDone = new EventEmitter<Subtask>();
+  /** Desmarca una subtarea hecha: vuelve a pendiente. */
+  @Output() readonly reopen = new EventEmitter<Subtask>();
   @Output() readonly postpone = new EventEmitter<Subtask>();
   @Output() readonly reschedule = new EventEmitter<Subtask>();
   @Output() readonly edit = new EventEmitter<Subtask>();
   @Output() readonly remove = new EventEmitter<Subtask>();
 
   readonly formatIsoDateShort = formatIsoDateShort;
+
+  /** El checkbox marca como hecha una pendiente o pospuesta, y desmarca una hecha. */
+  toggleDone(): void {
+    const subtask = this.subtask();
+    (subtask.status === 'DONE' ? this.reopen : this.markDone).emit(subtask);
+  }
 
   readonly borderClass = computed(() => {
     switch (this.subtask().status) {

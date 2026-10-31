@@ -58,17 +58,17 @@ describe('EventCreatePageComponent', () => {
     expect(component.fieldErrors()['fechaHora']).toContain('anterior a hoy');
   });
 
-  it('acepta hoy como fecha del evento', () => {
+  it('acepta hoy como fecha de inicio', () => {
     component.form.patchValue({date:component.today});
     component.submit();
     expect(service.create).toHaveBeenCalled();
   });
 
-  it('la fecha límite no puede ser anterior a la fecha del evento, pero sí el mismo día', () => {
+  it('la fecha límite no puede ser anterior a la fecha de inicio, pero sí el mismo día', () => {
     component.form.patchValue({deadline:'2029-12-31'});
     component.submit();
     expect(service.create).not.toHaveBeenCalled();
-    expect(component.fieldErrors()['plazoLimite']).toContain('anterior a la fecha del evento');
+    expect(component.fieldErrors()['plazoLimite']).toContain('anterior a la fecha de inicio');
     component.form.patchValue({deadline:'2030-01-01'});
     component.submit();
     expect(service.create).toHaveBeenCalled();

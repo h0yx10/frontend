@@ -102,6 +102,7 @@ export function mapEventFromDto(dto: EventoResponseDto): EventEntity {
     contact: [dto.cliente, dto.contactoCliente].filter((part) => !!part?.trim()).join(' · '),
     datetime: withoutSeconds(dto.fechaHora),
     place: dto.lugar ?? '',
+    deadline: dto.plazoLimite ? dto.plazoLimite.slice(0, 10) : undefined,
     progress: { done, total, percentage: total === 0 ? 0 : Math.round((done / total) * 100) }
   };
 }

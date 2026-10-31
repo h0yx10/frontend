@@ -1,11 +1,13 @@
 import { Component, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
+import { TooltipDirective } from './tooltip.directive';
+
 /** Casilla de verificación en forma de botón: marca una gestión como hecha con un clic. */
 @Component({
   selector: 'app-check-button',
   standalone: true,
-  imports: [MatIconModule],
+  imports: [MatIconModule, TooltipDirective],
   template: `
     <button
       type="button"
@@ -14,7 +16,8 @@ import { MatIconModule } from '@angular/material/icon';
       [class]="checked() ? 'bg-success-soft' : 'bg-canvas'"
       [attr.aria-checked]="checked()"
       [attr.aria-label]="label()"
-      [attr.title]="label()"
+      [appTooltip]="tooltip()"
+      [appTooltipDisabled]="!tooltip()"
       (click)="toggled.emit()"
     >
       @if (checked()) {
@@ -27,5 +30,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class CheckButtonComponent {
   readonly checked = input(false);
   readonly label = input.required<string>();
+  /** Texto corto de la etiqueta flotante; vacío para no mostrarla. */
+  readonly tooltip = input('');
   readonly toggled = output<void>();
 }

@@ -124,6 +124,7 @@
                 heading="Pospuesta"
                 status="POSTPONED"
                 [items]="postponedSubtasks()"
+                (markDone)="markDone($event)"
                 (postpone)="postponeTarget.set($event)"
                 (reschedule)="rescheduleTarget.set($event)"
                 (edit)="openEditSubtask($event)"
@@ -133,6 +134,7 @@
                 heading="Hecha"
                 status="DONE"
                 [items]="doneSubtasks()"
+                (reopen)="reopen($event)"
                 (edit)="openEditSubtask($event)"
                 (remove)="deleteSubtaskTarget.set($event)"
               />

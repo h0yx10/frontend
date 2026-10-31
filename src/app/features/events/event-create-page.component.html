@@ -10,83 +10,8 @@
 
   <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">Detalles del evento</h2>
-    <section class="surface-card flex flex-col gap-5 p-6">
-      <app-form-field inputId="event-name" label="Nombre del evento *" [error]="fieldErrors()['nombre']">
-        <input
-          id="event-name"
-          type="text"
-          formControlName="name"
-          autocomplete="off"
-          placeholder="Ej. Boda Camila & Andrés"
-          class="input-control"
-          [attr.aria-invalid]="fieldErrors()['nombre'] ? 'true' : null"
-          [attr.aria-describedby]="fieldErrors()['nombre'] ? 'event-name-error' : null"
-        />
-      </app-form-field>
-
-      <div>
-        <p id="event-type-label" class="mb-2 text-[13px] font-semibold">Tipo de evento *</p>
-        <div class="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="event-type-label">
-          @for (option of typeOptions; track option) {
-            <button
-              type="button"
-              role="radio"
-              class="h-11 rounded-full border px-5 text-sm font-medium transition"
-              [class]="form.controls.type.value === option ? 'border-primary bg-primary text-white' : 'border-border-strong text-ink hover:bg-surface-raised'"
-              [attr.aria-checked]="form.controls.type.value === option"
-              (click)="selectType(option)"
-            >{{ option }}</button>
-          }
-        </div>
-        @if (fieldErrors()['tipo']) {
-          <p class="mt-2 text-[13px] text-danger" role="alert">{{ fieldErrors()['tipo'] }}</p>
-        }
-      </div>
-
-      <div class="grid gap-5 sm:grid-cols-2">
-        <app-form-field inputId="event-date" label="Fecha *" [error]="fieldErrors()['fechaHora']">
-          <input
-            id="event-date"
-            type="date"
-            formControlName="date"
-            [min]="today"
-            class="input-control"
-            [attr.aria-invalid]="fieldErrors()['fechaHora'] ? 'true' : null"
-            [attr.aria-describedby]="fieldErrors()['fechaHora'] ? 'event-date-error' : null"
-          />
-        </app-form-field>
-        <app-form-field inputId="event-time" label="Hora *" [error]="fieldErrors()['hora']">
-          <input
-            id="event-time"
-            type="time"
-            formControlName="time"
-            class="input-control"
-            [attr.aria-invalid]="fieldErrors()['hora'] ? 'true' : null"
-            [attr.aria-describedby]="fieldErrors()['hora'] ? 'event-time-error' : null"
-          />
-        </app-form-field>
-      </div>
-
-      <app-form-field inputId="event-place" label="Lugar">
-        <input id="event-place" type="text" formControlName="place" autocomplete="off" placeholder="Ej. Salón Los Almendros" class="input-control" />
-      </app-form-field>
-
-      <div class="grid gap-5 sm:grid-cols-2">
-        <app-form-field inputId="event-contact" label="Cliente o contacto">
-          <input id="event-contact" type="text" formControlName="contact" autocomplete="off" placeholder="Nombre, teléfono o correo" class="input-control" />
-        </app-form-field>
-        <app-form-field inputId="event-deadline" label="Fecha límite" [error]="fieldErrors()['plazoLimite']">
-          <input
-            id="event-deadline"
-            type="date"
-            formControlName="deadline"
-            [min]="deadlineMin()"
-            class="input-control"
-            [attr.aria-invalid]="fieldErrors()['plazoLimite'] ? 'true' : null"
-            [attr.aria-describedby]="fieldErrors()['plazoLimite'] ? 'event-deadline-error' : null"
-          />
-        </app-form-field>
-      </div>
+    <section class="surface-card p-6">
+      <app-event-details-fields [errors]="fieldErrors()" [minDate]="today" />
     </section>
 
     <div class="mb-3 mt-8 flex items-baseline justify-between gap-3">

@@ -4,6 +4,7 @@
       class="mt-0.5"
       [checked]="subtask().status === 'DONE'"
       [label]="'Marcar hecha: ' + subtask().name"
+      tooltip="Marcar como hecha"
       (toggled)="markDone.emit(subtask())"
     />
     <div class="min-w-0 flex-1">
@@ -24,7 +25,7 @@
       <button
         type="button"
         aria-label="Posponer gestión"
-        title="Posponer"
+        appTooltip="Posponer"
         class="flex size-9 items-center justify-center rounded-lg border border-border text-muted transition hover:bg-surface-raised hover:text-ink"
         (click)="postpone.emit(subtask())"
       >
@@ -34,7 +35,7 @@
     <button
       type="button"
       aria-label="Reprogramar gestión"
-      title="Reprogramar"
+      appTooltip="Reprogramar"
       class="flex size-9 items-center justify-center rounded-lg border border-border text-muted transition hover:bg-surface-raised hover:text-ink"
       (click)="reschedule.emit(subtask())"
     >

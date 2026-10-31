@@ -181,7 +181,7 @@
               <ul class="mt-3 flex flex-col gap-2">
                 @for (task of store.board().keyTasks; track task.id) {
                   <li class="flex items-center gap-3 rounded-xl bg-surface-raised px-3 py-2.5">
-                    <app-check-button [label]="'Marcar hecha: ' + task.name" (toggled)="markDone(task)" />
+                    <app-check-button [label]="'Marcar hecha: ' + task.name" tooltip="Marcar como hecha" (toggled)="markDone(task)" />
                     <span class="min-w-0 flex-1 truncate text-sm text-ink">{{ task.name }}</span>
                     <span class="shrink-0 text-xs text-muted tabular-nums">{{ task.estimatedHours }} h</span>
                   </li>

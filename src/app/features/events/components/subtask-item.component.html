@@ -3,8 +3,9 @@
     <app-check-button
       class="mt-0.5 shrink-0"
       [checked]="subtask().status === 'DONE'"
-      [label]="subtask().status === 'DONE' ? subtask().name + ' (hecha)' : 'Marcar hecha: ' + subtask().name"
-      (toggled)="subtask().status === 'PENDING' && markDone.emit(subtask())"
+      [label]="subtask().status === 'DONE' ? 'Desmarcar ' + subtask().name + ' (volver a pendiente)' : 'Marcar hecha: ' + subtask().name"
+      [tooltip]="subtask().status === 'DONE' ? 'Desmarcar' : 'Marcar como hecha'"
+      (toggled)="toggleDone()"
     />
 
     <div class="min-w-0 flex-1">
@@ -33,7 +34,7 @@
       type="button"
       class="flex size-8 items-center justify-center rounded-lg text-muted transition hover:bg-surface-raised hover:text-ink"
       [attr.aria-label]="'Editar ' + subtask().name"
-      title="Editar"
+      appTooltip="Editar"
       (click)="edit.emit(subtask())"
     >
       <mat-icon class="text-[17px]" aria-hidden="true">edit</mat-icon>
@@ -42,7 +43,7 @@
       type="button"
       class="flex size-8 items-center justify-center rounded-lg text-muted transition hover:bg-danger-soft hover:text-danger"
       [attr.aria-label]="'Eliminar ' + subtask().name"
-      title="Eliminar"
+      appTooltip="Eliminar"
       (click)="remove.emit(subtask())"
     >
       <mat-icon class="text-[17px]" aria-hidden="true">delete_outline</mat-icon>
@@ -55,7 +56,7 @@
           type="button"
           class="flex size-8 items-center justify-center rounded-lg border border-border text-muted transition hover:bg-surface-raised hover:text-ink"
           [attr.aria-label]="'Posponer ' + subtask().name"
-          title="Posponer"
+          appTooltip="Posponer"
           (click)="postpone.emit(subtask())"
         >
           <mat-icon class="text-[17px]" aria-hidden="true">schedule</mat-icon>
@@ -65,7 +66,7 @@
         type="button"
         class="flex size-8 items-center justify-center rounded-lg bg-primary-soft text-accent transition hover:text-ink"
         [attr.aria-label]="'Reprogramar ' + subtask().name"
-        title="Reprogramar"
+        appTooltip="Reprogramar"
         (click)="reschedule.emit(subtask())"
       >
         <mat-icon class="text-[17px]" aria-hidden="true">calendar_today</mat-icon>
