@@ -85,6 +85,15 @@ export class ShellLayoutComponent {
       });
   }
 
+  /**
+   * "Saltar al contenido": mueve el foco al <main> sin navegar. Con <base href="/">, seguir el
+   * href "#contenido" llevaría a la raíz de la app en vez de quedarse en la página actual.
+   */
+  skipToContent(event: Event): void {
+    event.preventDefault();
+    document.getElementById('contenido')?.focus();
+  }
+
   logout(): void {
     if (this.loggingOut()) return;
     this.loggingOut.set(true);

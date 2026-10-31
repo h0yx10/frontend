@@ -51,7 +51,7 @@
                   class="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-canvas"
                   (click)="editingEvent.set(true)"
                 >
-                  <mat-icon class="text-[16px]">edit</mat-icon>
+                  <mat-icon class="text-[16px]" aria-hidden="true">edit</mat-icon>
                   Editar
                 </button>
                 <button
@@ -59,7 +59,7 @@
                   class="inline-flex items-center gap-1.5 rounded-lg border border-danger/40 px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger-soft"
                   (click)="deleteEventConfirm.set(true)"
                 >
-                  <mat-icon class="text-[16px]">delete_outline</mat-icon>
+                  <mat-icon class="text-[16px]" aria-hidden="true">delete_outline</mat-icon>
                   Eliminar
                 </button>
               </div>
@@ -87,7 +87,7 @@
               class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border px-3.5 py-2 text-sm font-semibold text-ink transition hover:bg-surface-raised"
               (click)="openAddSubtask()"
             >
-              <mat-icon class="text-[18px]">add</mat-icon>
+              <mat-icon class="text-[18px]" aria-hidden="true">add</mat-icon>
               Agregar subtarea
             </button>
           </div>
