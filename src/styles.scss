@@ -94,6 +94,29 @@ $app-theme: mat.define-dark-theme(
 }
 
 // Compatibilidad entre Angular Material MDC y Tailwind Preflight.
+// Contorno visible de los campos (WCAG 1.4.11, 3:1). Especificidad (0,1,1): supera a las utilidades
+// de borde (`border-border`, 0,1,0) y pierde ante el error y el foco de abajo y ante `.field-input:focus`
+// del login (0,2,0). `:where()` evita que los tipos excluidos sumen especificidad.
+input:where(:not([type='checkbox'], [type='radio'], [type='range'])):not(.field-plain),
+textarea:not(.field-plain),
+select:not(.field-plain) {
+  border-color: var(--color-field-border);
+}
+
+input[aria-invalid='true'],
+textarea[aria-invalid='true'],
+select[aria-invalid='true'],
+input.border-danger,
+textarea.border-danger {
+  border-color: var(--color-danger);
+}
+
+input.input-control:focus,
+textarea.input-control:focus,
+select.input-control:focus {
+  border-color: var(--color-accent);
+}
+
 // Estas reglas deben permanecer fuera de @layer para que Tailwind no las purgue.
 .mat-mdc-form-field .mdc-notched-outline__notch {
   border-right: 0 !important;

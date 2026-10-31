@@ -1,4 +1,5 @@
-$color-primary: #6366f1;
+// Texto blanco sobre el primario: 4.69:1 (WCAG 1.4.3 AA). Con #6366f1 era 4.47:1.
+$color-primary: #5f62ef;
 $color-primary-dark: #4f46e5;
 $color-primary-soft: #1b1d3f;
 $color-accent: #818cf8;
@@ -9,6 +10,9 @@ $color-ink: #f4f5f9;
 $color-muted: #8992a9;
 $color-border: #1f2333;
 $color-border-strong: #2a3045;
+// Contorno de campos de formulario: >= 3:1 sobre canvas, surface y surface-raised (WCAG 1.4.11).
+// Los bordes de tarjetas y separadores siguen con $color-border: son decorativos.
+$color-field-border: #5d6580;
 $color-skeleton: #1e1e2e;
 $color-danger: #f87171;
 $color-danger-soft: #2a1519;
@@ -33,6 +37,7 @@ $color-glow-soft: #8875d8;
   --color-muted: #{$color-muted};
   --color-border: #{$color-border};
   --color-border-strong: #{$color-border-strong};
+  --color-field-border: #{$color-field-border};
   --color-skeleton: #{$color-skeleton};
   --color-danger: #{$color-danger};
   --color-danger-soft: #{$color-danger-soft};
