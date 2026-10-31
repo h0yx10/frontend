@@ -45,7 +45,7 @@ describe('EventCreatePageComponent', () => {
     ]);
   });
 
-  it('envía fecha y hora unidas y el plazo de confirmación', () => {
+  it('envía fecha y hora unidas y la fecha límite', () => {
     component.form.patchValue({deadline:'2029-12-20'});
     component.submit();
     expect(service.create).toHaveBeenCalledWith(jasmine.objectContaining({datetime:'2030-01-01T10:00',deadline:'2029-12-20'}),[]);
@@ -58,7 +58,7 @@ describe('EventCreatePageComponent', () => {
     expect(component.fieldErrors()['hora']).toBeTruthy();
   });
 
-  it('agrega gestiones validadas al plan y las puede quitar', () => {
+  it('agrega subtareas validadas y las puede quitar', () => {
     const draft = component.form.controls.draft;
     draft.patchValue({name:'  ',targetDate:'2030-01-01',hours:1});
     expect(component.addRow()).toBeFalse();
@@ -74,7 +74,7 @@ describe('EventCreatePageComponent', () => {
     expect(component.rows).toEqual([]);
   });
 
-  it('una gestión a medio redactar se agrega al guardar o detiene el envío con su error', () => {
+  it('una subtarea a medio redactar se agrega al guardar o detiene el envío con su error', () => {
     const draft = component.form.controls.draft;
     draft.patchValue({name:'Música',targetDate:'',hours:1});
     component.submit();

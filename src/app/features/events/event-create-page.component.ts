@@ -46,7 +46,7 @@ export class EventCreatePageComponent {
     place: '',
     contact: '',
     deadline: '',
-    /** Gestión que se está redactando; pasa a `rows` con "Agregar". */
+    /** Subtarea que se está redactando; pasa a `rows` con "Agregar". */
     draft: this.formBuilder.nonNullable.group({ name: '', targetDate: '', hours: 1 as number | null })
   });
 
@@ -65,16 +65,16 @@ export class EventCreatePageComponent {
     this.form.controls.type.setValue(type);
   }
 
-  /** Mueve la gestión redactada a la lista; devuelve si se pudo agregar. */
+  /** Mueve la subtarea redactada a la lista; devuelve si se pudo agregar. */
   addRow(): boolean {
     const { name, targetDate, hours } = this.form.controls.draft.getRawValue();
     const trimmed = name.trim();
     if (!trimmed) {
-      this.draftError.set('Escribe el nombre de la gestión.');
+      this.draftError.set('Escribe el nombre de la subtarea.');
       return false;
     }
     if (!targetDate) {
-      this.draftError.set('Falta el plazo de la gestión.');
+      this.draftError.set('Falta el plazo de la subtarea.');
       return false;
     }
     if (!hours || hours <= 0) {
@@ -119,7 +119,7 @@ export class EventCreatePageComponent {
       return;
     }
 
-    // Una gestión a medio redactar no se pierde en silencio: se agrega o se avisa qué le falta.
+    // Una subtarea a medio redactar no se pierde en silencio: se agrega o se avisa qué le falta.
     if (draft.name.trim() && !this.addRow()) {
       return;
     }

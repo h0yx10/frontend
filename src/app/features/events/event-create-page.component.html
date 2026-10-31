@@ -5,7 +5,7 @@
   </a>
   <app-page-header
     title="Nuevo evento"
-    subtitle="Registra los datos del evento y, si quieres, su plan inicial de gestiones. Los campos con * son obligatorios."
+    subtitle="Registra los datos del evento y, si quieres, sus subtareas. Los campos con * son obligatorios."
   />
 
   <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -74,7 +74,7 @@
         <app-form-field inputId="event-contact" label="Cliente o contacto">
           <input id="event-contact" type="text" formControlName="contact" autocomplete="off" placeholder="Nombre, teléfono o correo" class="input-control" />
         </app-form-field>
-        <app-form-field inputId="event-deadline" label="Confirmar antes del">
+        <app-form-field inputId="event-deadline" label="Fecha límite">
           <input id="event-deadline" type="date" formControlName="deadline" class="input-control" />
         </app-form-field>
       </div>
@@ -82,11 +82,11 @@
 
     <div class="mb-3 mt-8 flex items-baseline justify-between gap-3">
       <h2 class="text-xs font-semibold uppercase tracking-wider text-muted">
-        Plan de gestiones <span class="font-normal normal-case tracking-normal">· opcional</span>
+        Subtareas <span class="font-normal normal-case tracking-normal">· opcional</span>
       </h2>
       @if (rows.length > 0) {
         <p class="text-xs text-muted tabular-nums" aria-live="polite">
-          {{ rows.length }} {{ rows.length === 1 ? 'gestión' : 'gestiones' }} · {{ totalHours() | number: '1.0-1' }} h
+          {{ rows.length }} {{ rows.length === 1 ? 'subtarea' : 'subtareas' }} · {{ totalHours() | number: '1.0-1' }} h
         </p>
       }
     </div>
@@ -102,7 +102,7 @@
               <button
                 type="button"
                 class="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-surface-raised hover:text-ink"
-                [attr.aria-label]="'Quitar gestión ' + row.name"
+                [attr.aria-label]="'Quitar subtarea ' + row.name"
                 (click)="removeRow($index)"
               >
                 <mat-icon class="text-[18px]" aria-hidden="true">close</mat-icon>
@@ -114,7 +114,7 @@
 
       <div formGroupName="draft" class="flex flex-wrap items-end gap-3 p-4">
         <div class="min-w-48 flex-1">
-          <label for="draft-name" class="mb-1.5 block text-[13px] font-semibold">Gestión</label>
+          <label for="draft-name" class="mb-1.5 block text-[13px] font-semibold">Subtarea</label>
           <input
             id="draft-name"
             type="text"
