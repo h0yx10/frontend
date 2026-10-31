@@ -104,6 +104,28 @@ describe('EventCreatePageComponent', () => {
     expect(service.create).toHaveBeenCalled();
   });
 
+  it('el tipo de evento se cambia con las flechas, Inicio y Fin', () => {
+    const key = (k: string, index: number) => {
+      const event = new KeyboardEvent('keydown',{key:k});
+      Object.defineProperty(event,'currentTarget',{value:document.createElement('button')});
+      component.onTypeKeydown(event, index);
+    };
+    const first = component.typeOptions[0];
+    const second = component.typeOptions[1];
+    const last = component.typeOptions[component.typeOptions.length - 1];
+
+    key('ArrowRight', 0);
+    expect(component.form.controls.type.value).toBe(second);
+    key('ArrowLeft', 0);
+    expect(component.form.controls.type.value).toBe(last);
+    key('Home', 3);
+    expect(component.form.controls.type.value).toBe(first);
+    key('End', 0);
+    expect(component.form.controls.type.value).toBe(last);
+    key('Tab', 0);
+    expect(component.form.controls.type.value).toBe(last);
+  });
+
   it('aceptar sin evento creado no navega', () => {
     component.acceptCreated();
     expect(router.navigate).not.toHaveBeenCalled();

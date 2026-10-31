@@ -76,6 +76,30 @@ export class EventCreatePageComponent {
     this.form.controls.type.setValue(type);
   }
 
+  /**
+   * Grupo de radio accesible (patrón WAI-ARIA): un solo punto de tabulación y flechas para cambiar
+   * de tipo. Inicio y Fin van al primero y al último; la selección sigue al foco.
+   */
+  onTypeKeydown(event: KeyboardEvent, index: number): void {
+    const last = this.typeOptions.length - 1;
+    const targets: Record<string, number> = {
+      ArrowRight: index === last ? 0 : index + 1,
+      ArrowDown: index === last ? 0 : index + 1,
+      ArrowLeft: index === 0 ? last : index - 1,
+      ArrowUp: index === 0 ? last : index - 1,
+      Home: 0,
+      End: last
+    };
+    const next = targets[event.key];
+    if (next === undefined) {
+      return;
+    }
+    event.preventDefault();
+    this.selectType(this.typeOptions[next]);
+    const radios = (event.currentTarget as HTMLElement).parentElement?.querySelectorAll<HTMLElement>('[role="radio"]');
+    radios?.[next]?.focus();
+  }
+
   /** Mueve la gestión redactada a la lista; devuelve si se pudo agregar. */
   addRow(): boolean {
     const { name, targetDate, hours } = this.form.controls.draft.getRawValue();

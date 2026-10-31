@@ -27,14 +27,16 @@
       <div>
         <p id="event-type-label" class="mb-2 text-[13px] font-semibold">Tipo de evento *</p>
         <div class="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="event-type-label">
-          @for (option of typeOptions; track option) {
+          @for (option of typeOptions; track option; let i = $index) {
             <button
               type="button"
               role="radio"
               class="h-11 rounded-full border px-5 text-sm font-medium transition"
               [class]="form.controls.type.value === option ? 'border-primary bg-primary text-white' : 'border-border-strong text-ink hover:bg-surface-raised'"
               [attr.aria-checked]="form.controls.type.value === option"
+              [attr.tabindex]="form.controls.type.value === option ? 0 : -1"
               (click)="selectType(option)"
+              (keydown)="onTypeKeydown($event, i)"
             >{{ option }}</button>
           }
         </div>
