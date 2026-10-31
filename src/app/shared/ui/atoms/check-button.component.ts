@@ -1,7 +1,11 @@
 import { Component, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
-/** Casilla de verificación en forma de botón: marca una gestión como hecha con un clic. */
+/**
+ * Casilla de verificación en forma de botón: marca una gestión como hecha con un clic.
+ * Mide 24×24 px (WCAG 2.5.8): con 20 px era fácil marcar la gestión equivocada; un error se
+ * corrige con "Deshacer" en el aviso.
+ */
 @Component({
   selector: 'app-check-button',
   standalone: true,
@@ -10,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
     <button
       type="button"
       role="checkbox"
-      class="flex size-5 items-center justify-center rounded-md border border-border-strong text-success transition hover:border-accent"
+      class="flex size-6 items-center justify-center rounded-md border-2 border-muted text-success transition hover:border-accent"
       [class]="checked() ? 'bg-success-soft' : 'bg-canvas'"
       [attr.aria-checked]="checked()"
       [attr.aria-label]="label()"
@@ -18,7 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
       (click)="toggled.emit()"
     >
       @if (checked()) {
-        <mat-icon class="text-[14px]" aria-hidden="true">check</mat-icon>
+        <mat-icon class="text-[16px]" aria-hidden="true">check</mat-icon>
       }
     </button>
   `,
