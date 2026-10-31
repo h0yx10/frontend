@@ -16,7 +16,7 @@
       [attr.aria-describedby]="errors()['nombre'] ? 'event-name-error' : null"
     />
     @if (errors()['nombre']) {
-      <p id="event-name-error" class="mt-1 text-xs text-danger">{{ errors()['nombre'] }}</p>
+      <p id="event-name-error" class="mt-1 text-xs text-danger" role="alert">{{ errors()['nombre'] }}</p>
     }
   </div>
 
@@ -36,14 +36,15 @@
         class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
         [class.border-danger]="errors()['tipo']"
         [attr.aria-invalid]="!!errors()['tipo']"
+        [attr.aria-describedby]="errors()['tipo'] ? 'event-type-error' : null"
       />
       <datalist id="event-type-suggestions">
         @for (suggestion of typeSuggestions; track suggestion) {
           <option [value]="suggestion"></option>
         }
       </datalist>
-      @if (fieldErrors()['type']) {
-        <p class="mt-2 text-xs text-danger">{{ fieldErrors()['type'] }}</p>
+      @if (errors()['tipo']) {
+        <p id="event-type-error" class="mt-2 text-xs text-danger" role="alert">{{ errors()['tipo'] }}</p>
       }
     </div>
 
@@ -76,15 +77,16 @@
         class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
         [class.border-danger]="errors()['fechaHora']"
         [attr.aria-invalid]="!!errors()['fechaHora']"
+        [attr.aria-describedby]="errors()['fechaHora'] ? 'event-datetime-error' : null"
       />
-      @if (fieldErrors()['datetime']) {
-        <p class="mt-2 text-xs text-danger">{{ fieldErrors()['datetime'] }}</p>
+      @if (errors()['fechaHora']) {
+        <p id="event-datetime-error" class="mt-2 text-xs text-danger" role="alert">{{ errors()['fechaHora'] }}</p>
       }
     </div>
 
     <div>
       <label for="event-place" class="mb-2 block text-sm font-medium text-ink">
-        Lugar / plazo límite
+        Lugar
       </label>
       <input
         id="event-place"

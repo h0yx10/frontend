@@ -15,9 +15,10 @@
           class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
           [class.border-danger]="store.subtaskFieldErrors()['name']"
           [attr.aria-invalid]="!!store.subtaskFieldErrors()['name']"
+          [attr.aria-describedby]="store.subtaskFieldErrors()['name'] ? 'subtask-name-error' : null"
         />
         @if (store.subtaskFieldErrors()['name']) {
-          <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['name'] }}</p>
+          <p id="subtask-name-error" class="mt-2 text-xs text-danger" role="alert">{{ store.subtaskFieldErrors()['name'] }}</p>
         }
       </div>
 
@@ -55,11 +56,12 @@
             class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
             [class.border-danger]="store.subtaskFieldErrors()['targetDate']"
             [attr.aria-invalid]="!!store.subtaskFieldErrors()['targetDate']"
+            [attr.aria-describedby]="store.subtaskFieldErrors()['targetDate'] || dateWarning ? 'subtask-date-message' : null"
           />
           @if (store.subtaskFieldErrors()['targetDate']) {
-            <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['targetDate'] }}</p>
+            <p id="subtask-date-message" class="mt-2 text-xs text-danger" role="alert">{{ store.subtaskFieldErrors()['targetDate'] }}</p>
           } @else if (dateWarning) {
-            <p class="mt-2 text-xs text-warning" role="status">{{ dateWarning }}</p>
+            <p id="subtask-date-message" class="mt-2 text-xs text-warning" role="status">{{ dateWarning }}</p>
           }
         </div>
 
@@ -78,9 +80,10 @@
             class="w-full rounded-xl border border-border bg-canvas px-3 py-2.5 text-ink"
             [class.border-danger]="store.subtaskFieldErrors()['estimatedHours']"
             [attr.aria-invalid]="!!store.subtaskFieldErrors()['estimatedHours']"
+            [attr.aria-describedby]="store.subtaskFieldErrors()['estimatedHours'] ? 'subtask-hours-error' : null"
           />
           @if (store.subtaskFieldErrors()['estimatedHours']) {
-            <p class="mt-2 text-xs text-danger">{{ store.subtaskFieldErrors()['estimatedHours'] }}</p>
+            <p id="subtask-hours-error" class="mt-2 text-xs text-danger" role="alert">{{ store.subtaskFieldErrors()['estimatedHours'] }}</p>
           }
         </div>
       </div>
