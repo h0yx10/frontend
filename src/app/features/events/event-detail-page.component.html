@@ -9,8 +9,13 @@
     <app-empty-state
       icon="search_off"
       title="Evento no encontrado"
-      message="Es posible que haya sido eliminado. Vuelve al listado de progreso."
-    />
+      message="Es posible que haya sido eliminado o que el enlace esté incompleto."
+    >
+      <div class="flex flex-wrap justify-center gap-3">
+        <a routerLink="/progreso" class="btn-primary">Ir a Progreso</a>
+        <a routerLink="/hoy" class="btn-ghost border border-border">Ir a Hoy</a>
+      </div>
+    </app-empty-state>
   } @else if (store.error() && !store.event()) {
     <app-error-state [message]="store.error()" (retry)="reload()" />
   } @else {
