@@ -12,8 +12,8 @@ import { SpinnerComponent } from '../atoms/spinner.component';
   imports: [DecimalPipe, RouterLink, ProgressBarComponent, SpinnerComponent],
   template: `
     <section class="rounded-2xl border border-border bg-surface p-4" [attr.aria-label]="title()">
-      <div class="flex items-center justify-between gap-2 text-sm">
-        <h2 class="flex items-center gap-2 text-muted">
+      <div class="flex items-start justify-between gap-2 text-sm">
+        <h2 class="flex min-w-0 items-center gap-2 text-muted">
           {{ title() }}
           @if (loading() && ready()) {
             <app-spinner class="text-muted" [size]="14" label="Actualizando carga" />
@@ -45,7 +45,7 @@ import { SpinnerComponent } from '../atoms/spinner.component';
 export class WorkloadCardComponent {
   readonly planned = input.required<number>();
   readonly limit = input.required<number>();
-  readonly title = input('Carga de hoy');
+  readonly title = input('Tiempo disponible de hoy');
   readonly actionLabel = input('Ajustar');
   readonly actionLink = input('/progreso');
   /** Hay una consulta en curso. */

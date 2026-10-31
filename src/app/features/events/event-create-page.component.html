@@ -49,6 +49,7 @@
             id="event-date"
             type="date"
             formControlName="date"
+            [min]="today"
             class="input-control"
             [attr.aria-invalid]="fieldErrors()['fechaHora'] ? 'true' : null"
             [attr.aria-describedby]="fieldErrors()['fechaHora'] ? 'event-date-error' : null"
@@ -74,8 +75,16 @@
         <app-form-field inputId="event-contact" label="Cliente o contacto">
           <input id="event-contact" type="text" formControlName="contact" autocomplete="off" placeholder="Nombre, teléfono o correo" class="input-control" />
         </app-form-field>
-        <app-form-field inputId="event-deadline" label="Fecha límite">
-          <input id="event-deadline" type="date" formControlName="deadline" class="input-control" />
+        <app-form-field inputId="event-deadline" label="Fecha límite" [error]="fieldErrors()['plazoLimite']">
+          <input
+            id="event-deadline"
+            type="date"
+            formControlName="deadline"
+            [min]="deadlineMin()"
+            class="input-control"
+            [attr.aria-invalid]="fieldErrors()['plazoLimite'] ? 'true' : null"
+            [attr.aria-describedby]="fieldErrors()['plazoLimite'] ? 'event-deadline-error' : null"
+          />
         </app-form-field>
       </div>
     </section>

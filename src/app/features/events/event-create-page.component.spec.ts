@@ -46,9 +46,32 @@ describe('EventCreatePageComponent', () => {
   });
 
   it('envía fecha y hora unidas y la fecha límite', () => {
-    component.form.patchValue({deadline:'2029-12-20'});
+    component.form.patchValue({deadline:'2030-01-05'});
     component.submit();
-    expect(service.create).toHaveBeenCalledWith(jasmine.objectContaining({datetime:'2030-01-01T10:00',deadline:'2029-12-20'}),[]);
+    expect(service.create).toHaveBeenCalledWith(jasmine.objectContaining({datetime:'2030-01-01T10:00',deadline:'2030-01-05'}),[]);
+  });
+
+  it('no permite una fecha de evento anterior a hoy', () => {
+    component.form.patchValue({date:'2020-05-01'});
+    component.submit();
+    expect(service.create).not.toHaveBeenCalled();
+    expect(component.fieldErrors()['fechaHora']).toContain('anterior a hoy');
+  });
+
+  it('acepta hoy como fecha del evento', () => {
+    component.form.patchValue({date:component.today});
+    component.submit();
+    expect(service.create).toHaveBeenCalled();
+  });
+
+  it('la fecha límite no puede ser anterior a la fecha del evento, pero sí el mismo día', () => {
+    component.form.patchValue({deadline:'2029-12-31'});
+    component.submit();
+    expect(service.create).not.toHaveBeenCalled();
+    expect(component.fieldErrors()['plazoLimite']).toContain('anterior a la fecha del evento');
+    component.form.patchValue({deadline:'2030-01-01'});
+    component.submit();
+    expect(service.create).toHaveBeenCalled();
   });
 
   it('exige la hora además de la fecha', () => {

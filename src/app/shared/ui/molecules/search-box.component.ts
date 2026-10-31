@@ -1,7 +1,8 @@
 import { Component, effect, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, filter, map } from 'rxjs';
 
 /** Caja de búsqueda con debounce. Emite el término normalizado (trim) en `search`. */
 @Component({
@@ -26,9 +27,16 @@ export class SearchBoxComponent {
       }
     });
 
+    // Se compara con el valor que tiene la página, no con el último emitido: si la página limpia
+    // la búsqueda desde fuera (p. ej. "Limpiar filtros"), volver a escribir el mismo término debe aplicarse.
     this.control.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged())
-      .subscribe((term) => this.search.emit(term.trim()));
+      .pipe(
+        debounceTime(250),
+        map((term) => term.trim()),
+        filter((term) => term !== this.value().trim()),
+        takeUntilDestroyed()
+      )
+      .subscribe((term) => this.search.emit(term));
   }
 
   clear(): void {

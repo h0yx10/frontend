@@ -102,7 +102,7 @@ pantalla completa. Compone la navegación con `shared/ui/organisms/app-sidebar`,
 **presentacional**: recibe ítems, usuario y carga diaria, y emite `logout` y `navigated`.
 
 La barra lateral contiene el logo, la campana,
-la navegación «Planificación» (Hoy, Actividades, Progreso), la tarjeta «Carga de hoy» y el acceso a
+la navegación «Planificación» (Hoy, Actividades, Progreso), la tarjeta «Tiempo disponible de hoy» y el acceso a
 «Mi cuenta» con cierre de sesión. Por debajo de `lg` se convierte en un drawer con una cabecera compacta.
 
 El shell es la raíz de composición de la zona privada y por eso conecta stores de `features/`
@@ -118,7 +118,7 @@ pantalla no cambia mientras tanto. `core/layout/NavigationProgressService` expon
 
 - `AppComponent` muestra un spinner a pantalla completa hasta completar la primera navegación.
 - La barra lateral muestra un spinner en el ítem pulsado mientras su navegación está pendiente, y en
-  «Hoy» y «Carga de hoy» mientras `WorkloadStore` consulta por primera vez (luego, un spinner pequeño junto
+  «Hoy» y «Tiempo disponible de hoy» mientras `WorkloadStore` consulta por primera vez (luego, un spinner pequeño junto
   al título en cada actualización).
 - Hoy muestra en su primera carga un esqueleto con la forma del tablero; al llegar los datos, estadísticas,
   filtros, columnas y widgets entran escalonados con `.real`. Las demás páginas usan `loading-state`, y el

@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 
-import { formatIsoDateShort } from '../../core/utils/date.util';
+import { formatIsoDateShort, todayIsoDate } from '../../core/utils/date.util';
 import { AppHttpError, OverloadErrorInfo } from '../../core/interceptors/http-error.interceptor';
 import { FormFieldComponent } from '../../shared/ui/molecules/form-field.component';
 import { InfoDialogComponent } from '../../shared/ui/molecules/info-dialog.component';
@@ -31,6 +31,8 @@ export class EventCreatePageComponent {
 
   readonly typeOptions = EVENT_TYPE_OPTIONS;
   readonly formatIsoDateShort = formatIsoDateShort;
+  /** Primer día válido para el evento: no se programan eventos en el pasado. */
+  readonly today = todayIsoDate();
   readonly saving = signal(false);
   readonly createdEventId = signal<string | null>(null);
   readonly error = signal('');
@@ -59,6 +61,12 @@ export class EventCreatePageComponent {
 
   set rows(rows: DraftSubtask[]) {
     this.rowsSignal.set(rows);
+  }
+
+  /** La fecha límite parte de la fecha del evento, y nunca antes de hoy. */
+  deadlineMin(): string {
+    const date = this.form.controls.date.value;
+    return date > this.today ? date : this.today;
   }
 
   selectType(type: string): void {
@@ -108,6 +116,13 @@ export class EventCreatePageComponent {
     }
     if (!date) {
       errors['fechaHora'] = 'No ingresaste la fecha del evento.';
+    } else if (date < this.today) {
+      errors['fechaHora'] = 'La fecha del evento no puede ser anterior a hoy.';
+    }
+    if (deadline && deadline < (date || this.today)) {
+      errors['plazoLimite'] = date
+        ? 'La fecha límite no puede ser anterior a la fecha del evento.'
+        : 'La fecha límite no puede ser anterior a hoy.';
     }
     if (!time) {
       errors['hora'] = 'No ingresaste la hora del evento.';
