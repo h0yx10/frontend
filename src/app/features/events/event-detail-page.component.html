@@ -174,10 +174,12 @@
               <dt class="text-muted">Horas planificadas</dt>
               <dd class="font-semibold text-ink">{{ plannedHours() }} h</dd>
             </div>
-            <div class="flex items-center justify-between">
-              <dt class="text-muted">Días para el evento</dt>
-              <dd class="font-semibold text-ink">{{ daysUntilEvent() }}</dd>
-            </div>
+            @if (eventCountdown(); as countdown) {
+              <div class="flex items-center justify-between">
+                <dt class="text-muted">{{ countdown.label }}</dt>
+                <dd class="font-semibold text-ink">{{ countdown.value }}</dd>
+              </div>
+            }
           </dl>
         </section>
       </aside>

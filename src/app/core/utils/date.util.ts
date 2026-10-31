@@ -17,6 +17,15 @@ export function addDaysIso(dateIso: string, days: number): string {
   return toIsoDate(date);
 }
 
+/** Días de calendario de `fromIso` a `toIso` (`yyyy-MM-dd`), sin depender de la hora ni del horario de verano. */
+export function daysBetweenIso(fromIso: string, toIso: string): number {
+  const toUtc = (iso: string) => {
+    const [year, month, day] = iso.slice(0, 10).split('-').map(Number);
+    return Date.UTC(year, month - 1, day);
+  };
+  return Math.round((toUtc(toIso) - toUtc(fromIso)) / 86_400_000);
+}
+
 export function compareIsoDates(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
