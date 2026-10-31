@@ -14,6 +14,7 @@ import { EventsService } from '../services/events.service';
 import { SubtasksService } from '../services/subtasks.service';
 import { ConflictsService } from '../services/conflicts.service';
 import { OverloadCheckResult } from '../models/conflict.model';
+import { WorkloadStore } from '../../today/store/workload.store';
 
 @Injectable()
 export class EventDetailStore {
@@ -21,6 +22,7 @@ export class EventDetailStore {
   private readonly subtasksService = inject(SubtasksService);
   private readonly conflictsService = inject(ConflictsService);
   private readonly toasts = inject(ToastService);
+  private readonly workload = inject(WorkloadStore);
   readonly event = signal<EventEntity | null>(null);
   readonly subtasks = signal<Subtask[]>([]);
   readonly loading = signal(false);
@@ -58,7 +60,12 @@ export class EventDetailStore {
       });
   }
 
-  private reloadEvent(): void {
+  /**
+   * Tras cambiar una gestión: el evento trae el progreso y la barra lateral la carga del día. Sin esto
+   * el contador de "Hoy" y las horas planificadas quedaban desfasados hasta la siguiente navegación.
+   */
+  private syncAfterChange(): void {
+    this.workload.refresh();
     const current = this.event();
     if (!current) {
       return;
@@ -124,7 +131,7 @@ export class EventDetailStore {
       .subscribe({
         next: (subtask) => {
           this.subtasks.update((subtasks) => [...subtasks, subtask]);
-          this.reloadEvent();
+          this.syncAfterChange();
           onSuccess();
         },
         error: (error: AppHttpError) => {
@@ -184,6 +191,7 @@ export class EventDetailStore {
       .subscribe({
         next: (subtask) => {
           this.replaceSubtask(subtask);
+          this.syncAfterChange();
           onSuccess();
         },
         error: (error: AppHttpError) => {
@@ -216,22 +224,6 @@ export class EventDetailStore {
     return Math.round((value + Number.EPSILON) * 100) / 100;
   }
 
-  rescheduleSubtask(id: string, targetDate: string, onSuccess: () => void): void {
-    this.saving.set(true);
-    this.error.set('');
-
-    this.subtasksService
-      .update(id, { targetDate })
-      .pipe(finalize(() => this.saving.set(false)))
-      .subscribe({
-        next: (subtask) => {
-          this.replaceSubtask(subtask);
-          onSuccess();
-        },
-        error: (error: AppHttpError) => this.error.set(error.message)
-      });
-  }
-
   deleteSubtask(id: string, onSuccess?: () => void): void {
     this.saving.set(true);
     this.subtasksService
@@ -240,7 +232,7 @@ export class EventDetailStore {
       .subscribe({
         next: () => {
           this.subtasks.update((subtasks) => subtasks.filter((subtask) => subtask.id !== id));
-          this.reloadEvent();
+          this.syncAfterChange();
           onSuccess?.();
         },
         error: (error: AppHttpError) => this.error.set(error.message)
@@ -259,7 +251,7 @@ export class EventDetailStore {
       .subscribe({
         next: (subtask) => {
           this.replaceSubtask(subtask);
-          this.reloadEvent();
+          this.syncAfterChange();
           const all = this.subtasks();
           const progress = `${all.filter((item) => item.status === 'DONE').length} de ${all.length} completadas`;
           if (subtask.status === 'DONE') {
@@ -283,7 +275,7 @@ export class EventDetailStore {
   /** Sincroniza una subtarea que fue modificada por un componente externo (ej. reprogramación). */
   applySubtaskUpdate(updated: Subtask): void {
     this.replaceSubtask(updated);
-    this.reloadEvent();
+    this.syncAfterChange();
   }
 
   private replaceSubtask(updated: Subtask): void {
