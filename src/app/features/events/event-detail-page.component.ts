@@ -167,6 +167,11 @@ export class EventDetailPageComponent {
     this.store.executeSubtask(subtask.id, { status: 'DONE' });
   }
 
+  /** Vuelve a pendientes una gestión marcada hecha por error (el backend revalida la capacidad). */
+  reopen(subtask: Subtask): void {
+    this.store.executeSubtask(subtask.id, { status: 'PENDING' });
+  }
+
   deleteSubtaskConfirmed(): void {
     const subtask = this.deleteSubtaskTarget();
     if (subtask) {

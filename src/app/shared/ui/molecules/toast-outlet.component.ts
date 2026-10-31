@@ -21,6 +21,10 @@ import { ToastService } from '../../../core/feedback/toast.service';
             [class.text-warning]="toast.tone === 'warning'"
             [class.text-accent]="toast.tone === 'info'">{{ icon(toast.tone) }}</mat-icon>
           <p class="min-w-0 flex-1 leading-snug">{{ toast.message }}</p>
+          @if (toast.action; as action) {
+            <button type="button" class="shrink-0 rounded-lg px-2 py-0.5 text-sm font-semibold text-accent transition hover:bg-primary/10 hover:text-ink"
+              (click)="toasts.runAction(toast.id)">{{ action.label }}</button>
+          }
           <button type="button" class="shrink-0 text-muted transition hover:text-ink" aria-label="Cerrar aviso"
             (click)="toasts.dismiss(toast.id)">
             <mat-icon class="text-[16px]" aria-hidden="true">close</mat-icon>

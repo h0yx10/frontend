@@ -85,7 +85,7 @@ export class TodayPageComponent {
   }
 
   markDone(subtask: Subtask): void {
-    this.store.executeSubtask(subtask.id, { status: 'DONE' });
+    this.store.executeSubtask(subtask.id, { status: 'DONE' }, subtask.status);
   }
 
   openConflict(): void {

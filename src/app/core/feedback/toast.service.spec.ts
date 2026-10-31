@@ -22,6 +22,27 @@ describe('ToastService', () => {
     tick(5000);
   }));
 
+  it('ejecuta la acción una sola vez y cierra el aviso', fakeAsync(() => {
+    const undo = jasmine.createSpy('undo');
+    service.show('«Salón» marcada como hecha.', 'success', {label:'Deshacer', run:undo});
+    const id = service.toasts()[0].id;
+
+    service.runAction(id);
+    service.runAction(id);
+
+    expect(undo).toHaveBeenCalledTimes(1);
+    expect(service.toasts()).toEqual([]);
+    tick(9000);
+  }));
+
+  it('un aviso con acción dura más para dar tiempo a deshacer', fakeAsync(() => {
+    service.show('«Salón» marcada como hecha.', 'success', {label:'Deshacer', run:() => undefined});
+    tick(5000);
+    expect(service.toasts().length).toBe(1);
+    tick(4000);
+    expect(service.toasts()).toEqual([]);
+  }));
+
   it('se puede cerrar antes de tiempo', fakeAsync(() => {
     service.show('Capacidad actualizada.', 'info');
     service.dismiss(service.toasts()[0].id);

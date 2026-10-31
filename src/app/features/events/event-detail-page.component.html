@@ -135,6 +135,7 @@
                 heading="Hecha"
                 status="DONE"
                 [items]="doneSubtasks()"
+                (reopen)="reopen($event)"
                 (edit)="openEditSubtask($event)"
                 (remove)="deleteSubtaskTarget.set($event)"
               />

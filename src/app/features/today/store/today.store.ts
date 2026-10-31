@@ -4,7 +4,8 @@ import { finalize } from 'rxjs';
 import { ToastService } from '../../../core/feedback/toast.service';
 import { AppHttpError } from '../../../core/interceptors/http-error.interceptor';
 import {
-  SubtaskExecutionPayload
+  SubtaskExecutionPayload,
+  SubtaskStatus
 } from '../../events/models/subtask.model';
 import { SubtasksService } from '../../events/services/subtasks.service';
 import { TodayBoard, TodayFilters, TodaySearch } from '../models/today.model';
@@ -89,11 +90,21 @@ export class TodayStore {
     this.search.set({ query: '', eventId: '' });
   }
 
-  executeSubtask(id: string, payload: SubtaskExecutionPayload): void {
+  /**
+   * @param previousStatus estado antes del cambio: "Deshacer" lo restaura (una gestión pospuesta
+   * que se marcó hecha por error vuelve a pospuesta, no a pendiente).
+   */
+  executeSubtask(id: string, payload: SubtaskExecutionPayload, previousStatus: SubtaskStatus = 'PENDING'): void {
     this.subtasksService.execute(id, payload).subscribe({
       next: (updated) => {
         if (updated.status === 'DONE') {
-          this.toasts.show(`«${updated.name}» marcada como hecha; ya no suma a tu carga del día.`);
+          const restore = previousStatus === 'DONE' ? 'PENDING' : previousStatus;
+          this.toasts.show(`«${updated.name}» marcada como hecha; ya no suma a tu carga del día.`, 'success', {
+            label: 'Deshacer',
+            run: () => this.executeSubtask(id, { status: restore }, 'DONE')
+          });
+        } else if (previousStatus === 'DONE') {
+          this.toasts.show(`«${updated.name}» volvió a tu lista.`, 'info');
         }
         this.load();
       },

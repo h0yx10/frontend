@@ -18,6 +18,8 @@ export class SubtaskItemComponent {
 
   @Output() readonly markDone = new EventEmitter<Subtask>();
   @Output() readonly completeWithNote = new EventEmitter<Subtask>();
+  /** Solo en gestiones hechas: corrige un "Hecha" equivocado. */
+  @Output() readonly reopen = new EventEmitter<Subtask>();
   @Output() readonly postpone = new EventEmitter<Subtask>();
   @Output() readonly reschedule = new EventEmitter<Subtask>();
   @Output() readonly edit = new EventEmitter<Subtask>();

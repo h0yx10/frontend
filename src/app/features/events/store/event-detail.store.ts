@@ -249,6 +249,7 @@ export class EventDetailStore {
 
   executeSubtask(id: string, payload: SubtaskExecutionPayload): void {
     const previous = this.subtasks();
+    const previousStatus = previous.find((item) => item.id === id)?.status;
     this.saving.set(true);
     this.error.set('');
 
@@ -259,10 +260,17 @@ export class EventDetailStore {
         next: (subtask) => {
           this.replaceSubtask(subtask);
           this.reloadEvent();
+          const all = this.subtasks();
+          const progress = `${all.filter((item) => item.status === 'DONE').length} de ${all.length} completadas`;
           if (subtask.status === 'DONE') {
-            const all = this.subtasks();
-            const done = all.filter((item) => item.status === 'DONE').length;
-            this.toasts.show(`«${subtask.name}» marcada como hecha · ${done} de ${all.length} completadas.`);
+            // Un clic accidental se corrige desde el mismo aviso: vuelve al estado que tenía.
+            const restore = previousStatus && previousStatus !== 'DONE' ? previousStatus : 'PENDING';
+            this.toasts.show(`«${subtask.name}» marcada como hecha · ${progress}.`, 'success', {
+              label: 'Deshacer',
+              run: () => this.executeSubtask(id, { status: restore })
+            });
+          } else if (previousStatus === 'DONE') {
+            this.toasts.show(`«${subtask.name}» volvió a ${subtask.status === 'POSTPONED' ? 'pospuestas' : 'pendientes'} · ${progress}.`, 'info');
           }
         },
         error: (error: AppHttpError) => {

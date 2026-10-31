@@ -18,6 +18,7 @@ export class SubtaskColumnComponent {
 
   @Output() readonly markDone = new EventEmitter<Subtask>();
   @Output() readonly completeWithNote = new EventEmitter<Subtask>();
+  @Output() readonly reopen = new EventEmitter<Subtask>();
   @Output() readonly postpone = new EventEmitter<Subtask>();
   @Output() readonly reschedule = new EventEmitter<Subtask>();
   @Output() readonly edit = new EventEmitter<Subtask>();
