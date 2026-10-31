@@ -1,5 +1,13 @@
 import { Directive, inject } from '@angular/core';
-import { MatTooltip } from '@angular/material/tooltip';
+import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions } from '@angular/material/tooltip';
+
+/** Por defecto, arriba y con una pausa corta. Son valores por defecto: `appTooltipPosition` los sobrescribe. */
+const TOOLTIP_DEFAULTS: MatTooltipDefaultOptions = {
+  position: 'above',
+  showDelay: 250,
+  hideDelay: 0,
+  touchendHideDelay: 1500
+};
 
 /**
  * Etiqueta flotante para botones de icono: `<button appTooltip="Editar">`.
@@ -8,6 +16,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 @Directive({
   selector: '[appTooltip]',
   standalone: true,
+  providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: TOOLTIP_DEFAULTS }],
   hostDirectives: [
     {
       directive: MatTooltip,
@@ -17,9 +26,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 })
 export class TooltipDirective {
   constructor() {
-    const tooltip = inject(MatTooltip);
-    tooltip.tooltipClass = 'app-tooltip';
-    tooltip.showDelay = 250;
-    tooltip.position = 'above';
+    // La clase no es configurable por defecto en esta versión de Material; no choca con ninguna entrada.
+    inject(MatTooltip).tooltipClass = 'app-tooltip';
   }
 }

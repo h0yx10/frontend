@@ -3,8 +3,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 
 import { formatIsoDateHuman, formatLongDay, todayIsoDate } from '../../core/utils/date.util';
-import { CheckButtonComponent } from '../../shared/ui/atoms/check-button.component';
-import { ProgressBarComponent } from '../../shared/ui/atoms/progress-bar.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
 import { ErrorStateComponent } from '../../shared/ui/molecules/error-state.component';
 import { PageHeaderComponent } from '../../shared/ui/molecules/page-header.component';
@@ -27,8 +25,6 @@ import { TodayStore } from './store/today.store';
   imports: [
     MatIconModule,
     RouterLink,
-    CheckButtonComponent,
-    ProgressBarComponent,
     EmptyStateComponent,
     ErrorStateComponent,
     PageHeaderComponent,
@@ -62,16 +58,6 @@ export class TodayPageComponent {
     this.applySearch([...this.groupByEvent(this.store.board().today), ...this.eventsWithoutPendingSubtasks()])
   );
   readonly upcomingEvents = computed(() => this.applySearch(this.groupByEvent(this.store.board().upcoming)));
-
-  /** Horas con plazo hoy frente al límite diario, en palabras: «1 h de 6 h disponibles» o el exceso. */
-  readonly dayLoad = computed(() => {
-    const { plannedHours, limitHours } = this.store.board().capacity;
-    const hours = (value: number) => `${Math.round(value * 10) / 10} h`;
-    if (limitHours > 0 && plannedHours > limitHours) {
-      return { overloaded: true, text: `${hours(plannedHours)} · ${hours(plannedHours - limitHours)} por encima de tu límite de ${hours(limitHours)}` };
-    }
-    return { overloaded: false, text: `${hours(plannedHours)} de ${hours(limitHours)} disponibles` };
-  });
 
   constructor() {
     this.store.load();

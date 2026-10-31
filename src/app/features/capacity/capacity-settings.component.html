@@ -37,10 +37,11 @@
     </button>
   </div>
 
-  @if (store.error()) {
+  @if (store.error() && !dialog()) {
     <p class="text-sm text-danger sm:basis-full" role="alert">{{ store.error() }}</p>
   }
-  @if (success()) {
-    <p class="text-sm text-success sm:basis-full" role="status">Capacidad actualizada.</p>
-  }
 </section>
+
+@if (dialog(); as result) {
+  <app-info-dialog [heading]="result.heading" [message]="result.message" (accepted)="closeDialog()" />
+}

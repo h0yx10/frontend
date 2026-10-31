@@ -11,7 +11,6 @@ import { SubtareaResponseDto, Subtask } from '../../events/models/subtask.model'
 import { mapSubtaskFromDto } from '../../events/services/subtasks.service';
 import {
   ConflictAlert,
-  EventTodaySummary,
   TodayBoard,
   TodayFilters,
   TodayResponseDto,
@@ -133,8 +132,6 @@ function buildBoard(
       percentage: limitHours === 0 ? 0 : Math.round((plannedHours / limitHours) * 100)
     },
     stats: buildStats(events, allOverdue, allToday, allUpcoming),
-    keyTasks: [...allOverdue, ...allToday].slice(0, 3),
-    eventsToday: buildEventsToday(events, [...allOverdue, ...allToday]),
     conflictAlert: findConflictAlert([...allOverdue, ...allToday], allActive, limitHours),
     rule: filtered.regla
   };
@@ -176,25 +173,6 @@ function buildStats(
     upcoming7DaysCount: upcoming7Days.length,
     upcoming7DaysEventsCount: new Set(upcoming7Days.map((s) => s.eventId)).size
   };
-}
-
-function buildEventsToday(events: EventoResponseDto[], items: Subtask[]): EventTodaySummary[] {
-  const eventIds = Array.from(new Set(items.map((item) => item.eventId)));
-  return eventIds
-    .map((eventId) => {
-      const event = events.find((item) => item.id === eventId);
-      if (!event) {
-        return null;
-      }
-      const total = event.subtareas.length;
-      const done = event.subtareas.filter((subtarea) => subtarea.status === 'DONE').length;
-      return {
-        eventId,
-        eventName: event.nombre,
-        percentage: total === 0 ? 0 : Math.round((done / total) * 100)
-      };
-    })
-    .filter((summary): summary is EventTodaySummary => summary !== null);
 }
 
 /**

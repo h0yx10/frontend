@@ -36,7 +36,7 @@ export class CapacityStore {
       });
   }
 
-  update(hours: number, onSuccess: () => void): void {
+  update(hours: number, onSuccess: () => void, onError?: (message: string) => void): void {
     this.saving.set(true);
     this.error.set('');
 
@@ -48,7 +48,10 @@ export class CapacityStore {
           this.dailyLimitHours.set(capacity.dailyLimitHours);
           onSuccess();
         },
-        error: (error: Error) => this.error.set(error.message)
+        error: (error: Error) => {
+          this.error.set(error.message);
+          onError?.(error.message);
+        }
       });
   }
 }

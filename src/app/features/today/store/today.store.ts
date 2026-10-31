@@ -23,8 +23,6 @@ const EMPTY_BOARD: TodayBoard = {
     upcoming7DaysCount: 0,
     upcoming7DaysEventsCount: 0
   },
-  keyTasks: [],
-  eventsToday: [],
   conflictAlert: null,
   rule: ''
 };

@@ -20,7 +20,7 @@ const subtask: Subtask = {
 const board: TodayBoard = {
   overdue:[subtask],today:[],upcoming:[],capacity:{plannedHours:1,limitHours:6,percentage:17},
   stats:{overdueCount:1,todayCount:0,completedLast7Days:0,completedTrendPercentage:null,upcoming7DaysCount:0,upcoming7DaysEventsCount:0},
-  keyTasks:[],eventsToday:[],conflictAlert:null,rule:''
+  conflictAlert:null,rule:''
 };
 
 describe('TodayPageComponent', () => {
@@ -71,12 +71,5 @@ describe('TodayPageComponent', () => {
     expect(clearSearch).toHaveBeenCalled();
     expect(component.hasSearch()).toBeFalse();
     expect(component.overdueEvents().length).toBe(1);
-  });
-
-  it('describe la carga del día en palabras y avisa cuando supera el límite', () => {
-    expect(component.dayLoad()).toEqual({overloaded:false, text:'1 h de 6 h disponibles'});
-    const store = TestBed.inject(TodayStore) as unknown as {board: ReturnType<typeof signal<TodayBoard>>};
-    store.board.set({...board, capacity:{plannedHours:7.5, limitHours:6, percentage:125}});
-    expect(component.dayLoad()).toEqual({overloaded:true, text:'7.5 h · 1.5 h por encima de tu límite de 6 h'});
   });
 });
