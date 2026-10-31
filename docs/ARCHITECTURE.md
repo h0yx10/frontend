@@ -101,8 +101,9 @@ Cada feature es un módulo funcional independiente con su propia ruta, component
 pantalla completa. Compone la navegación con `shared/ui/organisms/app-sidebar`, un organismo
 **presentacional**: recibe ítems, usuario y carga diaria, y emite `logout` y `navigated`.
 
-La barra lateral contiene el logo, la campana,
-la navegación «Planificación» (Hoy, Actividades, Progreso), la tarjeta «Tiempo disponible de hoy» y el acceso a
+La barra lateral contiene el logo,
+la navegación «Planificación» (Hoy, Actividades, Progreso; el contador de Hoy explica en una etiqueta
+cuántas subtareas están vencidas y cuántas vencen hoy), la tarjeta «Tiempo disponible de hoy» y el acceso a
 «Mi cuenta» con cierre de sesión. Por debajo de `lg` se convierte en un drawer con una cabecera compacta.
 
 El shell es la raíz de composición de la zona privada y por eso conecta stores de `features/`

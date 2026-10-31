@@ -46,7 +46,14 @@ export class ShellLayoutComponent {
     // El spinner marca el destino pulsado mientras su guard consulta el backend.
     const pending = (path: string) => this.navigation.isPending(path);
     return [
-      { path: '/hoy', label: 'Hoy', icon: 'calendar_today', badge: this.workload.attentionCount(), loading: pending('/hoy') || !this.workload.loaded() },
+      {
+        path: '/hoy',
+        label: 'Hoy',
+        icon: 'calendar_today',
+        badge: this.workload.attentionCount(),
+        badgeHint: this.attentionHint(),
+        loading: pending('/hoy') || !this.workload.loaded()
+      },
       { path: '/actividades', label: 'Actividades', icon: 'format_list_bulleted', loading: pending('/actividades') },
       { path: '/progreso', label: 'Progreso', icon: 'bar_chart', loading: pending('/progreso') }
     ];
@@ -61,7 +68,6 @@ export class ShellLayoutComponent {
         }
       : null
   );
-  readonly hasAlerts = computed(() => this.workload.overdueCount() > 0);
 
   constructor() {
     effect(
@@ -82,6 +88,19 @@ export class ShellLayoutComponent {
       .subscribe(() => {
         if (this.canOrganize()) this.workload.refresh();
       });
+  }
+
+  /** «2 subtareas requieren atención: 1 vencida y 1 para hoy». */
+  private attentionHint(): string {
+    const total = this.workload.attentionCount();
+    const overdue = this.workload.overdueCount();
+    const today = total - overdue;
+    const plural = (count: number, singular: string, pluralForm: string) => `${count} ${count === 1 ? singular : pluralForm}`;
+    const parts = [
+      overdue ? plural(overdue, 'vencida', 'vencidas') : '',
+      today ? `${today} para hoy` : ''
+    ].filter(Boolean);
+    return `${plural(total, 'subtarea requiere', 'subtareas requieren')} atención: ${parts.join(' y ')}`;
   }
 
   logout(): void {

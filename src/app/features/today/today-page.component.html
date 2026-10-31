@@ -84,31 +84,12 @@
       </div>
     </form>
 
-    <div class="real mt-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-8" style="animation-delay: 280ms">
-      <!-- Horas con plazo hoy frente al límite diario: así se entiende cuánto margen queda antes de planear más. -->
-      <section class="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5 text-sm sm:flex-nowrap sm:whitespace-nowrap" aria-labelledby="day-load-title">
-        <h2 id="day-load-title" class="flex items-center gap-1.5 text-muted">
-          <mat-icon class="text-[16px]" aria-hidden="true">schedule</mat-icon>
-          Planificado para hoy
-        </h2>
-        <div class="w-32">
-          <app-progress-bar
-            size="sm"
-            [percentage]="store.board().capacity.percentage"
-            [tone]="dayLoad().overloaded ? 'danger' : 'success'"
-            [ariaValueText]="dayLoad().text"
-          />
-        </div>
-        <p class="tabular-nums" [class]="dayLoad().overloaded ? 'text-danger' : 'text-ink'">{{ dayLoad().text }}</p>
-      </section>
-
-      @if (store.board().rule) {
-        <p class="flex min-w-0 items-center gap-2 text-sm text-muted">
-          <mat-icon class="text-[16px]" aria-hidden="true">info_outline</mat-icon>
-          {{ store.board().rule }}
-        </p>
-      }
-    </div>
+    @if (store.board().rule) {
+      <p class="real mt-3 flex items-center gap-2 text-sm text-muted" style="animation-delay: 280ms">
+        <mat-icon class="text-[16px]" aria-hidden="true">info_outline</mat-icon>
+        {{ store.board().rule }}
+      </p>
+    }
 
     @if (hasSearch() && isEmpty) {
       <app-empty-state
@@ -190,48 +171,6 @@
             />
           }
         </app-today-column>
-
-        <div class="real flex min-w-0 flex-col gap-4 md:col-span-2 lg:col-span-1" style="animation-delay: 560ms">
-          <section class="surface-card p-4" aria-labelledby="key-tasks-title">
-            <h2 id="key-tasks-title" class="text-[15px] font-semibold text-ink">Gestiones clave de hoy</h2>
-            @if (store.board().keyTasks.length === 0) {
-              <p class="mt-3 text-sm text-muted">No hay gestiones urgentes por ahora.</p>
-            } @else {
-              <ul class="mt-3 flex flex-col gap-2">
-                @for (task of store.board().keyTasks; track task.id) {
-                  <li class="flex items-center gap-3 rounded-xl bg-surface-raised px-3 py-2.5">
-                    <app-check-button [label]="'Marcar hecha: ' + task.name" tooltip="Marcar como hecha" (toggled)="markDone(task)" />
-                    <span class="min-w-0 flex-1 truncate text-sm text-ink">{{ task.name }}</span>
-                    <span class="shrink-0 text-xs text-muted tabular-nums">{{ task.estimatedHours }} h</span>
-                  </li>
-                }
-              </ul>
-            }
-          </section>
-
-          <section class="surface-card p-4" aria-labelledby="events-today-title">
-            <h2 id="events-today-title" class="text-[15px] font-semibold text-ink">Eventos con gestiones hoy</h2>
-            @if (store.board().eventsToday.length === 0) {
-              <p class="mt-3 text-sm text-muted">Ningún evento requiere atención hoy.</p>
-            } @else {
-              <ul class="mt-3 flex flex-col gap-3">
-                @for (item of store.board().eventsToday; track item.eventId) {
-                  <li>
-                    <a [routerLink]="['/evento', item.eventId]" class="block rounded-lg text-sm text-ink hover:text-accent">
-                      <span class="flex items-center justify-between gap-2">
-                        <span class="truncate">{{ item.eventName }}</span>
-                        <span class="shrink-0 tabular-nums">{{ item.percentage }}%</span>
-                      </span>
-                      <span class="mt-2 block">
-                        <app-progress-bar [percentage]="item.percentage" size="sm" tone="primary" />
-                      </span>
-                    </a>
-                  </li>
-                }
-              </ul>
-            }
-          </section>
-        </div>
       </div>
     }
   }

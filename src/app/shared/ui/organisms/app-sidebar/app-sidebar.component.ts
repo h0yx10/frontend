@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { BrandMarkComponent } from '../../atoms/brand-mark.component';
 import { SpinnerComponent } from '../../atoms/spinner.component';
+import { TooltipDirective } from '../../atoms/tooltip.directive';
 import { WorkloadCardComponent } from '../../molecules/workload-card.component';
 
 export interface SidebarItem {
@@ -12,6 +13,8 @@ export interface SidebarItem {
   icon: string;
   /** Contador opcional junto a la etiqueta; no se muestra si es 0 o no está definido. */
   badge?: number;
+  /** Qué cuenta el contador, en palabras; se muestra como etiqueta flotante. */
+  badgeHint?: string;
   /** Muestra un spinner en lugar del contador mientras se consulta por primera vez. */
   loading?: boolean;
 }
@@ -31,7 +34,7 @@ export interface SidebarWorkload {
   selector: 'app-sidebar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, MatIconModule, BrandMarkComponent, SpinnerComponent, WorkloadCardComponent],
+  imports: [RouterLink, RouterLinkActive, MatIconModule, BrandMarkComponent, SpinnerComponent, TooltipDirective, WorkloadCardComponent],
   templateUrl: './app-sidebar.component.html',
   styles: `:host { display: block; height: 100%; }`
 })
@@ -40,8 +43,6 @@ export class AppSidebarComponent {
   readonly userName = input('');
   readonly userRole = input('');
   readonly workload = input<SidebarWorkload | null>(null);
-  /** Muestra el punto de aviso en la campana. */
-  readonly alerts = input(false);
   readonly loggingOut = input(false);
 
   readonly logout = output<void>();

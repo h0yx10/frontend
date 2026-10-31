@@ -55,7 +55,6 @@ describe('TodayService con subtareas en inglés', () => {
       expect(board.upcoming[0].note).toBe('Esperando proveedor');
       expect(board.capacity.plannedHours).toBe(2);
       expect(board.stats.completedLast7Days).toBe(1);
-      expect(board.eventsToday[0].percentage).toBe(25);
     });
     flush();
   });

@@ -6,7 +6,6 @@
       [userName]="user()?.name ?? ''"
       [userRole]="roleLabel()"
       [workload]="sidebarWorkload()"
-      [alerts]="hasAlerts()"
       [loggingOut]="loggingOut()"
       (logout)="logout()"
     />
@@ -53,8 +52,7 @@
         [userName]="user()?.name ?? ''"
         [userRole]="roleLabel()"
         [workload]="sidebarWorkload()"
-        [alerts]="hasAlerts()"
-        [loggingOut]="loggingOut()"
+          [loggingOut]="loggingOut()"
         (logout)="logout()"
         (navigated)="navOpen.set(false)"
       />

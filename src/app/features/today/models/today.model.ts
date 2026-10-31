@@ -24,12 +24,6 @@ export interface TodayStats {
   upcoming7DaysEventsCount: number;
 }
 
-export interface EventTodaySummary {
-  eventId: string;
-  eventName: string;
-  percentage: number;
-}
-
 export interface ConflictAlert {
   subtask: Subtask;
   candidateDate: string;
@@ -43,8 +37,6 @@ export interface TodayBoard {
   upcoming: Subtask[];
   capacity: TodayCapacity;
   stats: TodayStats;
-  keyTasks: Subtask[];
-  eventsToday: EventTodaySummary[];
   conflictAlert: ConflictAlert | null;
   rule: string;
 }

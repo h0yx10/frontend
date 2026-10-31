@@ -54,6 +54,15 @@ describe('ShellLayoutComponent', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('explica el contador de Hoy y ya no muestra la campana sin función', () => {
+    login();
+    const hoy = fixture.componentInstance.navItems().find((item) => item.path === '/hoy')!;
+    expect(hoy.badge).toBe(2);
+    expect(hoy.badgeHint).toBe('2 subtareas requieren atención: 2 para hoy');
+    expect(fixture.nativeElement.querySelector('[aria-label="Notificaciones"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[aria-label="2 subtareas requieren atención: 2 para hoy"]')).not.toBeNull();
+  });
+
   it('envía logout con Bearer, bloquea solicitudes duplicadas y limpia la sesión después del 200', () => {
     login();
     fixture.componentInstance.logout();
