@@ -23,7 +23,7 @@ export interface EventPayload {
   contact: string;
   datetime: string;
   place: string;
-  /** Fecha (`yyyy-MM-dd`) límite para confirmar asistentes; se envía como `plazoLimite` al final de ese día. */
+  /** Fecha límite del evento (`yyyy-MM-dd`); se envía como `plazoLimite` al final de ese día. */
   deadline?: string;
 }
 
