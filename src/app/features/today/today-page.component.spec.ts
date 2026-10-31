@@ -72,4 +72,11 @@ describe('TodayPageComponent', () => {
     expect(component.hasSearch()).toBeFalse();
     expect(component.overdueEvents().length).toBe(1);
   });
+
+  it('describe la carga del día en palabras y avisa cuando supera el límite', () => {
+    expect(component.dayLoad()).toEqual({overloaded:false, text:'1 h de 6 h disponibles'});
+    const store = TestBed.inject(TodayStore) as unknown as {board: ReturnType<typeof signal<TodayBoard>>};
+    store.board.set({...board, capacity:{plannedHours:7.5, limitHours:6, percentage:125}});
+    expect(component.dayLoad()).toEqual({overloaded:true, text:'7.5 h · 1.5 h por encima de tu límite de 6 h'});
+  });
 });

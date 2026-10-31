@@ -11,6 +11,7 @@ import { PageHeaderComponent } from '../../shared/ui/molecules/page-header.compo
 import { SubtareaInicialRequestDto } from './models/event.model';
 import { EventDetailsFieldsComponent } from './components/event-details-fields.component';
 import { eventDetailsControls, toEventPayload, validateEventDetails } from './components/event-details.form';
+import { subtaskDateBounds, validateSubtaskDate } from './utils/subtask-date';
 import { EventsService } from './services/events.service';
 
 interface DraftSubtask {
@@ -49,6 +50,12 @@ export class EventCreatePageComponent {
   readonly rowsSignal = signal<DraftSubtask[]>([]);
   readonly totalHours = computed(() => this.rowsSignal().reduce((total, row) => total + Number(row.estimatedHours ?? 0), 0));
 
+  /** Rango del plazo de las subtareas según las fechas que tiene ahora el evento. */
+  subtaskBounds() {
+    const { date, deadline } = this.form.controls;
+    return subtaskDateBounds(this.today, date.value, deadline.value);
+  }
+
   get rows(): DraftSubtask[] {
     return this.rowsSignal();
   }
@@ -67,6 +74,11 @@ export class EventCreatePageComponent {
     }
     if (!targetDate) {
       this.draftError.set('Falta el plazo de la subtarea.');
+      return false;
+    }
+    const dateError = validateSubtaskDate(targetDate, this.subtaskBounds());
+    if (dateError) {
+      this.draftError.set(dateError);
       return false;
     }
     if (!hours || hours <= 0) {
@@ -96,6 +108,16 @@ export class EventCreatePageComponent {
       this.fieldErrors.set(errors);
       this.error.set('Por favor, corrija los errores en el formulario.');
       return;
+    }
+
+    // Las fechas del evento pueden haber cambiado después de agregar subtareas.
+    const bounds = this.subtaskBounds();
+    for (const row of this.rows) {
+      const rowError = validateSubtaskDate(row.targetDate, bounds);
+      if (rowError) {
+        this.error.set(`Subtarea «${row.name}»: ${rowError}`);
+        return;
+      }
     }
 
     // Una subtarea a medio redactar no se pierde en silencio: se agrega o se avisa qué le falta.

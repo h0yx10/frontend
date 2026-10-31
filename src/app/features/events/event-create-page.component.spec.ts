@@ -142,4 +142,25 @@ describe('EventCreatePageComponent', () => {
     expect(component.fieldErrors()['nombre']).toBeTruthy();
     expect(component.saving()).toBeFalse();
   });
+
+  it('el plazo de una subtarea respeta la fecha de inicio y la fecha límite del evento', () => {
+    component.form.patchValue({date:'2030-01-01',deadline:'2030-01-10'});
+    const draft = component.form.controls.draft;
+    draft.patchValue({name:'Catering',targetDate:'2029-12-31',hours:1});
+    expect(component.addRow()).toBeFalse();
+    expect(component.draftError()).toContain('anterior a la fecha de inicio');
+    draft.patchValue({targetDate:'2030-01-11'});
+    expect(component.addRow()).toBeFalse();
+    expect(component.draftError()).toContain('posterior a la fecha límite');
+    draft.patchValue({targetDate:'2030-01-05'});
+    expect(component.addRow()).toBeTrue();
+  });
+
+  it('si las fechas del evento cambian, una subtarea ya agregada fuera de rango detiene el guardado', () => {
+    component.rows = [{name:'Catering',targetDate:'2030-01-05',estimatedHours:1}];
+    component.form.patchValue({date:'2030-01-08'});
+    component.submit();
+    expect(service.create).not.toHaveBeenCalled();
+    expect(component.error()).toContain('«Catering»');
+  });
 });
