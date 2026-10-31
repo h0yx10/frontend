@@ -24,7 +24,7 @@
           placeholder="Buscar por nombre o lugar"
           ariaLabel="Buscar actividades por nombre o lugar"
           [value]="query()"
-          (search)="query.set($event)"
+          (queryChange)="query.set($event)"
         />
       </div>
       <app-segmented-control

@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { formatDateTimeHuman } from '../../core/utils/date.util';
+import { daysBetweenIso, formatDateTimeHuman, todayIsoDate } from '../../core/utils/date.util';
 import { ConfirmDialogComponent } from '../../shared/ui/molecules/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/ui/molecules/empty-state.component';
 import { LoadingStateComponent } from '../../shared/ui/molecules/loading-state.component';
@@ -67,13 +67,20 @@ export class EventDetailPageComponent {
     this.store.subtasks().reduce((total, s) => total + s.estimatedHours, 0)
   );
 
-  readonly daysUntilEvent = computed(() => {
+  /** Cuenta regresiva en días de calendario; para eventos ya realizados, cuánto hace que ocurrieron. */
+  readonly eventCountdown = computed<{ label: string; value: string } | null>(() => {
     const event = this.store.event();
     if (!event) {
       return null;
     }
-    const diffMs = new Date(event.datetime).getTime() - Date.now();
-    return Math.round(diffMs / 86_400_000);
+    const days = daysBetweenIso(todayIsoDate(), event.datetime);
+    if (days > 0) {
+      return { label: 'Días para el evento', value: `${days}` };
+    }
+    if (days === 0) {
+      return { label: 'Días para el evento', value: 'Hoy' };
+    }
+    return { label: 'Días desde el evento', value: `${-days}` };
   });
 
   readonly shortId = computed(() => {

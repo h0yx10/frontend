@@ -6,7 +6,7 @@ import { SearchBoxComponent } from './search-box.component';
 @Component({
   standalone: true,
   imports: [SearchBoxComponent],
-  template: `<app-search-box [value]="query()" (search)="onSearch($event)" />`
+  template: `<app-search-box [value]="query()" (queryChange)="onSearch($event)" />`
 })
 class HostComponent {
   readonly query = signal('');
@@ -54,6 +54,16 @@ describe('SearchBoxComponent', () => {
     type('boda');
     type('boda ');
     expect(host.emitted).toEqual(['boda']);
+  }));
+
+  it('pulsar Enter (evento nativo "search") no reemplaza el término por el objeto Event', fakeAsync(() => {
+    type('boda');
+    input.dispatchEvent(new Event('search', { bubbles: true }));
+    tick(250);
+    fixture.detectChanges();
+    expect(host.emitted).toEqual(['boda']);
+    expect(host.query()).toBe('boda');
+    expect(input.value).toBe('boda');
   }));
 
   it('el botón de limpiar vacía la búsqueda', fakeAsync(() => {
