@@ -1,0 +1,76 @@
+<app-form-field inputId="event-name" label="Nombre del evento *" [error]="errors()['nombre']">
+  <input
+    id="event-name"
+    type="text"
+    formControlName="name"
+    autocomplete="off"
+    placeholder="Ej. Boda Camila & Andrés"
+    class="input-control"
+    [attr.aria-invalid]="errors()['nombre'] ? 'true' : null"
+    [attr.aria-describedby]="errors()['nombre'] ? 'event-name-error' : null"
+  />
+</app-form-field>
+
+<div>
+  <p id="event-type-label" class="mb-2 text-[13px] font-semibold">Tipo de evento *</p>
+  <div class="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="event-type-label">
+    @for (option of typeOptions; track option) {
+      <button
+        type="button"
+        role="radio"
+        class="h-11 rounded-full border px-5 text-sm font-medium transition"
+        [class]="selectedType === option ? 'border-primary bg-primary text-white' : 'border-border-strong text-ink hover:bg-surface-raised'"
+        [attr.aria-checked]="selectedType === option"
+        (click)="selectType(option)"
+      >{{ option }}</button>
+    }
+  </div>
+  @if (errors()['tipo']) {
+    <p class="mt-2 text-[13px] text-danger" role="alert">{{ errors()['tipo'] }}</p>
+  }
+</div>
+
+<div class="grid gap-5 sm:grid-cols-2">
+  <app-form-field inputId="event-date" label="Fecha inicio *" [error]="errors()['fechaHora']">
+    <input
+      id="event-date"
+      type="date"
+      formControlName="date"
+      [min]="minDate()"
+      class="input-control"
+      [attr.aria-invalid]="errors()['fechaHora'] ? 'true' : null"
+      [attr.aria-describedby]="errors()['fechaHora'] ? 'event-date-error' : null"
+    />
+  </app-form-field>
+  <app-form-field inputId="event-time" label="Hora *" [error]="errors()['hora']">
+    <input
+      id="event-time"
+      type="time"
+      formControlName="time"
+      class="input-control"
+      [attr.aria-invalid]="errors()['hora'] ? 'true' : null"
+      [attr.aria-describedby]="errors()['hora'] ? 'event-time-error' : null"
+    />
+  </app-form-field>
+</div>
+
+<app-form-field inputId="event-place" label="Lugar">
+  <input id="event-place" type="text" formControlName="place" autocomplete="off" placeholder="Ej. Salón Los Almendros" class="input-control" />
+</app-form-field>
+
+<div class="grid gap-5 sm:grid-cols-2">
+  <app-form-field inputId="event-contact" label="Cliente o contacto">
+    <input id="event-contact" type="text" formControlName="contact" autocomplete="off" placeholder="Nombre, teléfono o correo" class="input-control" />
+  </app-form-field>
+  <app-form-field inputId="event-deadline" label="Fecha límite" [error]="errors()['plazoLimite']">
+    <input
+      id="event-deadline"
+      type="date"
+      formControlName="deadline"
+      [min]="deadlineMin()"
+      class="input-control"
+      [attr.aria-invalid]="errors()['plazoLimite'] ? 'true' : null"
+      [attr.aria-describedby]="errors()['plazoLimite'] ? 'event-deadline-error' : null"
+    />
+  </app-form-field>
+</div>

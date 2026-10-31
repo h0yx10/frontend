@@ -5,12 +5,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { DateBucket, formatIsoDateShort } from '../../../core/utils/date.util';
 import { CheckButtonComponent } from '../../../shared/ui/atoms/check-button.component';
 import { BadgeTone, StatusBadgeComponent } from '../../../shared/ui/atoms/status-badge.component';
+import { TooltipDirective } from '../../../shared/ui/atoms/tooltip.directive';
 import { Subtask } from '../../events/models/subtask.model';
 
 @Component({
   selector: 'app-today-item',
   standalone: true,
-  imports: [CommonModule, MatIconModule, CheckButtonComponent, StatusBadgeComponent],
+  imports: [CommonModule, MatIconModule, CheckButtonComponent, StatusBadgeComponent, TooltipDirective],
   templateUrl: './today-item.component.html'
 })
 export class TodayItemComponent {

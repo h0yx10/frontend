@@ -11,6 +11,7 @@
         <app-subtask-item
           [subtask]="item"
           (markDone)="markDone.emit($event)"
+          (reopen)="reopen.emit($event)"
           (postpone)="postpone.emit($event)"
           (reschedule)="reschedule.emit($event)"
           (edit)="edit.emit($event)"

@@ -134,11 +134,13 @@ Las pantallas Hoy, Actividades, Progreso y Nuevo evento comparten una misma capa
 | `page-header` | `shared/ui/molecules` | Sobretítulo, título, subtítulo y acciones |
 | `segmented-control`, `search-box`, `workload-card` | `shared/ui/molecules` | Filtros, búsqueda con debounce y carga diaria |
 | `progress-bar`, `progress-ring`, `status-badge`, `check-button`, `brand-mark` | `shared/ui/atoms` | Indicadores y controles básicos |
+| `appTooltip` | `shared/ui/atoms` | Etiqueta flotante para botones de icono (envuelve `MatTooltip` con el estilo `.app-tooltip`) |
 | `spinner` | `shared/ui/atoms` | Indicador de carga (estilo iOS, toma `currentColor`); sigue animado con movimiento reducido porque sólo cambia la opacidad |
 | `loading-state` | `shared/ui/molecules` | Carga de una página: spinner y mensaje |
 | `skeleton` | `shared/ui/atoms` | Bloque de esqueleto con brillo; `today-board-skeleton` lo compone con la forma del tablero Hoy |
 | `.real` | `styles.scss` | Entrada escalonada del contenido real tras un esqueleto (`[style.animation-delay.ms]`) |
 | `today-column`, `today-event-card`, `today-item`, `stat-card` | `features/today/components` | Tablero Hoy |
+| `event-details-fields` + `event-details.form` | `features/events/components` | Campos, reglas y payload de un evento; los comparten Nuevo evento y la edición del detalle |
 
 Los colores con transparencia (`bg-primary/15`) **no** se generan con los tokens actuales (son
 `var(--…)` opacos); para fondos tenues se usan los tokens sólidos `primary-soft`, `success-soft`,

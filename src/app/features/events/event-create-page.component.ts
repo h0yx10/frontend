@@ -6,10 +6,11 @@ import { Router, RouterLink } from '@angular/router';
 
 import { formatIsoDateShort, todayIsoDate } from '../../core/utils/date.util';
 import { AppHttpError, OverloadErrorInfo } from '../../core/interceptors/http-error.interceptor';
-import { FormFieldComponent } from '../../shared/ui/molecules/form-field.component';
 import { InfoDialogComponent } from '../../shared/ui/molecules/info-dialog.component';
 import { PageHeaderComponent } from '../../shared/ui/molecules/page-header.component';
-import { EVENT_TYPE_OPTIONS, EventPayload, SubtareaInicialRequestDto } from './models/event.model';
+import { SubtareaInicialRequestDto } from './models/event.model';
+import { EventDetailsFieldsComponent } from './components/event-details-fields.component';
+import { eventDetailsControls, toEventPayload, validateEventDetails } from './components/event-details.form';
 import { EventsService } from './services/events.service';
 
 interface DraftSubtask {
@@ -21,7 +22,7 @@ interface DraftSubtask {
 @Component({
   selector: 'app-event-create-page',
   standalone: true,
-  imports: [DecimalPipe, ReactiveFormsModule, MatIconModule, RouterLink, FormFieldComponent, InfoDialogComponent, PageHeaderComponent],
+  imports: [DecimalPipe, ReactiveFormsModule, MatIconModule, RouterLink, EventDetailsFieldsComponent, InfoDialogComponent, PageHeaderComponent],
   templateUrl: './event-create-page.component.html'
 })
 export class EventCreatePageComponent {
@@ -29,7 +30,6 @@ export class EventCreatePageComponent {
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
 
-  readonly typeOptions = EVENT_TYPE_OPTIONS;
   readonly formatIsoDateShort = formatIsoDateShort;
   /** Primer día válido para el evento: no se programan eventos en el pasado. */
   readonly today = todayIsoDate();
@@ -41,13 +41,7 @@ export class EventCreatePageComponent {
   readonly overload = signal<OverloadErrorInfo | null>(null);
 
   readonly form = this.formBuilder.nonNullable.group({
-    name: '',
-    type: EVENT_TYPE_OPTIONS[0],
-    date: '',
-    time: '',
-    place: '',
-    contact: '',
-    deadline: '',
+    ...eventDetailsControls(this.formBuilder),
     /** Subtarea que se está redactando; pasa a `rows` con "Agregar". */
     draft: this.formBuilder.nonNullable.group({ name: '', targetDate: '', hours: 1 as number | null })
   });
@@ -61,16 +55,6 @@ export class EventCreatePageComponent {
 
   set rows(rows: DraftSubtask[]) {
     this.rowsSignal.set(rows);
-  }
-
-  /** La fecha límite parte de la fecha del evento, y nunca antes de hoy. */
-  deadlineMin(): string {
-    const date = this.form.controls.date.value;
-    return date > this.today ? date : this.today;
-  }
-
-  selectType(type: string): void {
-    this.form.controls.type.setValue(type);
   }
 
   /** Mueve la subtarea redactada a la lista; devuelve si se pudo agregar. */
@@ -105,28 +89,8 @@ export class EventCreatePageComponent {
     this.fieldErrors.set({});
     this.overload.set(null);
 
-    const { name, type, date, time, place, contact, deadline, draft } = this.form.getRawValue();
-    const errors: Record<string, string> = {};
-
-    if (!name.trim()) {
-      errors['nombre'] = 'No ingresaste el nombre del evento.';
-    }
-    if (!type.trim()) {
-      errors['tipo'] = 'No ingresaste el tipo de evento.';
-    }
-    if (!date) {
-      errors['fechaHora'] = 'No ingresaste la fecha del evento.';
-    } else if (date < this.today) {
-      errors['fechaHora'] = 'La fecha del evento no puede ser anterior a hoy.';
-    }
-    if (deadline && deadline < (date || this.today)) {
-      errors['plazoLimite'] = date
-        ? 'La fecha límite no puede ser anterior a la fecha del evento.'
-        : 'La fecha límite no puede ser anterior a hoy.';
-    }
-    if (!time) {
-      errors['hora'] = 'No ingresaste la hora del evento.';
-    }
+    const { draft, ...details } = this.form.getRawValue();
+    const errors = validateEventDetails(details, this.today);
 
     if (Object.keys(errors).length > 0) {
       this.fieldErrors.set(errors);
@@ -139,14 +103,7 @@ export class EventCreatePageComponent {
       return;
     }
 
-    const payload: EventPayload = {
-      name: name.trim(),
-      type: type.trim(),
-      contact: contact.trim(),
-      datetime: `${date}T${time}`,
-      place: place.trim(),
-      deadline
-    };
+    const payload = toEventPayload(details);
 
     const subtareas: SubtareaInicialRequestDto[] = this.rows
       .filter((row) => row.name.trim())

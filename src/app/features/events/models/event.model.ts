@@ -14,6 +14,8 @@ export interface EventEntity {
   contact: string;
   datetime: string;
   place: string;
+  /** Fecha límite (`yyyy-MM-dd`) si el evento la tiene. */
+  deadline?: string;
   progress: EventProgress;
 }
 

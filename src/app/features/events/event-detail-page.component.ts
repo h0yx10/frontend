@@ -170,6 +170,11 @@ export class EventDetailPageComponent {
     this.store.executeSubtask(subtask.id, { status: 'DONE' });
   }
 
+  /** Desmarcar una subtarea hecha la devuelve a pendiente. */
+  reopen(subtask: Subtask): void {
+    this.store.executeSubtask(subtask.id, { status: 'PENDING' });
+  }
+
   deleteSubtaskConfirmed(): void {
     const subtask = this.deleteSubtaskTarget();
     if (subtask) {
