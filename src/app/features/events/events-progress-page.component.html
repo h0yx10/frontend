@@ -47,7 +47,7 @@
             placeholder="Buscar evento"
             ariaLabel="Buscar evento por nombre"
             [value]="query()"
-            (search)="query.set($event)"
+            (queryChange)="query.set($event)"
           />
         </div>
       </div>

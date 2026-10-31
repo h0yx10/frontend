@@ -4,7 +4,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, filter, map } from 'rxjs';
 
-/** Caja de búsqueda con debounce. Emite el término normalizado (trim) en `search`. */
+/**
+ * Caja de búsqueda con debounce. Emite el término normalizado (trim) en `queryChange`.
+ * La salida no puede llamarse `search`: `<input type="search">` dispara un evento nativo `search`
+ * (al pulsar Enter o la X) que burbujea hasta el host, y Angular lo entregaría como si fuera el término.
+ */
 @Component({
   selector: 'app-search-box',
   standalone: true,
@@ -15,7 +19,7 @@ export class SearchBoxComponent {
   readonly placeholder = input('Buscar…');
   readonly ariaLabel = input('Buscar');
   readonly value = input('');
-  readonly search = output<string>();
+  readonly queryChange = output<string>();
 
   readonly control = new FormControl('', { nonNullable: true });
 
@@ -36,7 +40,7 @@ export class SearchBoxComponent {
         filter((term) => term !== this.value().trim()),
         takeUntilDestroyed()
       )
-      .subscribe((term) => this.search.emit(term));
+      .subscribe((term) => this.queryChange.emit(term));
   }
 
   clear(): void {

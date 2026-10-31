@@ -65,7 +65,7 @@
           placeholder="Buscar eventos, lugares o subtareas…"
           ariaLabel="Buscar eventos, lugares o subtareas"
           [value]="store.search().query"
-          (search)="store.setSearch({ query: $event })"
+          (queryChange)="store.setSearch({ query: $event })"
         />
       </div>
       <div class="relative sm:w-60">
