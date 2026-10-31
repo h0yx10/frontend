@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { Toast, ToastService } from '../../../core/feedback/toast.service';
 import { Subtask } from '../../events/models/subtask.model';
@@ -46,5 +46,15 @@ describe('TodayStore: marcar hecha y deshacer', () => {
 
     expect(subtasks.execute.calls.mostRecent().args).toEqual(['task',{status:'POSTPONED'}]);
     expect(toasts.toasts()[0].message).toBe('«Reservar salón» volvió a tu lista.');
+  });
+
+  it('si la acción falla avisa sin cambiar el tablero por la pantalla de error', () => {
+    subtasks.execute.and.returnValue(throwError(() => Object.assign(new Error('Supera tu capacidad diaria.'),{status:409})));
+    store.load();
+
+    store.executeSubtask(task.id, {status:'PENDING'}, 'DONE');
+
+    expect(store.error()).toBe('');
+    expect(toasts.toasts()[0]).toEqual(jasmine.objectContaining({message:'Supera tu capacidad diaria.',tone:'warning'}));
   });
 });

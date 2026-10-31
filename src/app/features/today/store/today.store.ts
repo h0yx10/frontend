@@ -108,7 +108,11 @@ export class TodayStore {
         }
         this.load();
       },
-      error: (error: AppHttpError) => this.error.set(error.message)
+      // `error` es el de la carga: usarlo aquí cambiaba todo el tablero por la pantalla de "Reintentar".
+      error: (error: AppHttpError) => {
+        this.toasts.show(error.message, 'warning');
+        this.load();
+      }
     });
   }
 }
